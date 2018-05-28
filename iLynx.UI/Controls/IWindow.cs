@@ -3,10 +3,8 @@ using System.Drawing;
 
 namespace iLynx.UI.Controls
 {
-    public interface IWindow
+    public interface IWindow : IControl
     {
         ICollection<IUIElement> Children { get; }
-
-        Color BackgroundColor { get; set; }
     }
 }

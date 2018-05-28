@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\iLynx.UI.OpenGL\iLynx.UI.OpenGL.csproj" />
     <ProjectReference Include="..\iLynx.UI\iLynx.UI.csproj" />
   </ItemGroup>
 
