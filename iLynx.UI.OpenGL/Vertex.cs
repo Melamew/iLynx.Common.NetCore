@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace iLynx.UI
+namespace iLynx.UI.OpenGL
 {
     /// <summary>
     /// The base structure for each and every vertex

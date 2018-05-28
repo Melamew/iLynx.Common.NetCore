@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace iLynx.UI
+namespace iLynx.UI.OpenGL
 {
     public interface IGeometry
     {

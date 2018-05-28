@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using iLynx.UI.Controls;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
-using static System.Math;
 
-namespace iLynx.UI.OpenGL.Controls
+namespace iLynx.UI.OpenGL
 {
     public class Window : GameWindow
     {

@@ -1,6 +1,6 @@
 ﻿using iLynx.UI.Controls;
 using System;
-using iLynx.UI.OpenGL.Controls;
+using iLynx.UI.OpenGL;
 
 namespace iLynx.UI.TestBench
 {
