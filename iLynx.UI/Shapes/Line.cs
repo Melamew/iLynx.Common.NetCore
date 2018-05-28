@@ -7,7 +7,7 @@ namespace iLynx.UI.Shapes
     {
         public float Width => 0;
         public float Height => 0;
-        public Vector2 Position { get; }
+        public Point Position { get; }
         public Color Background { get; }
         public Color Foreground { get; }
     }

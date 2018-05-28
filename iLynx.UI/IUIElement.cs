@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Numerics;
 
 namespace iLynx.UI
 {
@@ -8,7 +7,7 @@ namespace iLynx.UI
     {
         float Width { get; }
         float Height { get; }
-        Vector2 Position { get; }
+        Point Position { get; }
         Color Background { get; }
         Color Foreground { get; }
     }
