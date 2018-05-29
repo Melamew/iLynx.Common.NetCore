@@ -4,10 +4,10 @@ namespace iLynx.UI.Controls
 {
     public interface IControl : IUIElement
     {
-        float Width { get; }
-        float Height { get; }
-        Point Position { get; }
-        Color Background { get; }
-        Color Foreground { get; }
+        float Width { get; set; }
+        float Height { get; set; }
+        Point Position { get; set; }
+        Color Background { get; set; }
+        Color Foreground { get; set; }
     }
 }

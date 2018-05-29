@@ -4,6 +4,6 @@ namespace iLynx.UI.OpenGL.Shaders
 {
     public class FragmentShader : ShaderBase
     {
-        public FragmentShader(string source) : base(ShaderType.FragmentShader, source) { }
+        public FragmentShader(string shaderSource) : base(ShaderType.FragmentShader, shaderSource) { }
     }
 }

@@ -12,8 +12,4 @@
     <ProjectReference Include="..\iLynx.UI\iLynx.UI.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controls\" />
-  </ItemGroup>
-
 </Project>

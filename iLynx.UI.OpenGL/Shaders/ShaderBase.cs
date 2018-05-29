@@ -5,21 +5,17 @@ namespace iLynx.UI.OpenGL.Shaders
 {
     public abstract class ShaderBase : IShader
     {
-        private readonly ShaderType shaderType;
-        private readonly string source;
+        protected ShaderType ShaderType;
+        protected string ShaderSource;
 
-        protected ShaderBase(ShaderType shaderType, string source)
+        protected ShaderBase(ShaderType shaderType, string shaderSource)
         {
-            this.shaderType = shaderType;
-            this.source = source ?? throw new ArgumentNullException(nameof(source));
+            ShaderType = shaderType;
+            ShaderSource = shaderSource ?? throw new ArgumentNullException(nameof(shaderSource));
         }
 
-        public virtual int Compile()
-        {
-            var glShader = GL.CreateShader(shaderType);
-            GL.ShaderSource(glShader, source);
-            GL.CompileShader(glShader);
-            return glShader;
-        }
+        public string Source => ShaderSource;
+
+        public ShaderType Type => ShaderType;
     }
 }

@@ -4,6 +4,6 @@ namespace iLynx.UI.OpenGL.Shaders
 {
     public class VertexShader : ShaderBase
     {
-        public VertexShader(string source) : base(ShaderType.VertexShader, source) { }
+        public VertexShader(string shaderSource) : base(ShaderType.VertexShader, shaderSource) { }
     }
 }

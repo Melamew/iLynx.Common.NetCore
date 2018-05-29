@@ -3,5 +3,7 @@
     public interface IRenderable
     {
         IGeometry Geometry { get; }
+
+        
     }
 }
