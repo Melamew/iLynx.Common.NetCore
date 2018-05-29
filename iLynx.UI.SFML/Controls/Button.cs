@@ -2,25 +2,19 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using iLynx.UI.Controls;
 
-namespace iLynx.UI.Controls
+namespace iLynx.UI.SFML.Controls
 {
-    public abstract class ControlBase : IControl
+    public class Button : IButton
     {
         public uint Width { get; set; }
         public uint Height { get; set; }
         public Point Position { get; set; }
         public Color Background { get; set; }
         public Color Foreground { get; set; }
-    }
-
-    public abstract class ContentControlBase : ControlBase, IContentControl
-    {
         public IControl Content { get; set; }
-    }
-
-    public abstract class Button : ContentControlBase
-    {
-        
+        public event EventHandler<MouseButtonEventArgs> Clicked;
+        public event EventHandler<MouseEventArgs> MouseOver;
     }
 }

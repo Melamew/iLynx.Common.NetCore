@@ -5,6 +5,8 @@ namespace iLynx.UI
     // ReSharper disable once InconsistentNaming
     public interface IUIElement
     {
-        // TODO: Figure out what a UIElement really is
+        uint Width { get; set; }
+        uint Height { get; set; }
+        Point Position { get; set; }
     }
 }

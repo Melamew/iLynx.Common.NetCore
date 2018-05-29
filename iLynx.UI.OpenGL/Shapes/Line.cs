@@ -1,7 +1,7 @@
 ﻿namespace iLynx.UI.OpenGL.Shapes
 {
-    public class Line : IShape
-    {
+    //public class Line : IShape
+    //{
         
-    }
+    //}
 }

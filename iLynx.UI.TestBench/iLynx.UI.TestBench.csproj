@@ -18,9 +18,6 @@
     <None Update="csfml-graphics-2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="csfml-network-2.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="csfml-system-2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -7,3 +7,7 @@ packages/
 *.user
 *.log
 *.DotSettings
+!csfml-audio-2.dll
+!csfml-graphics-2.dll
+!csfml-system-2.dll
+!csfml-window-2.dll

@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Drawing;
 using iLynx.UI.Controls;
 using SFML.Graphics;
 using SFML.Window;
+using SFML.System;
 
 namespace iLynx.UI.Sfml
 {
@@ -35,7 +35,6 @@ namespace iLynx.UI.Sfml
 
         }
 
-
         protected override bool PollEvent(out Event eventToFill)
         {
             var result = base.PollEvent(out eventToFill);
@@ -51,6 +50,14 @@ namespace iLynx.UI.Sfml
                 DispatchEvents();
                 Display();
             }
+        }
+
+        public uint Width { get; set; }
+        public uint Height { get; set; }
+        public new Point Position
+        {
+            get => new Point(base.Position.X, base.Position.Y);
+            set => base.Position = new Vector2i(value.X, value.Y);
         }
     }
 }
