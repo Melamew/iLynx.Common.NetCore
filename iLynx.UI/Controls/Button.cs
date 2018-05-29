@@ -7,8 +7,8 @@ namespace iLynx.UI.Controls
 {
     public abstract class ControlBase : IControl
     {
-        public float Width { get; set; }
-        public float Height { get; set; }
+        public uint Width { get; set; }
+        public uint Height { get; set; }
         public Point Position { get; set; }
         public Color Background { get; set; }
         public Color Foreground { get; set; }
