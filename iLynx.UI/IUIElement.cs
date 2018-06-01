@@ -9,4 +9,11 @@ namespace iLynx.UI
         uint Height { get; set; }
         Point Position { get; set; }
     }
+
+    public interface IVertex<TVector, TColor>
+    {
+        TVector Position { get; set; }
+        TVector TextureCoordinates { get; set; }
+        TColor VertexColor { get; set; }
+    }
 }

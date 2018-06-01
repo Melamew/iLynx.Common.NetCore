@@ -1,6 +1,6 @@
 ﻿namespace iLynx.UI.OpenGL.Shapes
 {
-    public interface IShape : IUIElement
+    public interface IShape// : IUIElement
     {
     }
 }

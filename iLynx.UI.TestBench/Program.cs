@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using iLynx.Common;
+using SFML.Graphics;
 using Window = iLynx.UI.Sfml.Window;
 
 namespace iLynx.UI.TestBench
@@ -62,7 +63,6 @@ namespace iLynx.UI.TestBench
             //Console.WriteLine($"B: {bar.B}");
             var window = new Window(1280, 720, "Test");
             window.Show();
-
             //window.Closed += (s, e) => { window.Close(); };
             //while (window.IsOpen)
             //{

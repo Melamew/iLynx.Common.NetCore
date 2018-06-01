@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Drawing;
-using iLynx.UI.Controls;
 using SFML.Graphics;
 using SFML.Window;
-using SFML.System;
 
 namespace iLynx.UI.Sfml
 {
-    public class Window : RenderWindow, IWindow
+    public class Window : RenderWindow
     {
         internal Window(VideoMode mode, string title) : base(mode, title)
         {
@@ -45,19 +42,18 @@ namespace iLynx.UI.Sfml
 
         public void Show()
         {
+            var image = new Image(new[,]
+            {
+                {Color.Black, Color.White},
+                {Color.White, Color.Black}
+            });
+            var texture = new Texture(image);
             while (IsOpen)
             {
                 DispatchEvents();
+                //RenderStates
                 Display();
             }
-        }
-
-        public uint Width { get; set; }
-        public uint Height { get; set; }
-        public new Point Position
-        {
-            get => new Point(base.Position.X, base.Position.Y);
-            set => base.Position = new Vector2i(value.X, value.Y);
         }
     }
 }

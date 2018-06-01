@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\iLynx.UI\iLynx.UI.csproj" />
+    <ProjectReference Include="..\iLynx.Common\iLynx.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
