@@ -30,19 +30,17 @@ namespace iLynx.UI.SFML.Controls
         {
             GenerateVertices(v1, v2);
             PrimitiveType = PrimitiveType.TriangleStrip;
-            //Shader = Shader.
         }
 
-        private void GenerateVertices(Vertex v1, Vertex v3)
+        private void GenerateVertices(Vertex v1, Vertex v4)
         {
-            var v2 = new Vertex(new Vector2f(v3.Position.X, v1.Position.Y), v1.Color);
-            var v4 = new Vertex(new Vector2f(v1.Position.X, v3.Position.Y), v3.Color);
+            var v2 = new Vertex(new Vector2f(v4.Position.X, v1.Position.Y), v1.Color);
+            var v3 = new Vertex(new Vector2f(v1.Position.X, v4.Position.Y), v4.Color);
             AddVertex(
                 v1,
                 v2,
                 v3,
-                v4,
-                v1
+                v4
                 );
         }
     }
