@@ -1,72 +1,22 @@
 ﻿using System;
+using SFML.Graphics;
+using SFML.System;
+using SFML.Window;
 
 namespace iLynx.UI.SFML
 {
-    public enum MouseButton
-    {
-        Left,
-        Right,
-        Middle,
-        XButton1,
-        XButton2
-    }
     // ReSharper disable once InconsistentNaming
-    public interface IUIElement
+    public interface IUIElement : Drawable
     {
-        ///// <summary>
-        ///// Gets or Sets the parent of this element
-        ///// </summary>
-        //IUIElement Parent { get; set; }
-
-        ///// <summary>
-        ///// Raised when the mouse is moved inside the bounding box / hitbox of this element
-        ///// </summary>
-        //event EventHandler<MouseEventArgs> MouseMove;
-
-        ///// <summary>
-        ///// Raised when a mouse button is pressed inside this element
-        ///// </summary>
-        //event EventHandler<MouseButtonEventArgs> MouseDown;
-
-        ///// <summary>
-        ///// Raised when this element is clicked
-        ///// </summary>
-        //event EventHandler<MouseButtonEventArgs> MouseClick;
-
-        ///// <summary>
-        ///// Raised when a mouse button is released inside this element
-        ///// </summary>
-        //event EventHandler<MouseButtonEventArgs> MouseUp;
-    }
-
-    public class MouseEventArgs : EventArgs
-    {
-        public MouseEventArgs(int x, int y)
-        {
-            X = x;
-            Y = y;
-        }
-
         /// <summary>
-        /// The global X coordinate of the mouse
+        /// Gets a <see cref="IntRect"/> that defines the "bounding box" of this element (The rectangle that bounds the pixels that this element displays).
         /// </summary>
-        public int X { get; }
-
-        /// <summary>
-        /// The global Y coordinate of the mouse
-        /// </summary>
-        public int Y { get; }
+        IntRect BoundingBox { get; }
     }
 
-    public class MouseButtonEventArgs : MouseEventArgs
+    public interface IControl : IUIElement
     {
-        public MouseButtonEventArgs(MouseButton button, int x, int y) : base(x, y)
-        {
-            Button = button;
-        }
+        event EventHandler<MouseButtonEventArgs> Clicked;
 
-        public MouseButton Button { get; }
     }
-
-
 }

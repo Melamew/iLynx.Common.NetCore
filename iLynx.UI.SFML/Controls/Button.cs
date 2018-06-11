@@ -1,4 +1,5 @@
 ﻿using System;
+using static System.MathF;
 using SFML.Graphics;
 using SFML.System;
 
@@ -6,15 +7,96 @@ namespace iLynx.UI.SFML.Controls
 {
     public class Button : SfmlControlBase// : IButton
     {
-        private Geometry geometry = new RectangleGeometry(new Vector2f(480f, 480f), new Vector2f(720f, 240f), Color.Green);
-        public uint Width { get; set; }
-        public uint Height { get; set; }
-        public Color Background { get; set; }
+        private float width;
+        private float height;
+        private Color background;
+        private volatile bool isDirty = true;
+        private Geometry geometry;
+        private Vector2f position;
+
+        /// <summary>
+        /// Gets or sets the width of this control
+        /// </summary>
+        public float Width
+        {
+            get => width;
+            set
+            {
+                if (Abs(width - value) <= float.Epsilon) return;
+                var old = width;
+                width = value;
+                isDirty = true;
+                OnPropertyChanged(old, value);
+            }
+        }
+
+        /// <summary>
+        /// Called whenever a parameter / property that (should) affect the geometry is changed (eg. <see cref="Height"/> or <see cref="Width"/>).
+        /// </summary>
+        /// <returns>The new geometry to use</returns>
+        protected virtual Geometry GenerateGeometry()
+        {
+            var pos = Position;
+            float w = width, h = height;
+            var bg = Background;
+            return new RectangleGeometry(pos, pos + new Vector2f(w, h), bg);
+        }
+
+        /// <summary>
+        /// Gets or sets the height of this control
+        /// </summary>
+        public float Height
+        {
+            get => height;
+            set
+            {
+                if (Abs(height - value) <= float.Epsilon) return;
+                var old = height;
+                height = value;
+                isDirty = true;
+                OnPropertyChanged(old, value);
+            }
+        }
+
+        public Color Background
+        {
+            get => background;
+            set
+            {
+                if (value == background) return;
+                var old = background;
+                background = value;
+                isDirty = true;
+                OnPropertyChanged(old, value);
+            }
+        }
+
         public Color Foreground { get; set; }
 
-        protected override Geometry GetGeometry()
+        public Vector2f Position
         {
-            return geometry;
+            get => position;
+            set
+            {
+                if (value == position) return;
+                var old = position;
+                position = value;
+                isDirty = true;
+                OnPropertyChanged(old, value);
+            }
+        }
+
+        protected override Geometry Geometry
+        {
+            get
+            {
+                if (!isDirty) return geometry;
+                try
+                {
+                    return geometry = GenerateGeometry();
+                }
+                finally { isDirty = false; }
+            }
         }
     }
 

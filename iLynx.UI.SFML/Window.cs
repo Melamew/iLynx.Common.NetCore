@@ -1,28 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using iLynx.UI.SFML;
+using iLynx.UI.SFML.Controls;
 using SFML.Graphics;
 using SFML.Window;
 
 namespace iLynx.UI.Sfml
 {
-    public class Window : RenderWindow, IUIElement
+    public class Window : RenderWindow
     {
         private delegate void EventMapper(Window source, Event e);
 
+        private int renderedChildren = 0;
         private static readonly Dictionary<EventType, EventMapper> EventMap = new Dictionary<EventType, EventMapper>
         {
-            { EventType.MouseMoved, (w, e) =>
-            {
-                //Console.WriteLine($"Mouse Moved to: {e.MouseMove.X},{e.MouseMove.Y}");
-            } },
+            //{ EventType.MouseMoved, (w, e) =>
+            //{
+                
+            //    //Console.WriteLine($"Mouse Moved to: {e.MouseMove.X},{e.MouseMove.Y}");
+            //} },
             { EventType.Closed, (w, e) => w.Close() }
         };
 
-        private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private readonly List<Drawable> children = new List<Drawable>();
+        private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+        private readonly List<IUIElement> children = new List<IUIElement>();
 
         internal Window(VideoMode mode, string title)
             : base(mode, title)
@@ -66,13 +70,14 @@ namespace iLynx.UI.Sfml
             return result;
         }
 
-        public IEnumerable<Drawable> Children => children;
+        public IEnumerable<IUIElement> Children => children;
 
         public void Show()
         {
             while (IsOpen)
             {
                 DispatchEvents();
+                Clear();
                 RenderChildren();
                 Display();
             }
@@ -81,19 +86,36 @@ namespace iLynx.UI.Sfml
         private void RenderChildren()
         {
             rwl.EnterReadLock();
-            foreach (var child in children)
+            var viewPort = GetViewport(DefaultView);
+            var rendered = 0;
+            foreach (var child in children.Where(c => viewPort.Intersects(c.BoundingBox))) // Simple screenspace culling
+            {
                 Draw(child);
+                ++rendered;
+            }
             rwl.ExitReadLock();
+            var renderedDelta = rendered - renderedChildren;
+            renderedChildren = rendered;
+            if (0 != renderedDelta)
+                Console.WriteLine($"{(0 < renderedDelta ? "+" : "")}{renderedDelta} items to render, total: {rendered}");
         }
 
-        public void AddChild(Drawable element)
+        public void AddChild(IUIElement element)
         {
             rwl.EnterWriteLock();
             children.Add(element);
             rwl.ExitWriteLock();
         }
 
+        public void AddChildren(params IUIElement[] elements)
+        {
+            if (null == elements) throw new ArgumentNullException(nameof(elements));
+            rwl.EnterWriteLock();
+            children.AddRange(elements);
+            rwl.ExitWriteLock();
+        }
+
         public IUIElement Parent { get; set; }
-        public event EventHandler<MouseEventArgs> MouseMove;
+        //public event EventHandler<MouseEventArgs> MouseMove;
     }
 }

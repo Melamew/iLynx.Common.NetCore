@@ -1,8 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using static System.MathF;
 using System.Collections.Generic;
+using System.Linq;
 using iLynx.Common;
 using SFML.Graphics;
 using SFML.System;
+using SFML.Window;
 
 namespace iLynx.UI.SFML.Controls
 {
@@ -17,7 +20,7 @@ namespace iLynx.UI.SFML.Controls
 
         public Texture Texture { get; protected set; }
 
-        public Transform Transform { get; protected set; }
+        public Transform Transform { get; protected set; } = Transform.Identity;
 
         protected virtual void AddVertex(float x, float y)
         {
@@ -30,13 +33,19 @@ namespace iLynx.UI.SFML.Controls
         }
     }
 
-    public abstract class SfmlControlBase : BindingSource, Drawable
+    // ReSharper disable once InconsistentNaming
+    public abstract class UIElement : BindingSource, Drawable
+    {
+        public abstract void Draw(RenderTarget target, RenderStates states);
+    }
+
+    public abstract class SfmlControlBase : UIElement, IControl
     {
         public static Transform GlobalTransform { get; private set; }
 
         static SfmlControlBase()
         {
-            GlobalTransform = Transform.Identity;
+            GlobalTransform = Transform.Identity; // 3x3 identity matrix
         }
 
         public static void CombineGlobalTransform(Transform transform)
@@ -51,14 +60,40 @@ namespace iLynx.UI.SFML.Controls
             GlobalTransform = transform;
         }
 
-        public void Draw(RenderTarget target, RenderStates states)
+        public override void Draw(RenderTarget target, RenderStates states)
         {
-            var geometry = GetGeometry();
+            var geometry = Geometry;
+            if (null == geometry) return;
             states.Shader = geometry.Shader ?? states.Shader;
-            states.Transform.Combine(geometry.Transform);
+            var transform = states.Transform;
+            transform.Combine(geometry.Transform);
+            //states.Transform.Combine(geometry.Transform);
             target.Draw(geometry.Vertices, geometry.PrimitiveType);
         }
 
-        protected abstract Geometry GetGeometry();
+        protected abstract Geometry Geometry { get; }
+
+
+        //TODO: Optimize later
+        public IntRect BoundingBox
+        {
+            get
+            {
+                var geometry = Geometry;
+                var transform = GlobalTransform;
+                transform.Combine(Geometry.Transform);
+                float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
+                foreach (var vector in geometry.Vertices.Select(x => transform.TransformPoint(x.Position)))
+                {
+                    minX = Min(vector.X, minX);
+                    minY = Min(vector.Y, minY);
+                    maxX = Max(vector.X, maxX);
+                    maxY = Max(vector.Y, maxY);
+                }
+                return new IntRect((int)Round(minX), (int)Round(minY), (int)Round(maxX - minX), (int)Round(maxY - minY));
+            }
+        }
+
+        public event EventHandler<MouseButtonEventArgs> Clicked;
     }
 }
