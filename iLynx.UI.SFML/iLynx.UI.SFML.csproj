@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Controls\UIElement.cs~RF5285d1f6.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="SFML.Graphics.NetCore" Version="1.0.0" />
     <PackageReference Include="SFML.System.NetCore" Version="1.0.0" />
     <PackageReference Include="SFML.Window.NetCore" Version="1.0.0" />
@@ -15,6 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="fonts\Mechanical.otf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="lib\win64\csfml-audio-2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

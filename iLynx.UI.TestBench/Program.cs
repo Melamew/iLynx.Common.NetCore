@@ -63,7 +63,7 @@ namespace iLynx.UI.TestBench
             {
                 window = new Window(1280, 720, "Test", Styles.None)
                 {
-                    Background = Color.Transparent
+                    Background = new Color(32, 32, 32, 128)
                 };
                 window.Show();
             });
@@ -102,7 +102,16 @@ namespace iLynx.UI.TestBench
                 Background = Color.Magenta,
                 Position = new Vector2f(centreButton.Position.X + dimensions.X * 2, centreButton.Position.Y)
             };
-            window.AddChildren(centreButton, topButton, leftButton, bottomButton, rightButton);
+            var stackPanel = new VerticalStackLayout();
+            //stackPanel.AddChild(new Label("Label 1"), new Label("Label 2"));
+            //stackPanel.Position = new Vector2f(240f, 0f);
+            //stackPanel.Dimensions = new Vector2f(240f, 240f);
+            window.AddChildren(stackPanel,
+                centreButton,
+                topButton,
+                leftButton,
+                bottomButton,
+                rightButton);
             window.MouseMoved += (sender, e) =>
             {
                 centreButton.Position = new Vector2f(e.X - dimensions.X / 2, e.Y - dimensions.Y / 2);

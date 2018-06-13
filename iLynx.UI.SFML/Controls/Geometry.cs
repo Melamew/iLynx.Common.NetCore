@@ -11,15 +11,19 @@ namespace iLynx.UI.SFML.Controls
 
         public PrimitiveType PrimitiveType { get; protected set; }
 
-        public Shader Shader { get; protected set; }
-
-        public Texture Texture { get; protected set; }
-
-        public Transform Transform { get; protected set; } = Transform.Identity;
-
-        protected virtual void AddVertex(float x, float y)
+        protected virtual void AddVertex(Vector2f position, Color color)
         {
-            AddVertex(new Vertex(new Vector2f(x, y)));
+            AddVertex(new Vertex(position, color));
+        }
+
+        protected virtual void DeleteVertex(int index)
+        {
+            vertices.RemoveAt(index);
+        }
+
+        protected virtual void ClearVertices()
+        {
+            vertices.Clear();
         }
 
         protected virtual void AddVertex(params Vertex[] v)

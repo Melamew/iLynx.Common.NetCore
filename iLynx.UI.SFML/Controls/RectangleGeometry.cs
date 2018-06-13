@@ -1,32 +1,67 @@
-﻿using SFML.Graphics;
+﻿using System;
+using SFML.Graphics;
 using SFML.System;
 
 namespace iLynx.UI.SFML.Controls
 {
     public class RectangleGeometry : Geometry
     {
-        public RectangleGeometry(Vector2f p1, Vector2f p2, Color color = default(Color))
-            : this(new Vertex(p1, color), new Vertex(p2, color)) { }
+        private float width, height;
+        private Color color;
 
-        public RectangleGeometry(float x1, float y1, float x2, float y2, Color color = default(Color))
-            : this(new Vertex(new Vector2f(x1, y1), color), new Vertex(new Vector2f(x2, y2), color)) { }
-
-        public RectangleGeometry(Vertex v1, Vertex v2)
+        public Color Color
         {
-            GenerateVertices(v1, v2);
+            get => color;
+            set
+            {
+                if (value == color) return;
+                color = value;
+                GenerateVertices();
+            }
+        }
+
+        public float Width
+        {
+            get => width;
+            set
+            {
+                if (MathF.Abs(value - width) <= float.Epsilon) return;
+                width = value;
+                GenerateVertices();
+            }
+        }
+
+        public float Height
+        {
+            get => height;
+            set
+            {
+                if (MathF.Abs(value - height) <= float.Epsilon) return;
+                height = value;
+                GenerateVertices();
+            }
+        }
+
+        private void GenerateVertices()
+        {
+            float w = width, h = height;
+            ClearVertices();
+            AddVertex(new Vector2f(0f, 0f), color);
+            AddVertex(new Vector2f(0f, h), color);
+            AddVertex(new Vector2f(w, 0f), color);
+            AddVertex(new Vector2f(w, h), color);
+        }
+
+        public RectangleGeometry(float width, float height, Color color)
+        {
+            this.width = width;
+            this.height = height;
+            this.color = color;
             PrimitiveType = PrimitiveType.TriangleStrip;
+            GenerateVertices();
         }
 
-        private void GenerateVertices(Vertex v1, Vertex v4)
-        {
-            var v2 = new Vertex(new Vector2f(v4.Position.X, v1.Position.Y), v1.Color);
-            var v3 = new Vertex(new Vector2f(v1.Position.X, v4.Position.Y), v4.Color);
-            AddVertex(
-                v1,
-                v2,
-                v3,
-                v4
-            );
-        }
+        public RectangleGeometry(Vector2f dimensions, Color color)
+            : this(dimensions.X, dimensions.Y, color) { }
     }
 }

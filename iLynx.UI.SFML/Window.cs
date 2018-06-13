@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -47,12 +48,10 @@ namespace iLynx.UI.Sfml
 
         public void Show()
         {
-            //SetupAlpha();
-            var color = new Color(96, 96, 96, 128);
             while (IsOpen)
             {
                 DispatchEvents();
-                Clear(color);
+                Clear(background);
                 RenderChildren();
                 Display();
             }
@@ -89,17 +88,38 @@ namespace iLynx.UI.Sfml
 
         public void AddChild(IUIElement element)
         {
-            rwl.EnterWriteLock();
-            children.Add(element);
-            rwl.ExitWriteLock();
+            AddChildren(element);
+            //rwl.EnterWriteLock();
+            //children.Add(element);
+            //element.LayoutPropertyChanged += OnLayoutChanged;
+            //rwl.ExitWriteLock();
+        }
+
+        private void OnLayoutChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Layout();
+        }
+
+        private void Layout()
+        {
+            var clientRect = new FloatRect(0f, 0f, Size.X, Size.Y);
+            rwl.EnterReadLock();
+            foreach (var child in children)
+                child.Layout(clientRect);
+            rwl.ExitReadLock();
         }
 
         public void AddChildren(params IUIElement[] elements)
         {
             if (null == elements) throw new ArgumentNullException(nameof(elements));
             rwl.EnterWriteLock();
-            children.AddRange(elements);
+            children.AddRange(elements.Select(x =>
+            {
+                x.LayoutPropertyChanged += OnLayoutChanged;
+                return x;
+            }));
             rwl.ExitWriteLock();
+            Layout();
         }
 
         public IUIElement Parent { get; set; }

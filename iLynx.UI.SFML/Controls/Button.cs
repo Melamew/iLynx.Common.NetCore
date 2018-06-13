@@ -3,42 +3,23 @@ using SFML.System;
 
 namespace iLynx.UI.SFML.Controls
 {
-    public class Button : SfmlControlBase// : IButton
+    public class Button : SfmlControlBase
     {
-        //private float width;
-        //private float height;
         private Vector2f dimensions;
         private Color background;
-        private volatile bool isDirty = true;
-        private Geometry geometry;
         private Vector2f position;
-
-        ///// <summary>
-        ///// Gets or sets the width of this control
-        ///// </summary>
-        //public float Width
-        //{
-        //    get => width;
-        //    set
-        //    {
-        //        if (Abs(width - value) <= float.Epsilon) return;
-        //        var old = width;
-        //        width = value;
-        //        isDirty = true;
-        //        OnPropertyChanged(old, value);
-        //    }
-        //}
+        private IUIElement content;
+        private Geometry geometry;
 
         /// <summary>
         /// Called whenever a parameter / property that (should) affect the geometry is changed (eg. <see cref="Dimensions"/> or <see cref="Position"/>).
         /// </summary>
         /// <returns>The new geometry to use</returns>
-        protected virtual Geometry GenerateGeometry()
+        protected override void PrepareRender()
         {
-            var pos = Position;
             var dims = dimensions;
             var bg = Background;
-            return new RectangleGeometry(pos, pos + dims, bg);
+            geometry = new RectangleGeometry(dims, bg);
         }
 
         /// <summary>
@@ -52,8 +33,8 @@ namespace iLynx.UI.SFML.Controls
                 if (value == dimensions) return;
                 var old = dimensions;
                 dimensions = value;
-                isDirty = true;
                 OnPropertyChanged(old, value);
+                OnLayoutPropertyChanged();
             }
         }
 
@@ -65,12 +46,10 @@ namespace iLynx.UI.SFML.Controls
                 if (value == background) return;
                 var old = background;
                 background = value;
-                isDirty = true;
                 OnPropertyChanged(old, value);
+                OnLayoutPropertyChanged();
             }
         }
-
-        public Color Foreground { get; set; }
 
         public Vector2f Position
         {
@@ -80,21 +59,47 @@ namespace iLynx.UI.SFML.Controls
                 if (value == position) return;
                 var old = position;
                 position = value;
-                isDirty = true;
                 OnPropertyChanged(old, value);
+                OnLayoutPropertyChanged();
             }
         }
 
-        protected override Geometry Geometry
+        protected override Transform ComputeRenderTransform(FloatRect destinationRect)
         {
-            get
+            var transform = Transform.Identity;
+            transform.Translate(position);
+            return transform;
+        }
+
+        protected override void DrawTransformed(RenderTarget target, RenderStates states)
+        {
+            if (null == geometry) return;
+            target.Draw(geometry.Vertices, geometry.PrimitiveType, states);
+            content?.Draw(target, states);
+        }
+
+        //public override void Draw(RenderTarget target, RenderStates states)
+        //{
+        //    base.Draw(target, states);
+
+        //    var previousTransform = states.Transform;
+        //    var newTransform = previousTransform;
+        //    newTransform.Translate(position);
+        //    states.Transform = newTransform;
+        //    content?.Draw(target, states);
+        //    states.Transform = previousTransform;
+        //}
+
+        public IUIElement Content
+        {
+            get => content;
+            set
             {
-                if (!isDirty) return geometry;
-                try
-                {
-                    return geometry = GenerateGeometry();
-                }
-                finally { isDirty = false; }
+                if (value == content) return;
+                var old = content;
+                content = value;
+                OnPropertyChanged(old, value);
+                OnLayoutPropertyChanged();
             }
         }
     }

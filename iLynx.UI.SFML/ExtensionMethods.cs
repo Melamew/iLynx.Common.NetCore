@@ -1,5 +1,6 @@
 ﻿using System;
 using SFML.Graphics;
+using SFML.System;
 
 namespace iLynx.UI.Sfml
 {
@@ -81,6 +82,16 @@ namespace iLynx.UI.Sfml
         public static bool Intersects(this FloatRect src, IntRect rect)
         {
             return src.Intersects(rect, out _);
+        }
+
+        public static Vector2f Dimensions(this FloatRect src)
+        {
+            return new Vector2f(src.Width, src.Height);
+        }
+
+        public static FloatRect Translate(this FloatRect rect, Vector2f distance)
+        {
+            return new FloatRect(rect.Left + distance.X, rect.Top + distance.Y, rect.Width, rect.Height);
         }
     }
 }
