@@ -1,43 +1,12 @@
 ﻿using System;
 using static System.MathF;
-using System.Collections.Generic;
 using System.Linq;
-using iLynx.Common;
 using SFML.Graphics;
-using SFML.System;
 using SFML.Window;
 
 namespace iLynx.UI.SFML.Controls
 {
-    public abstract class Geometry
-    {
-        private readonly List<Vertex> vertices = new List<Vertex>();
-        public Vertex[] Vertices => vertices.ToArray();
-
-        public PrimitiveType PrimitiveType { get; protected set; }
-
-        public Shader Shader { get; protected set; }
-
-        public Texture Texture { get; protected set; }
-
-        public Transform Transform { get; protected set; } = Transform.Identity;
-
-        protected virtual void AddVertex(float x, float y)
-        {
-            AddVertex(new Vertex(new Vector2f(x, y)));
-        }
-
-        protected virtual void AddVertex(params Vertex[] v)
-        {
-            vertices.AddRange(v);
-        }
-    }
-
     // ReSharper disable once InconsistentNaming
-    public abstract class UIElement : BindingSource, Drawable
-    {
-        public abstract void Draw(RenderTarget target, RenderStates states);
-    }
 
     public abstract class SfmlControlBase : UIElement, IControl
     {
@@ -75,7 +44,7 @@ namespace iLynx.UI.SFML.Controls
 
 
         //TODO: Optimize later
-        public IntRect BoundingBox
+        public FloatRect BoundingBox
         {
             get
             {
@@ -90,7 +59,7 @@ namespace iLynx.UI.SFML.Controls
                     maxX = Max(vector.X, maxX);
                     maxY = Max(vector.Y, maxY);
                 }
-                return new IntRect((int)Round(minX), (int)Round(minY), (int)Round(maxX - minX), (int)Round(maxY - minY));
+                return new FloatRect(minX, minY, maxX - minX, maxY - minY);
             }
         }
 
