@@ -1,58 +1,57 @@
-﻿using System;
-using static System.MathF;
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.System;
 
 namespace iLynx.UI.SFML.Controls
 {
     public class Button : SfmlControlBase// : IButton
     {
-        private float width;
-        private float height;
+        //private float width;
+        //private float height;
+        private Vector2f dimensions;
         private Color background;
         private volatile bool isDirty = true;
         private Geometry geometry;
         private Vector2f position;
 
-        /// <summary>
-        /// Gets or sets the width of this control
-        /// </summary>
-        public float Width
-        {
-            get => width;
-            set
-            {
-                if (Abs(width - value) <= float.Epsilon) return;
-                var old = width;
-                width = value;
-                isDirty = true;
-                OnPropertyChanged(old, value);
-            }
-        }
+        ///// <summary>
+        ///// Gets or sets the width of this control
+        ///// </summary>
+        //public float Width
+        //{
+        //    get => width;
+        //    set
+        //    {
+        //        if (Abs(width - value) <= float.Epsilon) return;
+        //        var old = width;
+        //        width = value;
+        //        isDirty = true;
+        //        OnPropertyChanged(old, value);
+        //    }
+        //}
 
         /// <summary>
-        /// Called whenever a parameter / property that (should) affect the geometry is changed (eg. <see cref="Height"/> or <see cref="Width"/>).
+        /// Called whenever a parameter / property that (should) affect the geometry is changed (eg. <see cref="Dimensions"/> or <see cref="Position"/>).
         /// </summary>
         /// <returns>The new geometry to use</returns>
         protected virtual Geometry GenerateGeometry()
         {
             var pos = Position;
-            float w = width, h = height;
+            var dims = dimensions;
             var bg = Background;
-            return new RectangleGeometry(pos, pos + new Vector2f(w, h), bg);
+            return new RectangleGeometry(pos, pos + dims, bg);
         }
 
         /// <summary>
         /// Gets or sets the height of this control
         /// </summary>
-        public float Height
+        public Vector2f Dimensions
         {
-            get => height;
+            get => dimensions;
             set
             {
-                if (Abs(height - value) <= float.Epsilon) return;
-                var old = height;
-                height = value;
+                if (value == dimensions) return;
+                var old = dimensions;
+                dimensions = value;
                 isDirty = true;
                 OnPropertyChanged(old, value);
             }

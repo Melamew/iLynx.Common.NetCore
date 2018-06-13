@@ -9,6 +9,7 @@ using iLynx.Common;
 using iLynx.UI.SFML.Controls;
 using SFML.Graphics;
 using SFML.System;
+using SFML.Window;
 using Window = iLynx.UI.Sfml.Window;
 
 namespace iLynx.UI.TestBench
@@ -60,56 +61,55 @@ namespace iLynx.UI.TestBench
         {
             var t = new Thread(() =>
             {
-                window = new Window(1280, 720, "Test");
+                window = new Window(1280, 720, "Test", Styles.None)
+                {
+                    Background = Color.Transparent
+                };
                 window.Show();
             });
             t.Start();
             while (null == window) Thread.CurrentThread.Join(250);
-            var dimensions = 64;
+            var dimensions = new Vector2f(64, 64);
             var clientRect = window.GetViewport(window.DefaultView);
+            var viewportDimensions = new Vector2f(clientRect.Width, clientRect.Height);
             var centreButton = new Button
             {
-                Height = dimensions,
-                Width = dimensions,
+                Dimensions = dimensions,
                 Background = Color.Red,
-                Position = new Vector2f(clientRect.Width / 2 - dimensions / 2, clientRect.Height / 2 - dimensions / 2)
+                Position = viewportDimensions / 2 - dimensions / 2
             };
             var topButton = new Button
             {
-                Height = dimensions,
-                Width = dimensions,
+                Dimensions = dimensions,
                 Background = Color.Green,
-                Position = new Vector2f(centreButton.Position.X, centreButton.Position.Y - dimensions * 2)
+                Position = new Vector2f(centreButton.Position.X, centreButton.Position.Y - dimensions.Y * 2)
             };
             var leftButton = new Button
             {
-                Height = dimensions,
-                Width = dimensions,
+                Dimensions = dimensions,
                 Background = Color.Blue,
-                Position = new Vector2f(centreButton.Position.X - dimensions * 2, centreButton.Position.Y)
+                Position = new Vector2f(centreButton.Position.X - dimensions.X * 2, centreButton.Position.Y)
             };
             var bottomButton = new Button
             {
-                Height = dimensions,
-                Width = dimensions,
+                Dimensions = dimensions,
                 Background = Color.Cyan,
-                Position = new Vector2f(centreButton.Position.X, centreButton.Position.Y + dimensions * 2)
+                Position = new Vector2f(centreButton.Position.X, centreButton.Position.Y + dimensions.Y * 2)
             };
             var rightButton = new Button
             {
-                Height = dimensions,
-                Width = dimensions,
+                Dimensions = dimensions,
                 Background = Color.Magenta,
-                Position = new Vector2f(centreButton.Position.X + dimensions * 2, centreButton.Position.Y)
+                Position = new Vector2f(centreButton.Position.X + dimensions.X * 2, centreButton.Position.Y)
             };
             window.AddChildren(centreButton, topButton, leftButton, bottomButton, rightButton);
             window.MouseMoved += (sender, e) =>
             {
-                centreButton.Position = new Vector2f(e.X - dimensions / 2, e.Y - dimensions / 2);
-                topButton.Position = new Vector2f(centreButton.Position.X, centreButton.Position.Y - dimensions * 2);
-                leftButton.Position = new Vector2f(centreButton.Position.X - dimensions * 2, centreButton.Position.Y);
-                bottomButton.Position = new Vector2f(centreButton.Position.X, centreButton.Position.Y + dimensions * 2);
-                rightButton.Position = new Vector2f(centreButton.Position.X + dimensions * 2, centreButton.Position.Y);
+                centreButton.Position = new Vector2f(e.X - dimensions.X / 2, e.Y - dimensions.Y / 2);
+                topButton.Position = new Vector2f(centreButton.Position.X, centreButton.Position.Y - dimensions.Y * 2);
+                leftButton.Position = new Vector2f(centreButton.Position.X - dimensions.X * 2, centreButton.Position.Y);
+                bottomButton.Position = new Vector2f(centreButton.Position.X, centreButton.Position.Y + dimensions.Y * 2);
+                rightButton.Position = new Vector2f(centreButton.Position.X + dimensions.X * 2, centreButton.Position.Y);
             };
         }
     }
