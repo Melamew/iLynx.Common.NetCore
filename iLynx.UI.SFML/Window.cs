@@ -17,6 +17,7 @@ namespace iLynx.UI.Sfml
         private readonly DetachedBindingSource bindingSource = new DetachedBindingSource();
         private static readonly Dictionary<EventType, EventMapper> EventMap = new Dictionary<EventType, EventMapper>
         {
+            { EventType.MouseMoved, (w, e) => w.OnMouseMove(new MouseMoveEventArgs(e.MouseMove)) },
             { EventType.Closed, (w, e) => w.Close() }
         };
         private Color background = Color.Black;
@@ -26,8 +27,15 @@ namespace iLynx.UI.Sfml
          : base(new VideoMode(width, height, 32), title, style)
         {
             SetupAlpha();
-            rootPanel = new AbsolutePositioningPanel { Background = background };
+            rootPanel = new AbsolutePositionPanel { Background = background };
         }
+
+        protected virtual void OnMouseMove(MouseMoveEventArgs e)
+        {
+            MouseMoved?.Invoke(this, e);
+        }
+
+        public new event EventHandler<MouseMoveEventArgs> MouseMoved;
 
         protected override bool PollEvent(out Event eventToFill)
         {

@@ -11,14 +11,6 @@ namespace iLynx.UI.SFML.Controls
         private IUIElement content = new Label();
         private Geometry geometry;
 
-        //protected override void OnRenderPropertyChanged([CallerMemberName] string propertyName = null)
-        //{
-        //    base.OnRenderPropertyChanged(propertyName);
-        //    var dims = content?.BoundingBox + Margin;
-        //    var bg = Background;
-        //    geometry = new RectangleGeometry(dims?.Size() ?? new Vector2f(), bg);
-        //}
-
         public Color Background
         {
             get => background;
@@ -28,7 +20,7 @@ namespace iLynx.UI.SFML.Controls
                 var old = background;
                 background = value;
                 OnPropertyChanged(old, value);
-                OnRenderPropertyChanged();
+                OnLayoutPropertyChanged();
             }
         }
 
@@ -37,6 +29,14 @@ namespace iLynx.UI.SFML.Controls
             if (null == geometry) return;
             target.Draw(geometry, states);
             content?.Draw(target, states);
+        }
+
+        protected override FloatRect ComputeBoundingBox(FloatRect destinationRect)
+        {
+            var available = base.ComputeBoundingBox(destinationRect);
+            var contentSize = content.Layout(available);
+            geometry = new RectangleGeometry(available.Width, available.Height, background);
+            return contentSize;
         }
 
         public IUIElement Content

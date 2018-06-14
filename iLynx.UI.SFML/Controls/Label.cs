@@ -1,5 +1,4 @@
 ﻿using SFML.Graphics;
-using SFML.System;
 
 namespace iLynx.UI.SFML.Controls
 {
@@ -43,7 +42,7 @@ namespace iLynx.UI.SFML.Controls
                 var old = color;
                 color = value;
                 OnPropertyChanged(old, color);
-                OnRenderPropertyChanged();
+                RebuildRender();
             }
         }
 
@@ -65,14 +64,20 @@ namespace iLynx.UI.SFML.Controls
             renderable.Draw(target, states);
         }
 
-        protected override FloatRect ComputeBoundingBox(FloatRect destinationRect)
+        private void RebuildRender()
         {
-            return RenderTransform.TransformRect(renderable.GetLocalBounds()) + Margin;
+            renderable = new Text(text, DefaultFont, fontSize) { FillColor = color };
         }
 
-        protected override void PrepareRender()
+        public override string ToString()
         {
-            renderable = new Text(text, DefaultFont, fontSize) { FillColor = Color };
+            return $"Label: {text}";
+        }
+
+        protected override FloatRect ComputeBoundingBox(FloatRect destinationRect)
+        {
+            RebuildRender();
+            return RenderTransform.TransformRect(renderable.GetLocalBounds());
         }
     }
 }

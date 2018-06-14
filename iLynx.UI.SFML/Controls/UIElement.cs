@@ -14,7 +14,6 @@ namespace iLynx.UI.SFML.Controls
         private Transform savedTransform = Transform.Identity;
         private Thickness margin = Thickness.Zero;
         protected Transform RenderTransform = Transform.Identity;
-        private Vector2f computedPosition = new Vector2f(0f, 0f);
 
         public void Draw(RenderTarget target, RenderStates states)
         {
@@ -40,21 +39,18 @@ namespace iLynx.UI.SFML.Controls
         {
             target -= margin;
             RenderTransform = ComputeRenderTransform(target);
-            return BoundingBox = ComputeBoundingBox(target);
+            return (BoundingBox = ComputeBoundingBox(target)) + margin;
         }
 
         protected virtual Transform ComputeRenderTransform(FloatRect destinationRect)
         {
             var transform = Transform.Identity;
-            computedPosition = destinationRect.Position();
-            transform.Translate(computedPosition);
+            ComputedPosition = destinationRect.Position();
+            transform.Translate(ComputedPosition);
             return transform;
         }
 
         protected abstract FloatRect ComputeBoundingBox(FloatRect destinationRect);
-        //{
-        //    return destinationRect;
-        //}
 
         public Thickness Margin
         {
@@ -74,17 +70,9 @@ namespace iLynx.UI.SFML.Controls
             LayoutPropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected virtual void OnRenderPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            RenderPropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         public event EventHandler<PropertyChangedEventArgs> LayoutPropertyChanged;
-        public event EventHandler<PropertyChangedEventArgs> RenderPropertyChanged;
 
-        public Vector2f ComputedPosition => computedPosition;
-
-        //public Vector2f
+        public Vector2f ComputedPosition { get; private set; } = new Vector2f(0f, 0f);
 
         public FloatRect BoundingBox { get; private set; }
     }

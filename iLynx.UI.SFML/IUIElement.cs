@@ -24,13 +24,7 @@ namespace iLynx.UI.SFML
         /// (ie: <see cref="Margin"/>)
         /// </summary>
         event EventHandler<PropertyChangedEventArgs> LayoutPropertyChanged;
-
-        /// <summary>
-        /// Fired whenever a property that would affect the rendered result of this element is changed.
-        /// (ie: Background Color)
-        /// </summary>
-        event EventHandler<PropertyChangedEventArgs> RenderPropertyChanged;
-
+        
         FloatRect BoundingBox { get; }
     }
 }

@@ -1,19 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using iLynx.UI.Sfml;
 using SFML.Graphics;
-using SFML.System;
 
 namespace iLynx.UI.SFML.Controls
 {
-    public abstract class Panel : UIElement
+    public class ReaderLock : IDisposable
+    {
+        private readonly ReaderWriterLockSlim rwl;
+
+        public ReaderLock(ReaderWriterLockSlim rwl)
+        {
+            this.rwl = rwl;
+            this.rwl.EnterReadLock();
+        }
+
+        public void Dispose()
+        {
+            rwl.ExitReadLock();
+        }
+    }
+
+    public class WriterLock : IDisposable
+    {
+        private readonly ReaderWriterLockSlim rwl;
+
+        public WriterLock(ReaderWriterLockSlim rwl)
+        {
+            this.rwl = rwl;
+            this.rwl.EnterWriteLock();
+        }
+
+        public void Dispose()
+        {
+            rwl.ExitWriteLock();
+        }
+    }
+
+    public abstract class Panel : SfmlControlBase
     {
         private readonly List<IUIElement> children = new List<IUIElement>();
+        private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
         public IEnumerable<IUIElement> Children => children;
         private Color background;
         private Geometry backgroundGeometry;
-        private Vector2f size;
 
         public Color Background
         {
@@ -24,73 +57,67 @@ namespace iLynx.UI.SFML.Controls
                 var old = background;
                 background = value;
                 OnPropertyChanged(old, value);
-                OnRenderPropertyChanged();
-            }
-        }
-
-        public Vector2f Size
-        {
-            get => size;
-            set
-            {
-                if (value == size) return;
-                var old = size;
-                size = value;
-                OnPropertyChanged(old, size);
                 OnLayoutPropertyChanged();
             }
         }
 
         public void AddChild(params IUIElement[] elements)
         {
-            children.AddRange(elements);
+            using (AcquireWriterLock())
+            {
+                children.AddRange(elements.Select(x =>
+                {
+                    x.LayoutPropertyChanged += OnChildLayoutPropertyChanged;
+                    return x;
+                }));
+            }
             OnLayoutPropertyChanged();
+        }
+
+        protected ReaderLock AcquireReaderLock()
+        {
+            return new ReaderLock(rwl);
+        }
+
+        protected WriterLock AcquireWriterLock()
+        {
+            return new WriterLock(rwl);
+        }
+
+        private void OnChildLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnLayoutPropertyChanged(e.PropertyName);
         }
 
         public void RemoveChild(params IUIElement[] elements)
         {
-            foreach (var element in elements)
-                children.Remove(element);
+            using (AcquireWriterLock())
+            {
+                foreach (var element in elements)
+                {
+                    children.Remove(element);
+                    element.LayoutPropertyChanged -= OnChildLayoutPropertyChanged;
+                }
+            }
             OnLayoutPropertyChanged();
         }
 
         protected override void DrawTransformed(RenderTarget target, RenderStates states)
         {
-            target.Draw(backgroundGeometry);
-            foreach (var child in children.Where(c => c.BoundingBox.Intersects(BoundingBox)))
-                child.Draw(target, states);
-        }
-
-        protected override void PrepareRender()
-        {
-            backgroundGeometry = new RectangleGeometry(BoundingBox.Size(), background);
-        }
-    }
-
-    public class AbsolutePositioningPanel : Panel
-    {
-        private readonly Dictionary<IUIElement, Vector2f> positions = new Dictionary<IUIElement, Vector2f>();
-
-        public override FloatRect Layout(FloatRect target)
-        {
-            target = base.Layout(target);
-            var totalSize = new Vector2f(target.Width, target.Height);
-            foreach (var child in Children)
+            if (null == backgroundGeometry) return;
+            using (AcquireReaderLock())
             {
-                if (!positions.TryGetValue(child, out var position))
-                    position = new Vector2f();
-                var subTarget = new FloatRect(position, totalSize - position);
-                child.Layout(subTarget);
+                target.Draw(backgroundGeometry, states);
+                foreach (var child in children.Where(c => c.BoundingBox.Intersects(BoundingBox)))
+                    child.Draw(target, states);
             }
-            return target;
         }
 
-        public void SetPosition(IUIElement element, Vector2f position)
+        protected override FloatRect ComputeBoundingBox(FloatRect destinationRect)
         {
-            if (Children.All(x => x != element))
-                throw new InvalidOperationException("The specified target element is not contained in this canvas");
-            positions.AddOrUpdate(element, position);
-            OnLayoutPropertyChanged();
+            var result = base.ComputeBoundingBox(destinationRect);
+            backgroundGeometry = new RectangleGeometry(result.Size(), background);
+            return result;
         }
     }
 }

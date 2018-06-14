@@ -25,6 +25,7 @@ namespace iLynx.UI.SFML.Controls
                 var old = reverse;
                 reverse = value;
                 OnPropertyChanged(old, value);
+                OnLayoutPropertyChanged();
             }
         }
 
@@ -47,17 +48,19 @@ namespace iLynx.UI.SFML.Controls
             var scalar = orientation == Orientation.Horizontal ? new Vector2f(0f, 1f) : new Vector2f(1f, 0f);
             var childSpaceScalar = orientation == Orientation.Horizontal ? new Vector2f(1f, 0f) : new Vector2f(0f, 1f); // The inverse for stepping size
             var usedSpace = new FloatRect(availableSpace.Position(), availableSpace.Size().Scale(scalar));
-            foreach (var child in reverse ? Children.Reverse() : Children)
+            using (AcquireReaderLock())
             {
-                var childSpace = child.Layout(availableSpace).Size().Scale(childSpaceScalar);
-                usedSpace.Height += childSpace.Y;
-                usedSpace.Width += childSpace.X;
-                availableSpace.Left += childSpace.X;
-                availableSpace.Width -= childSpace.X;
-                availableSpace.Top += childSpace.Y;
-                availableSpace.Height -= childSpace.Y;
+                foreach (var child in reverse ? Children.Reverse() : Children)
+                {
+                    var childSpace = child.Layout(availableSpace).Size().Scale(childSpaceScalar);
+                    usedSpace.Height += childSpace.Y;
+                    usedSpace.Width += childSpace.X;
+                    availableSpace.Left += childSpace.X;
+                    availableSpace.Width -= childSpace.X;
+                    availableSpace.Top += childSpace.Y;
+                    availableSpace.Height -= childSpace.Y;
+                }
             }
-
             return usedSpace;
         }
     }

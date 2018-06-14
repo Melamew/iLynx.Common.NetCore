@@ -70,27 +70,27 @@ namespace iLynx.UI.TestBench
             var dimensions = new Vector2f(64, 64);
             var centreButton = new Button
             {
-                Dimensions = dimensions,
+                Size = dimensions,
                 Background = Color.Red,
             };
             var topButton = new Button
             {
-                Dimensions = dimensions,
+                Size = dimensions,
                 Background = Color.Green,
             };
             var leftButton = new Button
             {
-                Dimensions = dimensions,
+                Size = dimensions,
                 Background = Color.Blue,
             };
             var bottomButton = new Button
             {
-                Dimensions = dimensions,
+                Size = dimensions,
                 Background = Color.Cyan,
             };
             var rightButton = new Button
             {
-                Dimensions = dimensions,
+                Size = dimensions,
                 Background = Color.Magenta,
             };
             var root = new StackPanel
@@ -100,14 +100,16 @@ namespace iLynx.UI.TestBench
                 Background = Color.Yellow
             };
             window.RootPanel = root;
-            var stackPanel = new StackPanel { Background = new Color(128, 128, 192) };
+            var stackPanel = new StackPanel { Size = (Vector2f)window.Size * 0.5f, Background = Color.White };
             stackPanel.AddChild(new Label("Label 1", Color.Red) { Margin = new Thickness(64f) }, new Label("Label 2", Color.Green) { Margin = new Thickness(4f) });
-            var canvas = new AbsolutePositioningPanel { Size = (Vector2f)window.Size * 0.5f, Background = Color.Black };
-            canvas.AddChild(centreButton,
+            var canvas = new AbsolutePositionPanel { Size = (Vector2f)window.Size * 0.5f, Background = Color.Black };
+            canvas.AddChild(
+                centreButton,
                 topButton,
                 leftButton,
                 bottomButton,
-                rightButton);
+                rightButton
+                );
             root.AddChild(stackPanel, canvas);
             window.MouseMoved += (sender, e) =>
             {
