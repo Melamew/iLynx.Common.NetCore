@@ -10,6 +10,8 @@ namespace iLynx.UI.SFML
 
         public static readonly Thickness NaN = new Thickness(float.NaN);
 
+        public static readonly Thickness Zero = new Thickness(0f);
+
         public static bool IsNaN(Thickness thickness)
         {
             return float.IsNaN(thickness.Left) &&
@@ -79,15 +81,41 @@ namespace iLynx.UI.SFML
             return !left.Equals(right);
         }
 
+        /// <summary>
+        /// Applies the righthand <see cref="Thickness"/> as a margin to the lefthand <see cref="FloatRect"/> such that the resulting <see cref="FloatRect"/> is the /outer/ space
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static FloatRect operator +(FloatRect left, Thickness right)
         {
             return new FloatRect(
                 left.Left - right.Left,
                 left.Top - right.Top,
-                left.Width + right.Right + right.Left,
-                left.Height + right.Bottom + right.Top
+                left.Width + right.Horizontal,
+                left.Height + right.Vertical
                 );
         }
-             
+
+        /// <summary>
+        /// Applies the righthand <see cref="Thickness"/> as a padding to the lefthand <see cref="FloatRect"/> such that the resulting <see cref="FloatRect"/> is the /internal/ space
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static FloatRect operator -(FloatRect left, Thickness right)
+        {
+            return new FloatRect(
+                left.Left + right.Left,
+                left.Top + right.Top,
+                left.Width - right.Horizontal,
+                left.Height - right.Vertical
+                );
+        }
+
+        public static implicit operator Thickness(float value)
+        {
+            return new Thickness(value);
+        }
     }
 }

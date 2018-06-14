@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SFML.Graphics;
 using SFML.System;
 
@@ -84,7 +85,7 @@ namespace iLynx.UI.Sfml
             return src.Intersects(rect, out _);
         }
 
-        public static Vector2f Dimensions(this FloatRect src)
+        public static Vector2f Size(this FloatRect src)
         {
             return new Vector2f(src.Width, src.Height);
         }
@@ -93,5 +94,29 @@ namespace iLynx.UI.Sfml
         {
             return new FloatRect(rect.Left + distance.X, rect.Top + distance.Y, rect.Width, rect.Height);
         }
+
+        public static Vector2f Position(this FloatRect rect)
+        {
+            return new Vector2f(rect.Left, rect.Top);
+        }
+
+        public static void AddOrUpdate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue value)
+        {
+            if (dict.ContainsKey(key))
+                dict[key] = value;
+            else
+                dict.Add(key, value);
+        }
+
+        public static Vector2f Scale(this Vector2f vector, Vector2f scalar)
+        {
+            return new Vector2f(vector.X * scalar.X, vector.Y * scalar.Y);
+        }
+
+        //public static Transform Translate(this Transform transform, Vector2f distance)
+        //{
+        //    transform.Translate(distance);
+        //    return transform;
+        //}
     }
 }

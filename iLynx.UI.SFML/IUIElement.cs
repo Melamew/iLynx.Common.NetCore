@@ -12,7 +12,7 @@ namespace iLynx.UI.SFML
         /// Lays out this element within the specified <see cref="FloatRect"/>
         /// </summary>
         /// <param name="target"></param>
-        void Layout(FloatRect target);
+        FloatRect Layout(FloatRect target);
 
         /// <summary>
         /// Gets or Sets the margin of this element

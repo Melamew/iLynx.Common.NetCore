@@ -10,6 +10,11 @@ namespace iLynx.UI.SFML.Controls
         private uint fontSize = 24;
         private Color color;
 
+        public Label()
+            : this(string.Empty, Color.Black)
+        {
+        }
+
         public Label(string text, Color color)
         {
             this.text = text ?? string.Empty;

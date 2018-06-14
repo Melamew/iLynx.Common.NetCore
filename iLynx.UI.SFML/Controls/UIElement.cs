@@ -2,18 +2,19 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using iLynx.Common;
+using iLynx.UI.Sfml;
 using SFML.Graphics;
+using SFML.System;
 
 namespace iLynx.UI.SFML.Controls
 {
     // ReSharper disable once InconsistentNaming
     public abstract partial class UIElement : BindingSource, IUIElement
     {
-        private Transform savedTransform;
-        private Thickness margin;
-        protected Transform RenderTransform;
-        private FloatRect boundingBox;
-        //private Vector2f position;
+        private Transform savedTransform = Transform.Identity;
+        private Thickness margin = Thickness.Zero;
+        protected Transform RenderTransform = Transform.Identity;
+        private Vector2f computedPosition = new Vector2f(0f, 0f);
 
         public void Draw(RenderTarget target, RenderStates states)
         {
@@ -35,29 +36,25 @@ namespace iLynx.UI.SFML.Controls
             states.Transform = savedTransform;
         }
 
-        public void Layout(FloatRect target)
+        public virtual FloatRect Layout(FloatRect target)
         {
-            PrepareRender();
-            RenderTransform = ComputeRenderTransform(boundingBox);
-            boundingBox = ComputeBoundingBox(target);
+            target -= margin;
+            RenderTransform = ComputeRenderTransform(target);
+            return BoundingBox = ComputeBoundingBox(target);
         }
 
         protected virtual Transform ComputeRenderTransform(FloatRect destinationRect)
         {
             var transform = Transform.Identity;
-            transform.Translate(destinationRect.Left, destinationRect.Top);
+            computedPosition = destinationRect.Position();
+            transform.Translate(computedPosition);
             return transform;
         }
 
-        protected virtual FloatRect ComputeBoundingBox(FloatRect destinationRect)
-        {
-            if (Thickness.IsNaN(margin)) return new FloatRect();
-            return new FloatRect(
-                destinationRect.Left + margin.Left,
-                destinationRect.Top + margin.Top,
-                destinationRect.Width - margin.Horizontal,
-                destinationRect.Height - margin.Vertical);
-        }
+        protected abstract FloatRect ComputeBoundingBox(FloatRect destinationRect);
+        //{
+        //    return destinationRect;
+        //}
 
         public Thickness Margin
         {
@@ -79,35 +76,17 @@ namespace iLynx.UI.SFML.Controls
 
         protected virtual void OnRenderPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PrepareRender();
             RenderPropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public event EventHandler<PropertyChangedEventArgs> LayoutPropertyChanged;
         public event EventHandler<PropertyChangedEventArgs> RenderPropertyChanged;
 
-        /// <summary>
-        /// Called whenever there is an update to the render properties of this element, or the layout has been computed.
-        /// </summary>
-        protected abstract void PrepareRender();
+        public Vector2f ComputedPosition => computedPosition;
 
-        ///// <summary>
-        ///// Gets or Sets the position of this element; note that setting this value will overwrite the <see cref="Margin"/>
-        ///// </summary>
-        //public Vector2f Position
-        //{
-        //    get => position;
-        //    set
-        //    {
-        //        if (value == position) return;
-        //        var old = position;
-        //        margin = Thickness.NaN;
-        //        position = value;
-        //        OnPropertyChanged(old, value);
-        //    }
-        //}
+        //public Vector2f
 
-        public FloatRect BoundingBox => boundingBox;
+        public FloatRect BoundingBox { get; private set; }
     }
 
     // ReSharper disable once InconsistentNaming

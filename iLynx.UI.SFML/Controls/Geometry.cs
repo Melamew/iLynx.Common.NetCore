@@ -4,9 +4,10 @@ using SFML.System;
 
 namespace iLynx.UI.SFML.Controls
 {
-    public abstract class Geometry
+    public abstract class Geometry : Drawable
     {
         private readonly List<Vertex> vertices = new List<Vertex>();
+
         public Vertex[] Vertices => vertices.ToArray();
 
         public PrimitiveType PrimitiveType { get; protected set; }
@@ -29,6 +30,11 @@ namespace iLynx.UI.SFML.Controls
         protected virtual void AddVertex(params Vertex[] v)
         {
             vertices.AddRange(v);
+        }
+
+        public void Draw(RenderTarget target, RenderStates states)
+        {
+            target.Draw(Vertices, PrimitiveType, states);
         }
     }
 }
