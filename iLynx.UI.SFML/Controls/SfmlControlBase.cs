@@ -26,14 +26,18 @@ namespace iLynx.UI.SFML.Controls
             }
         }
 
-        protected override FloatRect ComputeBoundingBox(FloatRect destinationRect)
+        public virtual Vector2f ComputedPosition { get; private set; } = new Vector2f();
+
+        protected override FloatRect LayoutInternal(FloatRect target)
         {
             var dims = size;
-            if (dims.X > destinationRect.Width || float.IsNaN(dims.X))
-                dims.X = destinationRect.Width;
-            if (dims.Y > destinationRect.Height || float.IsNaN(dims.Y))
-                dims.Y = destinationRect.Height;
-            return new FloatRect(destinationRect.Position(), dims);
+            if (dims.X > target.Width || float.IsNaN(dims.X))
+                dims.X = target.Width;
+            if (dims.Y > target.Height || float.IsNaN(dims.Y))
+                dims.Y = target.Height;
+            var pos = target.Position();
+            ComputedPosition = pos;
+            return new FloatRect(pos, dims);
         }
 
         public event EventHandler<MouseButtonEventArgs> Clicked;

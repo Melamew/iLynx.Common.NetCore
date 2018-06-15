@@ -11,26 +11,25 @@ namespace iLynx.UI.SFML.Controls
     {
         private readonly Dictionary<IUIElement, Vector2f> positions = new Dictionary<IUIElement, Vector2f>();
 
-        public override FloatRect Layout(FloatRect target)
+        protected override FloatRect LayoutInternal(FloatRect target)
         {
-            target = base.Layout(target);
+            target = base.LayoutInternal(target);
             var totalSize = new Vector2f(target.Width, target.Height);
-            using (AcquireReaderLock())
+            var offset = new Vector2f(target.Left, target.Top);
+            foreach (var child in Children)
             {
-                foreach (var child in Children)
-                {
-                    if (!positions.TryGetValue(child, out var position))
-                        position = new Vector2f();
-                    var subTarget = new FloatRect(position, totalSize - position);
-                    child.Layout(subTarget);
-                }
+                if (!positions.TryGetValue(child, out var position))
+                    position = new Vector2f();
+                var relativePosition = position - offset;
+                var subTarget = new FloatRect(relativePosition, totalSize - relativePosition);
+                child.Layout(subTarget);
             }
             return target;
         }
 
         public void SetPosition(IUIElement element, Vector2f position)
         {
-            using (AcquireWriterLock())
+            using (AcquireLock())
             {
                 if (Children.All(x => x != element))
                     throw new InvalidOperationException("The specified target element is not contained in this canvas");

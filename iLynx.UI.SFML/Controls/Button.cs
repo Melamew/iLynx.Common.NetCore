@@ -24,19 +24,26 @@ namespace iLynx.UI.SFML.Controls
             }
         }
 
-        protected override void DrawTransformed(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
-            if (null == geometry) return;
+            states.Transform.Translate(ComputedPosition);
             target.Draw(geometry, states);
             content?.Draw(target, states);
         }
 
-        protected override FloatRect ComputeBoundingBox(FloatRect destinationRect)
+        //protected override void DrawTransformed(RenderTarget target, RenderStates states)
+        //{
+        //    if (null == geometry) return;
+        //    target.Draw(geometry, states);
+        //    content?.Draw(target, states);
+        //}
+
+        protected override FloatRect LayoutInternal(FloatRect target)
         {
-            var available = base.ComputeBoundingBox(destinationRect);
+            var available = base.LayoutInternal(target);
             var contentSize = content.Layout(available);
             geometry = new RectangleGeometry(available.Width, available.Height, background);
-            return contentSize;
+            return available;
         }
 
         public IUIElement Content

@@ -1,56 +1,57 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using iLynx.Common;
 using iLynx.UI.Sfml;
 using SFML.Graphics;
-using SFML.System;
 
 namespace iLynx.UI.SFML.Controls
 {
+    public class DisposableMonitor : IDisposable
+    {
+        private readonly object target;
+
+        public DisposableMonitor(object target)
+        {
+            this.target = target;
+            Monitor.Enter(this.target);
+        }
+
+        public void Dispose()
+        {
+            Monitor.Exit(target);
+        }
+    }
     // ReSharper disable once InconsistentNaming
     public abstract partial class UIElement : BindingSource, IUIElement
     {
-        private Transform savedTransform = Transform.Identity;
         private Thickness margin = Thickness.Zero;
         protected Transform RenderTransform = Transform.Identity;
-
-        public void Draw(RenderTarget target, RenderStates states)
+        //private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
+        private readonly object lockObject = new object();
+        
+        protected DisposableMonitor AcquireLock()
         {
-            ApplyTransform(RenderTransform, ref states);
-            DrawTransformed(target, states);
-            ResetTransform(ref states);
-        }
-
-        protected void ApplyTransform(Transform t, ref RenderStates states)
-        {
-            savedTransform = states.Transform;
-            var transform = savedTransform;
-            transform.Combine(t);
-            states.Transform = transform;
-        }
-
-        protected void ResetTransform(ref RenderStates states)
-        {
-            states.Transform = savedTransform;
+            return new DisposableMonitor(lockObject);
         }
 
         public virtual FloatRect Layout(FloatRect target)
         {
-            target -= margin;
-            RenderTransform = ComputeRenderTransform(target);
-            return (BoundingBox = ComputeBoundingBox(target)) + margin;
+            using (AcquireLock())
+            {
+                target -= margin;
+                return (BoundingBox = LayoutInternal(target)) + margin;
+            }
         }
 
-        protected virtual Transform ComputeRenderTransform(FloatRect destinationRect)
-        {
-            var transform = Transform.Identity;
-            ComputedPosition = destinationRect.Position();
-            transform.Translate(ComputedPosition);
-            return transform;
-        }
 
-        protected abstract FloatRect ComputeBoundingBox(FloatRect destinationRect);
+        /// <summary>
+        /// Called when the layout process has determined the internal bounds of this element
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        protected abstract FloatRect LayoutInternal(FloatRect target);
 
         public Thickness Margin
         {
@@ -72,9 +73,15 @@ namespace iLynx.UI.SFML.Controls
 
         public event EventHandler<PropertyChangedEventArgs> LayoutPropertyChanged;
 
-        public Vector2f ComputedPosition { get; private set; } = new Vector2f(0f, 0f);
-
         public FloatRect BoundingBox { get; private set; }
+
+        public void Draw(RenderTarget target, RenderStates states)
+        {
+            using (AcquireLock())
+                DrawLocked(target, states);
+        }
+
+        protected abstract void DrawLocked(RenderTarget target, RenderStates states);
     }
 
     // ReSharper disable once InconsistentNaming
@@ -85,6 +92,5 @@ namespace iLynx.UI.SFML.Controls
             DefaultFont = new Font("fonts/Mechanical.otf");
         }
         public static Font DefaultFont { get; }
-        protected abstract void DrawTransformed(RenderTarget target, RenderStates states);
     }
 }

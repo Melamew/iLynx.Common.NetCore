@@ -48,7 +48,7 @@ namespace iLynx.UI.SFML.Controls
             var scalar = orientation == Orientation.Horizontal ? new Vector2f(0f, 1f) : new Vector2f(1f, 0f);
             var childSpaceScalar = orientation == Orientation.Horizontal ? new Vector2f(1f, 0f) : new Vector2f(0f, 1f); // The inverse for stepping size
             var usedSpace = new FloatRect(availableSpace.Position(), availableSpace.Size().Scale(scalar));
-            using (AcquireReaderLock())
+            using (AcquireLock())
             {
                 foreach (var child in reverse ? Children.Reverse() : Children)
                 {

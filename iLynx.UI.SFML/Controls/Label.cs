@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using iLynx.UI.Sfml;
+using SFML.Graphics;
 
 namespace iLynx.UI.SFML.Controls
 {
@@ -59,7 +60,7 @@ namespace iLynx.UI.SFML.Controls
             }
         }
 
-        protected override void DrawTransformed(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
             renderable.Draw(target, states);
         }
@@ -74,10 +75,14 @@ namespace iLynx.UI.SFML.Controls
             return $"Label: {text}";
         }
 
-        protected override FloatRect ComputeBoundingBox(FloatRect destinationRect)
+        protected override FloatRect LayoutInternal(FloatRect target)
         {
-            RebuildRender();
-            return RenderTransform.TransformRect(renderable.GetLocalBounds());
+            using (AcquireLock())
+            {
+                RebuildRender();
+                renderable.Position = target.Position();
+            }
+            return renderable.GetGlobalBounds();
         }
     }
 }

@@ -117,5 +117,10 @@ namespace iLynx.UI.SFML
         {
             return new Thickness(value);
         }
+
+        public override string ToString()
+        {
+            return $"{Left}, {Top}, {Right}, {Bottom}";
+        }
     }
 }

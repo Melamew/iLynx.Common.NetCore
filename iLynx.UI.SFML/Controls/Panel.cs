@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using iLynx.UI.Sfml;
 using SFML.Graphics;
+using SFML.System;
 
 namespace iLynx.UI.SFML.Controls
 {
@@ -15,12 +16,12 @@ namespace iLynx.UI.SFML.Controls
         public ReaderLock(ReaderWriterLockSlim rwl)
         {
             this.rwl = rwl;
-            this.rwl.EnterReadLock();
+            this.rwl.EnterUpgradeableReadLock();
         }
 
         public void Dispose()
         {
-            rwl.ExitReadLock();
+            rwl.ExitUpgradeableReadLock();
         }
     }
 
@@ -43,10 +44,11 @@ namespace iLynx.UI.SFML.Controls
     public abstract class Panel : SfmlControlBase
     {
         private readonly List<IUIElement> children = new List<IUIElement>();
-        private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
         public IEnumerable<IUIElement> Children => children;
         private Color background;
-        private Geometry backgroundGeometry;
+        private RenderTexture texture;
+        private bool requireNewTexture = true;
+        private Vector2u textureDimensions;
 
         public Color Background
         {
@@ -63,7 +65,7 @@ namespace iLynx.UI.SFML.Controls
 
         public void AddChild(params IUIElement[] elements)
         {
-            using (AcquireWriterLock())
+            using (AcquireLock())
             {
                 children.AddRange(elements.Select(x =>
                 {
@@ -74,16 +76,6 @@ namespace iLynx.UI.SFML.Controls
             OnLayoutPropertyChanged();
         }
 
-        protected ReaderLock AcquireReaderLock()
-        {
-            return new ReaderLock(rwl);
-        }
-
-        protected WriterLock AcquireWriterLock()
-        {
-            return new WriterLock(rwl);
-        }
-
         private void OnChildLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             OnLayoutPropertyChanged(e.PropertyName);
@@ -91,7 +83,7 @@ namespace iLynx.UI.SFML.Controls
 
         public void RemoveChild(params IUIElement[] elements)
         {
-            using (AcquireWriterLock())
+            using (AcquireLock())
             {
                 foreach (var element in elements)
                 {
@@ -102,21 +94,31 @@ namespace iLynx.UI.SFML.Controls
             OnLayoutPropertyChanged();
         }
 
-        protected override void DrawTransformed(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
-            if (null == backgroundGeometry) return;
-            using (AcquireReaderLock())
+            if (textureDimensions.X == 0 || textureDimensions.Y == 0) return;
+            if (requireNewTexture || null == texture)
             {
-                target.Draw(backgroundGeometry, states);
-                foreach (var child in children.Where(c => c.BoundingBox.Intersects(BoundingBox)))
-                    child.Draw(target, states);
+                texture?.Dispose();
+                texture = null;
+                texture = new RenderTexture(textureDimensions.X, textureDimensions.Y);
+                requireNewTexture = false;
             }
+            texture.Clear(background);
+            foreach (var child in children)
+                child.Draw(texture, states);
+            texture.Display();
+            var sprite = new Sprite(texture.Texture);
+            states.Transform.Translate(ComputedPosition);
+            target.Draw(sprite, states);
         }
 
-        protected override FloatRect ComputeBoundingBox(FloatRect destinationRect)
+        protected override FloatRect LayoutInternal(FloatRect target)
         {
-            var result = base.ComputeBoundingBox(destinationRect);
-            backgroundGeometry = new RectangleGeometry(result.Size(), background);
+            var result = base.LayoutInternal(target);
+            var dimensions = (Vector2u) result.Size();
+            textureDimensions = dimensions;
+            requireNewTexture = dimensions != textureDimensions;
             return result;
         }
     }
