@@ -1,10 +1,8 @@
 ﻿//using iLynx.UI.OpenGL;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 using iLynx.Common;
 using iLynx.UI.SFML;
 using iLynx.UI.SFML.Controls;
@@ -53,12 +51,14 @@ namespace iLynx.UI.TestBench
     {
         private static Window window;
 
-        static Program()
+        private static void Main(string[] args)
         {
-
+            //const int count = 1000000;
+            //var source = 1d;
+            StartWindow();
         }
 
-        static void Main(string[] args)
+        private static void StartWindow()
         {
             var t = new Thread(() =>
             {
@@ -71,45 +71,62 @@ namespace iLynx.UI.TestBench
             var centreButton = new Button
             {
                 Size = dimensions,
-                Background = Color.Red,
+                Background = Color.Red
             };
             var topButton = new Button
             {
                 Size = dimensions,
-                Background = Color.Green,
+                Background = Color.Green
             };
             var leftButton = new Button
             {
                 Size = dimensions,
-                Background = Color.Blue,
+                Background = Color.Blue
             };
             var bottomButton = new Button
             {
                 Size = dimensions,
-                Background = Color.Cyan,
+                Background = Color.Cyan
             };
             var rightButton = new Button
             {
                 Size = dimensions,
-                Background = Color.Magenta,
+                Background = Color.Magenta
             };
             var root = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
-                Margin = 4f,
                 Background = Color.Yellow
             };
             window.RootPanel = root;
-            var stackPanel = new StackPanel { Size = (Vector2f)window.Size * 0.5f, Background = Color.White };
-            stackPanel.AddChild(new Label("Label 1", Color.Red) { Margin = new Thickness(64f) }, new Label("Label 2", Color.Green) { Margin = new Thickness(4f) });
-            var canvas = new AbsolutePositionPanel { Size = (Vector2f)window.Size * 0.5f, Background = Color.Black };
+            var stackPanel =
+                new StackPanel { Size = (Vector2f)window.Size * 0.5f, Background = Color.White, Margin = 4f };
+            stackPanel.AddChild(new Label("Label 1", Color.Red)
+            {
+                Margin = 64f
+            }, new Label("Label 2", Color.Green)
+            {
+                Margin = 4f
+            },
+                new Button
+                {
+                    Background = Color.Magenta,
+                    Content = new Label("This is a button", Color.Black) { Margin = new Thickness(4f, 4f, 4f, 16f) },
+                    Margin = 4f
+                });
+            var canvas = new AbsolutePositionPanel
+            {
+                Size = (Vector2f)window.Size * 0.5f,
+                Background = Color.Black,
+                Margin = 4f
+            };
             canvas.AddChild(
                 centreButton,
                 topButton,
                 leftButton,
                 bottomButton,
                 rightButton
-                );
+            );
             root.AddChild(stackPanel, canvas);
             window.MouseMoved += (sender, e) =>
             {

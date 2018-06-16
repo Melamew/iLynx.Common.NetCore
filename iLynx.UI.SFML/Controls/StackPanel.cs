@@ -44,12 +44,12 @@ namespace iLynx.UI.SFML.Controls
 
         public override FloatRect Layout(FloatRect target)
         {
-            var availableSpace = base.Layout(target);
-            var scalar = orientation == Orientation.Horizontal ? new Vector2f(0f, 1f) : new Vector2f(1f, 0f);
-            var childSpaceScalar = orientation == Orientation.Horizontal ? new Vector2f(1f, 0f) : new Vector2f(0f, 1f); // The inverse for stepping size
-            var usedSpace = new FloatRect(availableSpace.Position(), availableSpace.Size().Scale(scalar));
             using (AcquireLock())
             {
+                var availableSpace = base.Layout(target);
+                var scalar = orientation == Orientation.Horizontal ? new Vector2f(0f, 1f) : new Vector2f(1f, 0f);
+                var childSpaceScalar = orientation == Orientation.Horizontal ? new Vector2f(1f, 0f) : new Vector2f(0f, 1f); // The inverse for stepping size
+                var usedSpace = new FloatRect(availableSpace.Position(), availableSpace.Size().Scale(scalar));
                 foreach (var child in reverse ? Children.Reverse() : Children)
                 {
                     var childSpace = child.Layout(availableSpace).Size().Scale(childSpaceScalar);
@@ -60,8 +60,8 @@ namespace iLynx.UI.SFML.Controls
                     availableSpace.Top += childSpace.Y;
                     availableSpace.Height -= childSpace.Y;
                 }
+                return usedSpace;
             }
-            return usedSpace;
         }
     }
 }

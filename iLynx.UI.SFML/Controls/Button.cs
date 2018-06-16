@@ -28,20 +28,15 @@ namespace iLynx.UI.SFML.Controls
         {
             states.Transform.Translate(ComputedPosition);
             target.Draw(geometry, states);
-            content?.Draw(target, states);
+            content?.Draw(target, RenderStates.Default); //, states);
         }
-
-        //protected override void DrawTransformed(RenderTarget target, RenderStates states)
-        //{
-        //    if (null == geometry) return;
-        //    target.Draw(geometry, states);
-        //    content?.Draw(target, states);
-        //}
 
         protected override FloatRect LayoutInternal(FloatRect target)
         {
             var available = base.LayoutInternal(target);
             var contentSize = content.Layout(available);
+            if (default(Vector2f) == Size || (float.IsNaN(Size.X) && float.IsNaN(Size.Y)))
+                available = contentSize;
             geometry = new RectangleGeometry(available.Width, available.Height, background);
             return available;
         }

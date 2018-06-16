@@ -31,11 +31,12 @@ namespace iLynx.UI.SFML.Controls
         protected override FloatRect LayoutInternal(FloatRect target)
         {
             var dims = size;
+            //var availableSize = target.Size();
             if (dims.X > target.Width || float.IsNaN(dims.X))
                 dims.X = target.Width;
             if (dims.Y > target.Height || float.IsNaN(dims.Y))
                 dims.Y = target.Height;
-            var pos = target.Position();
+            var pos = target.Position();// + ((availableSize / 2f) - dims);
             ComputedPosition = pos;
             return new FloatRect(pos, dims);
         }

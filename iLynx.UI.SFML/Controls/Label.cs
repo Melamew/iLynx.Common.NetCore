@@ -9,6 +9,7 @@ namespace iLynx.UI.SFML.Controls
         private Text renderable = new Text();
         private uint fontSize = 24;
         private Color color;
+        private Color background;
 
         public Label()
             : this(string.Empty, Color.Black)
@@ -19,6 +20,19 @@ namespace iLynx.UI.SFML.Controls
         {
             this.text = text ?? string.Empty;
             this.color = color;
+        }
+
+        public Color Background
+        {
+            get => background;
+            set
+            {
+                if (value == background) return;
+                var old = background;
+                background = value;
+                OnPropertyChanged(old, value);
+                RebuildRender();
+            }
         }
 
         public string Text
@@ -67,7 +81,10 @@ namespace iLynx.UI.SFML.Controls
 
         private void RebuildRender()
         {
-            renderable = new Text(text, DefaultFont, fontSize) { FillColor = color };
+            renderable = new Text(text, DefaultFont, fontSize)
+            {
+                FillColor = color
+            };
         }
 
         public override string ToString()
@@ -82,7 +99,10 @@ namespace iLynx.UI.SFML.Controls
                 RebuildRender();
                 renderable.Position = target.Position();
             }
-            return renderable.GetGlobalBounds();
+
+            var bounds = renderable.GetLocalBounds();
+            bounds.Height = fontSize;
+            return bounds;
         }
     }
 }

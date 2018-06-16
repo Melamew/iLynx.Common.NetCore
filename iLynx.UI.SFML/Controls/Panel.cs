@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using iLynx.Common;
 using iLynx.UI.Sfml;
 using SFML.Graphics;
 using SFML.System;
@@ -41,12 +43,72 @@ namespace iLynx.UI.SFML.Controls
         }
     }
 
+    public interface IAnimation
+    {
+        void Tick(TimeSpan deltaTime);
+
+        bool IsFinished { get; }
+    }
+
+    public class LinearFloatAnimation : IAnimation
+    {
+        public void Tick(TimeSpan deltaTime)
+        {
+            
+        }
+
+        public bool IsFinished { get; }
+    }
+
+    public class Animator
+    {
+        private readonly Thread animationThread;
+        private readonly TimeSpan cleanupInterval = TimeSpan.FromMilliseconds(250);
+        private readonly List<IAnimation> animations = new List<IAnimation>();
+        private volatile bool isRunning = true;
+
+        public Animator()
+        {
+            animationThread = new Thread(DoAnimations);
+        }
+
+        public void StartAnimator()
+        {
+            animationThread.Start();
+        }
+
+        public void StopAnimator()
+        {
+            isRunning = false;
+            animationThread.Join();
+        }
+
+        private void DoAnimations(object state)
+        {
+            var lastTick = DateTime.Now;
+            var lastCleanup = DateTime.Now;
+            while (isRunning)
+            {
+                var runningAnimations = animations.Where(x => !x.IsFinished).ToArray();
+                foreach (var animation in runningAnimations)
+                    animation.Tick(DateTime.Now - lastTick);
+                if (DateTime.Now - lastCleanup >= cleanupInterval)
+                {
+                    animations.RemoveAll(x => x.IsFinished);
+                    lastCleanup = DateTime.Now;
+                }
+                lastTick = DateTime.Now;
+            }
+        }
+    }
+
     public abstract class Panel : SfmlControlBase
     {
         private readonly List<IUIElement> children = new List<IUIElement>();
         public IEnumerable<IUIElement> Children => children;
         private Color background;
         private RenderTexture texture;
+        private Sprite sprite;
         private bool requireNewTexture = true;
         private Vector2u textureDimensions;
 
@@ -103,12 +165,12 @@ namespace iLynx.UI.SFML.Controls
                 texture = null;
                 texture = new RenderTexture(textureDimensions.X, textureDimensions.Y);
                 requireNewTexture = false;
+                sprite = new Sprite(texture.Texture);
             }
             texture.Clear(background);
             foreach (var child in children)
                 child.Draw(texture, states);
             texture.Display();
-            var sprite = new Sprite(texture.Texture);
             states.Transform.Translate(ComputedPosition);
             target.Draw(sprite, states);
         }
@@ -116,7 +178,7 @@ namespace iLynx.UI.SFML.Controls
         protected override FloatRect LayoutInternal(FloatRect target)
         {
             var result = base.LayoutInternal(target);
-            var dimensions = (Vector2u) result.Size();
+            var dimensions = (Vector2u)result.Size();
             textureDimensions = dimensions;
             requireNewTexture = dimensions != textureDimensions;
             return result;
