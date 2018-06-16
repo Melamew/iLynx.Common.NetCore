@@ -1,16 +1,10 @@
 ﻿using System.Linq;
-using iLynx.UI.Sfml;
+using iLynx.UI.Sfml.Controls;
 using SFML.Graphics;
 using SFML.System;
 
-namespace iLynx.UI.SFML.Controls
+namespace iLynx.UI.Sfml.Layout
 {
-    public enum Orientation
-    {
-        Horizontal,
-        Vertical
-    }
-
     public class StackPanel : Panel
     {
         private bool reverse;

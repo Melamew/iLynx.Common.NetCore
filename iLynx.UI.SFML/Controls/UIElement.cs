@@ -1,28 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using iLynx.Common;
-using iLynx.UI.Sfml;
+using iLynx.Common.Threading;
 using SFML.Graphics;
+using SFML.System;
+using SFML.Window;
 
-namespace iLynx.UI.SFML.Controls
+namespace iLynx.UI.Sfml.Controls
 {
-    public class DisposableMonitor : IDisposable
-    {
-        private readonly object target;
-
-        public DisposableMonitor(object target)
-        {
-            this.target = target;
-            Monitor.Enter(this.target);
-        }
-
-        public void Dispose()
-        {
-            Monitor.Exit(target);
-        }
-    }
     // ReSharper disable once InconsistentNaming
     public abstract partial class UIElement : BindingSource, IUIElement
     {
@@ -40,10 +26,15 @@ namespace iLynx.UI.SFML.Controls
         {
             using (AcquireLock())
             {
-                target -= margin;
-                return (BoundingBox = LayoutInternal(target)) + margin;
+                target -= margin; // Shrink available space to account for the element's margin
+                BoundingBox = LayoutInternal(target);
+                return BoundingBox + margin; // The final layout size of this element is it's bounding box plus margins
             }
         }
+
+        public Vector2f ComputedPosition => new Vector2f(BoundingBox.Left, BoundingBox.Top);
+
+        public Vector2f ComputedSize => new Vector2f(BoundingBox.Width, BoundingBox.Height);
 
 
         /// <summary>

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using iLynx.UI.Sfml;
 using SFML.Graphics;
 using SFML.System;
 
-namespace iLynx.UI.SFML.Controls
+namespace iLynx.UI.Sfml.Layout
 {
     public class AbsolutePositionPanel : Panel
     {
@@ -36,6 +35,21 @@ namespace iLynx.UI.SFML.Controls
                 positions.AddOrUpdate(element, position);
             }
             OnLayoutPropertyChanged();
+        }
+
+        public void SetRelativePosition(IUIElement element, Vector2f position)
+        {
+            SetPosition(element, ComputedPosition + position);
+        }
+
+        public Vector2f GetPosition(IUIElement element)
+        {
+            return !positions.TryGetValue(element, out var value) ? new Vector2f() : value;
+        }
+
+        public Vector2f GetRelativePosition(IUIElement element)
+        {
+            return GetPosition(element) - ComputedPosition;
         }
     }
 }

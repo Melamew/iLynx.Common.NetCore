@@ -1,9 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using iLynx.UI.Sfml;
+﻿using iLynx.UI.Sfml.Rendering;
 using SFML.Graphics;
-using SFML.System;
 
-namespace iLynx.UI.SFML.Controls
+namespace iLynx.UI.Sfml.Controls
 {
     public class Button : SfmlControlBase
     {
@@ -26,6 +24,7 @@ namespace iLynx.UI.SFML.Controls
 
         protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
+            if (null == geometry) return;
             states.Transform.Translate(ComputedPosition);
             target.Draw(geometry, states);
             content?.Draw(target, RenderStates.Default); //, states);
@@ -35,8 +34,8 @@ namespace iLynx.UI.SFML.Controls
         {
             var available = base.LayoutInternal(target);
             var contentSize = content.Layout(available);
-            if (default(Vector2f) == Size || (float.IsNaN(Size.X) && float.IsNaN(Size.Y)))
-                available = contentSize;
+            available.Height = contentSize.Height;
+            available.Width = contentSize.Width;
             geometry = new RectangleGeometry(available.Width, available.Height, background);
             return available;
         }

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using SFML.Graphics;
-using SFML.System;
 
-namespace iLynx.UI.SFML
+namespace iLynx.UI.Sfml
 {
     // ReSharper disable once InconsistentNaming
     public interface IUIElement : Drawable

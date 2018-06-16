@@ -2,7 +2,7 @@
 using SFML.Graphics;
 using SFML.System;
 
-namespace iLynx.UI.SFML.Controls
+namespace iLynx.UI.Sfml.Rendering
 {
     public class RectangleGeometry : Geometry
     {

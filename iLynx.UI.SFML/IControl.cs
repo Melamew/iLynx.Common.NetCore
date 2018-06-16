@@ -1,7 +1,7 @@
 ﻿using System;
 using SFML.Window;
 
-namespace iLynx.UI.SFML
+namespace iLynx.UI.Sfml
 {
     public interface IControl : IUIElement
     {

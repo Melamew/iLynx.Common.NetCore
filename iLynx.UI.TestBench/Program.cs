@@ -1,11 +1,12 @@
 ﻿//using iLynx.UI.OpenGL;
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 using iLynx.Common;
-using iLynx.UI.SFML;
-using iLynx.UI.SFML.Controls;
+using iLynx.UI.Sfml;
+using iLynx.UI.Sfml.Animation;
+using iLynx.UI.Sfml.Controls;
+using iLynx.UI.Sfml.Layout;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -50,12 +51,20 @@ namespace iLynx.UI.TestBench
     public static class Program
     {
         private static Window window;
+        private static readonly Animator Animator = new Animator(startThread: true);
+        private static AbsolutePositionPanel canvas;
+        private static CanvasPositionBinding canvasPositionBinding;
 
-        private static void Main(string[] args)
+        private static void Main()
         {
-            //const int count = 1000000;
-            //var source = 1d;
             StartWindow();
+            var button = new Button { Content = new Label("This is moving", Color.Red), Background = Color.Green };
+            canvas.AddChild(button);
+            canvasPositionBinding = new CanvasPositionBinding(canvas, button);
+            var start = new Vector2f(0f, canvas.ComputedSize.Y / 2f - button.ComputedSize.Y / 2);
+            var end = new Vector2f(canvas.ComputedSize.X - button.ComputedSize.X, start.Y);
+            Animator.Start(new LinearAnimation<Vector2f>(start, end, TimeSpan.FromSeconds(.5), canvasPositionBinding, LoopMode.Reverse));
+            window.Closed += (o, e) => Animator.StopAnimator();
         }
 
         private static void StartWindow()
@@ -67,76 +76,66 @@ namespace iLynx.UI.TestBench
             });
             t.Start();
             while (null == window) Thread.CurrentThread.Join(250);
-            var dimensions = new Vector2f(64, 64);
-            var centreButton = new Button
-            {
-                Size = dimensions,
-                Background = Color.Red
-            };
-            var topButton = new Button
-            {
-                Size = dimensions,
-                Background = Color.Green
-            };
-            var leftButton = new Button
-            {
-                Size = dimensions,
-                Background = Color.Blue
-            };
-            var bottomButton = new Button
-            {
-                Size = dimensions,
-                Background = Color.Cyan
-            };
-            var rightButton = new Button
-            {
-                Size = dimensions,
-                Background = Color.Magenta
-            };
             var root = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 Background = Color.Yellow
             };
             window.RootPanel = root;
-            var stackPanel =
-                new StackPanel { Size = (Vector2f)window.Size * 0.5f, Background = Color.White, Margin = 4f };
+            var stackPanel = new StackPanel { Size = (Vector2f)window.Size * 0.5f, Background = Color.White, Margin = 4f };
             stackPanel.AddChild(new Label("Label 1", Color.Red)
             {
                 Margin = 64f
-            }, new Label("Label 2", Color.Green)
+            }, new Label("Label 2", Color.Green) { Margin = 4f });
+            canvas = new AbsolutePositionPanel
             {
-                Margin = 4f
-            },
-                new Button
-                {
-                    Background = Color.Magenta,
-                    Content = new Label("This is a button", Color.Black) { Margin = new Thickness(4f, 4f, 4f, 16f) },
-                    Margin = 4f
-                });
-            var canvas = new AbsolutePositionPanel
-            {
-                Size = (Vector2f)window.Size * 0.5f,
                 Background = Color.Black,
                 Margin = 4f
             };
-            canvas.AddChild(
-                centreButton,
-                topButton,
-                leftButton,
-                bottomButton,
-                rightButton
-            );
             root.AddChild(stackPanel, canvas);
-            window.MouseMoved += (sender, e) =>
-            {
-                var centrePos = new Vector2f(e.X - dimensions.X / 2, e.Y - dimensions.Y / 2);
-                canvas.SetPosition(centreButton, centrePos);
-                canvas.SetPosition(topButton, new Vector2f(centrePos.X, centrePos.Y - dimensions.Y * 2));
-                canvas.SetPosition(leftButton, new Vector2f(centrePos.X - dimensions.X * 2, centrePos.Y));
-                canvas.SetPosition(bottomButton, new Vector2f(centrePos.X, centrePos.Y + dimensions.Y * 2));
-                canvas.SetPosition(rightButton, new Vector2f(centrePos.X + dimensions.X * 2, centrePos.Y));
-            };
         }
     }
+
+    public class CanvasPositionBinding : IBinding<Vector2f>
+    {
+        private readonly AbsolutePositionPanel canvas;
+        private readonly IUIElement element;
+
+        public CanvasPositionBinding(AbsolutePositionPanel canvas, IUIElement element)
+        {
+            this.canvas = canvas;
+            this.element = element;
+        }
+
+        public void SetValue(Vector2f value)
+        {
+            canvas.SetRelativePosition(element, value);
+        }
+
+        public Vector2f GetValue()
+        {
+            return canvas.GetRelativePosition(element);
+        }
+    }
+
+
+    //public class VectorAnimation : IAnimation
+    //{
+    //    public VectorAnimation(Vector2f start, Vector2f end, TimeSpan duration, LoopMode loopMode = LoopMode.None)
+    //    {
+
+    //    }
+
+    //    public void Tick(TimeSpan elapsed)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public void Start()
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public bool IsFinished { get; }
+    //}
 }

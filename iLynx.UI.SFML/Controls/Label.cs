@@ -1,7 +1,6 @@
-﻿using iLynx.UI.Sfml;
-using SFML.Graphics;
+﻿using SFML.Graphics;
 
-namespace iLynx.UI.SFML.Controls
+namespace iLynx.UI.Sfml.Controls
 {
     public class Label : UIElement
     {
@@ -76,6 +75,7 @@ namespace iLynx.UI.SFML.Controls
 
         protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
+            states.Transform.Translate(ComputedPosition);
             renderable.Draw(target, states);
         }
 
@@ -97,12 +97,13 @@ namespace iLynx.UI.SFML.Controls
             using (AcquireLock())
             {
                 RebuildRender();
-                renderable.Position = target.Position();
+                var localBounds = renderable.GetLocalBounds();
+                return new FloatRect(
+                    target.Left - localBounds.Left,
+                    target.Top - localBounds.Top,
+                    localBounds.Width + localBounds.Left,
+                    fontSize);
             }
-
-            var bounds = renderable.GetLocalBounds();
-            bounds.Height = fontSize;
-            return bounds;
         }
     }
 }

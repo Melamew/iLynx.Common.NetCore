@@ -2,7 +2,7 @@
 using SFML.Graphics;
 using SFML.System;
 
-namespace iLynx.UI.SFML
+namespace iLynx.UI.Sfml
 {
     public struct Thickness : IEquatable<Thickness>
     {

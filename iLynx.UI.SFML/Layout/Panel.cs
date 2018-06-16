@@ -1,107 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using iLynx.Common;
-using iLynx.UI.Sfml;
+using iLynx.UI.Sfml.Controls;
 using SFML.Graphics;
 using SFML.System;
 
-namespace iLynx.UI.SFML.Controls
+namespace iLynx.UI.Sfml.Layout
 {
-    public class ReaderLock : IDisposable
-    {
-        private readonly ReaderWriterLockSlim rwl;
-
-        public ReaderLock(ReaderWriterLockSlim rwl)
-        {
-            this.rwl = rwl;
-            this.rwl.EnterUpgradeableReadLock();
-        }
-
-        public void Dispose()
-        {
-            rwl.ExitUpgradeableReadLock();
-        }
-    }
-
-    public class WriterLock : IDisposable
-    {
-        private readonly ReaderWriterLockSlim rwl;
-
-        public WriterLock(ReaderWriterLockSlim rwl)
-        {
-            this.rwl = rwl;
-            this.rwl.EnterWriteLock();
-        }
-
-        public void Dispose()
-        {
-            rwl.ExitWriteLock();
-        }
-    }
-
-    public interface IAnimation
-    {
-        void Tick(TimeSpan deltaTime);
-
-        bool IsFinished { get; }
-    }
-
-    public class LinearFloatAnimation : IAnimation
-    {
-        public void Tick(TimeSpan deltaTime)
-        {
-            
-        }
-
-        public bool IsFinished { get; }
-    }
-
-    public class Animator
-    {
-        private readonly Thread animationThread;
-        private readonly TimeSpan cleanupInterval = TimeSpan.FromMilliseconds(250);
-        private readonly List<IAnimation> animations = new List<IAnimation>();
-        private volatile bool isRunning = true;
-
-        public Animator()
-        {
-            animationThread = new Thread(DoAnimations);
-        }
-
-        public void StartAnimator()
-        {
-            animationThread.Start();
-        }
-
-        public void StopAnimator()
-        {
-            isRunning = false;
-            animationThread.Join();
-        }
-
-        private void DoAnimations(object state)
-        {
-            var lastTick = DateTime.Now;
-            var lastCleanup = DateTime.Now;
-            while (isRunning)
-            {
-                var runningAnimations = animations.Where(x => !x.IsFinished).ToArray();
-                foreach (var animation in runningAnimations)
-                    animation.Tick(DateTime.Now - lastTick);
-                if (DateTime.Now - lastCleanup >= cleanupInterval)
-                {
-                    animations.RemoveAll(x => x.IsFinished);
-                    lastCleanup = DateTime.Now;
-                }
-                lastTick = DateTime.Now;
-            }
-        }
-    }
-
     public abstract class Panel : SfmlControlBase
     {
         private readonly List<IUIElement> children = new List<IUIElement>();
