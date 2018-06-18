@@ -51,8 +51,7 @@ namespace iLynx.UI.TestBench
     public static class Program
     {
         private static Window window;
-        private static readonly Animator Animator = new Animator(startThread: true);
-        private static AbsolutePositionPanel canvas;
+        private static Canvas canvas;
         private static readonly Label BoundLabel = new Label(Color.Green);
         private static IBinding<string> textBinding;
 
@@ -64,15 +63,18 @@ namespace iLynx.UI.TestBench
             Console.WriteLine(3 % 2);
             Console.WriteLine(4 % 2);
             StartWindow();
-            var button = new Button { Content = new Label("This is moving", Color.Red), Background = Color.Green };
+            var button = new Button
+            {
+                Content = new Label("This is moving", Color.Red),
+                Background = Color.Green
+            };
             canvas.AddChild(button);
             canvas.AddChild(BoundLabel);
-            var start = new Vector2f(0f, canvas.ComputedSize.Y / 2f - button.ComputedSize.Y / 2);
-            var end = new Vector2f(canvas.ComputedSize.X - button.ComputedSize.X, start.Y);
-            Animator.Start(new CallbackAnimation(
+            var start = new Vector2f(0f, canvas.RenderSize.Y / 2f - button.RenderSize.Y / 2);
+            var end = new Vector2f(canvas.RenderSize.X - button.RenderSize.X, start.Y);
+            Animator.AddAnimation(new CallbackAnimation(
                 p => canvas.SetRelativePosition(button, start + (end - start) * (float) p), TimeSpan.FromSeconds(2f),
                 LoopMode.Reverse));
-            window.Closed += (o, e) => Animator.StopAnimator();
             var foo = new Foo();
             textBinding = new MultiBinding<string>().Bind(foo, nameof(Foo.A)).Bind(BoundLabel, nameof(Label.Text));
             InputHandler.TextEntered += (s, e) =>
@@ -82,10 +84,10 @@ namespace iLynx.UI.TestBench
                 else if (!char.IsControl(e.Unicode, 0))
                     foo.A += e.Unicode;
             };
-            Animator.Start(new CallbackAnimation(p =>
+            Animator.AddAnimation(new CallbackAnimation(p =>
             {
                 var offset = new Vector2f(0f, 50f);
-                var target = new Vector2f(canvas.ComputedSize.X - BoundLabel.ComputedSize.X, 0f);
+                var target = new Vector2f(canvas.RenderSize.X - BoundLabel.RenderSize.X, 0f);
                 canvas.SetRelativePosition(BoundLabel, offset + (float)p * target);
             }, TimeSpan.FromMilliseconds(2000d), LoopMode.Reverse, EasingFunctions.QuadraticInOut));
         }
@@ -102,15 +104,24 @@ namespace iLynx.UI.TestBench
             var root = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
-                Background = Color.Yellow
+                Background = Color.Blue
             };
             window.RootPanel = root;
-            var stackPanel = new StackPanel { Size = (Vector2f)window.Size * 0.5f, Background = Color.White, Margin = 4f };
+            var stackPanel = new StackPanel
+            {
+                Size = (Vector2f) window.Size * 0.5f,
+                Background = Color.Black,
+                Margin = 4f
+            };
             stackPanel.AddChild(new Label("Label 1", Color.Red)
             {
                 Margin = 64f
-            }, new Label("Label 2", Color.Green) { Margin = 4f });
-            canvas = new AbsolutePositionPanel
+            },
+                new Label("Label 2", Color.Green) {
+                Margin = 4f,
+                HorizontalAlignment = Alignment.End
+                });
+            canvas = new Canvas
             {
                 Background = Color.Black,
                 Margin = 4f

@@ -1,14 +1,11 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 
 namespace iLynx.UI.Sfml.Controls
 {
     public class Label : UIElement
     {
-        private string text;
-        private Text renderable = new Text();
-        private uint fontSize = 24;
-        private Color color;
-        private Color background;
+        private readonly Text renderable = new Text(string.Empty, DefaultFont, 24);
 
         public Label()
             : this(string.Empty, Color.Black)
@@ -23,31 +20,18 @@ namespace iLynx.UI.Sfml.Controls
 
         public Label(string text, Color color)
         {
-            this.text = text ?? string.Empty;
-            this.color = color;
-        }
-
-        public Color Background
-        {
-            get => background;
-            set
-            {
-                if (value == background) return;
-                var old = background;
-                background = value;
-                OnPropertyChanged(old, value);
-                RebuildRender();
-            }
+            Text = text ?? string.Empty;
+            Color = color;
         }
 
         public string Text
         {
-            get => text;
+            get => renderable.DisplayedString;
             set
             {
-                if (value == text) return;
-                var old = text;
-                text = value;
+                if (value == renderable.DisplayedString) return;
+                var old = renderable.DisplayedString;
+                renderable.DisplayedString = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
@@ -55,25 +39,24 @@ namespace iLynx.UI.Sfml.Controls
 
         public Color Color
         {
-            get => color;
+            get => renderable.FillColor;
             set
             {
-                if (value == color) return;
-                var old = color;
-                color = value;
-                OnPropertyChanged(old, color);
-                RebuildRender();
+                if (value == renderable.FillColor) return;
+                var old = renderable.FillColor;
+                renderable.FillColor = value;
+                OnPropertyChanged(old, value);
             }
         }
 
         public uint FontSize
         {
-            get => fontSize;
+            get => renderable.CharacterSize;
             set
             {
-                if (value == fontSize) return;
-                var old = fontSize;
-                fontSize = value;
+                if (value == renderable.CharacterSize) return;
+                var old = renderable.CharacterSize;
+                renderable.CharacterSize = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
@@ -81,32 +64,30 @@ namespace iLynx.UI.Sfml.Controls
 
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
-            states.Transform.Translate(ComputedPosition);
+            states.Transform.Translate(RenderPosition);
             renderable.Draw(target, states);
-        }
-
-        private void RebuildRender()
-        {
-            renderable = new Text(text, DefaultFont, fontSize)
-            {
-                FillColor = color
-            };
         }
 
         public override string ToString()
         {
-            return $"Label: {text}";
+            return $"Label: {renderable.DisplayedString}";
         }
 
-        protected override FloatRect LayoutInternal(FloatRect target)
+        public override Vector2f Measure(Vector2f availableSpace)
         {
-            RebuildRender();
+            var localBounds = renderable.GetLocalBounds();
+            return new Vector2f(localBounds.Width + localBounds.Left,
+                renderable.CharacterSize);
+        }
+
+        protected override FloatRect LayoutInternal(FloatRect finalRect)
+        {
             var localBounds = renderable.GetLocalBounds();
             return new FloatRect(
-                target.Left - localBounds.Left,
-                target.Top - localBounds.Top,
+                finalRect.Left - localBounds.Left,
+                finalRect.Top - localBounds.Top,
                 localBounds.Width + localBounds.Left,
-                fontSize);
+                renderable.CharacterSize);
         }
     }
 }

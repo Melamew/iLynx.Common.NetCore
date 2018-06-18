@@ -20,6 +20,11 @@ namespace iLynx.UI.Sfml.Layout
         private Vector2u textureDimensions;
         private volatile bool requireNewTexture = true;
 
+        protected Panel()
+            : base(Alignment.Fill, Alignment.Fill)
+        {
+        }
+
         public Color Background
         {
             get => background;
@@ -82,7 +87,7 @@ namespace iLynx.UI.Sfml.Layout
             if (null == t) return;
             var s = renderItems.Item2;
             var c = children.ToArray();
-            var pos = ComputedPosition;
+            var pos = RenderPosition;
             t.Clear(background);
             foreach (var child in c)
                 child.Draw(t, states);
@@ -91,9 +96,9 @@ namespace iLynx.UI.Sfml.Layout
             target.Draw(s, states);
         }
 
-        protected override FloatRect LayoutInternal(FloatRect target)
+        protected override FloatRect LayoutInternal(FloatRect finalRect)
         {
-            var result = target;
+            var result = finalRect;
             var dimensions = (Vector2u)result.Size();
             requireNewTexture = null == texture || textureDimensions != dimensions;
             textureDimensions = dimensions;

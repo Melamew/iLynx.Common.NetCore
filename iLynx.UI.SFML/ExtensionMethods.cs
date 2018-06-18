@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
+using iLynx.UI.Sfml.Animation;
+using iLynx.UI.Sfml.Layout;
 using SFML.Graphics;
 using SFML.System;
 
@@ -114,10 +115,10 @@ namespace iLynx.UI.Sfml
             return new Vector2f(vector.X * scalar.X, vector.Y * scalar.Y);
         }
 
-        //public static Transform Translate(this Transform transform, Vector2f distance)
+        //public static IAnimation StartAnimation(this IUIElement element, Canvas canvas, Vector2f from,
+        //    Vector2f to)
         //{
-        //    transform.Translate(distance);
-        //    return transform;
+            
         //}
     }
 }

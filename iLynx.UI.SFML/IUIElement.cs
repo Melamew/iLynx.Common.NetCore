@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using SFML.Graphics;
+using SFML.System;
 
 namespace iLynx.UI.Sfml
 {
@@ -14,6 +15,13 @@ namespace iLynx.UI.Sfml
         FloatRect Layout(FloatRect target);
 
         /// <summary>
+        /// Given the available space (<paramref name="available"/>), returns the space taken up by this element.
+        /// </summary>
+        /// <param name="available"></param>
+        /// <returns></returns>
+        Vector2f Measure(Vector2f available);
+
+        /// <summary>
         /// Gets or Sets the margin of this element
         /// </summary>
         Thickness Margin { get; set; }
@@ -24,6 +32,9 @@ namespace iLynx.UI.Sfml
         /// </summary>
         event EventHandler<PropertyChangedEventArgs> LayoutPropertyChanged;
         
+        /// <summary>
+        /// Gets the bounding box of this element
+        /// </summary>
         FloatRect BoundingBox { get; }
     }
 }

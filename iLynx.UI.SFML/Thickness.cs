@@ -8,17 +8,7 @@ namespace iLynx.UI.Sfml
     {
         public float Top, Left, Bottom, Right;
 
-        public static readonly Thickness NaN = new Thickness(float.NaN);
-
         public static readonly Thickness Zero = new Thickness(0f);
-
-        public static bool IsNaN(Thickness thickness)
-        {
-            return float.IsNaN(thickness.Left) &&
-                   float.IsNaN(thickness.Top) &&
-                   float.IsNaN(thickness.Right) &&
-                   float.IsNaN(thickness.Bottom);
-        }
 
         public bool Equals(Thickness other)
         {
@@ -111,6 +101,16 @@ namespace iLynx.UI.Sfml
                 left.Width - right.Horizontal,
                 left.Height - right.Vertical
                 );
+        }
+
+        public static Vector2f operator +(Vector2f left, Thickness right)
+        {
+            return new Vector2f(left.X + right.Horizontal, left.Y + right.Vertical);
+        }
+
+        public static Vector2f operator -(Vector2f left, Thickness right)
+        {
+            return new Vector2f(left.X - right.Horizontal, left.Y - right.Vertical);
         }
 
         public static implicit operator Thickness(float value)

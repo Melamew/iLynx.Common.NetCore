@@ -52,7 +52,8 @@ namespace iLynx.UI.Sfml
             : base(new VideoMode(width, height, 32), title, style)
         {
             SetupAlpha();
-            rootPanel = new AbsolutePositionPanel {Background = background};
+            base.SetFramerateLimit(120);
+            rootPanel = new Canvas {Background = background};
         }
 
         public Panel RootPanel
