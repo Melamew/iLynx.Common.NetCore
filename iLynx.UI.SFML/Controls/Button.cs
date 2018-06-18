@@ -17,12 +17,12 @@ namespace iLynx.UI.Sfml.Controls
                 if (value == background) return;
                 var old = background;
                 background = value;
+                geometry = new RectangleGeometry(ComputedSize.X, ComputedSize.Y, background);
                 OnPropertyChanged(old, value);
-                OnLayoutPropertyChanged();
             }
         }
 
-        protected override void DrawLocked(RenderTarget target, RenderStates states)
+        protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
             if (null == geometry) return;
             states.Transform.Translate(ComputedPosition);
@@ -32,7 +32,7 @@ namespace iLynx.UI.Sfml.Controls
 
         protected override FloatRect LayoutInternal(FloatRect target)
         {
-            var available = base.LayoutInternal(target);
+            var available = target;
             var contentSize = content.Layout(available);
             available.Height = contentSize.Height;
             available.Width = contentSize.Width;

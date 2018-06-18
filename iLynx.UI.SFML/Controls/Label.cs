@@ -15,6 +15,12 @@ namespace iLynx.UI.Sfml.Controls
         {
         }
 
+        public Label(Color color)
+            : this(string.Empty, color)
+        {
+
+        }
+
         public Label(string text, Color color)
         {
             this.text = text ?? string.Empty;
@@ -73,7 +79,7 @@ namespace iLynx.UI.Sfml.Controls
             }
         }
 
-        protected override void DrawLocked(RenderTarget target, RenderStates states)
+        protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
             states.Transform.Translate(ComputedPosition);
             renderable.Draw(target, states);
@@ -94,16 +100,13 @@ namespace iLynx.UI.Sfml.Controls
 
         protected override FloatRect LayoutInternal(FloatRect target)
         {
-            using (AcquireLock())
-            {
-                RebuildRender();
-                var localBounds = renderable.GetLocalBounds();
-                return new FloatRect(
-                    target.Left - localBounds.Left,
-                    target.Top - localBounds.Top,
-                    localBounds.Width + localBounds.Left,
-                    fontSize);
-            }
+            RebuildRender();
+            var localBounds = renderable.GetLocalBounds();
+            return new FloatRect(
+                target.Left - localBounds.Left,
+                target.Top - localBounds.Top,
+                localBounds.Width + localBounds.Left,
+                fontSize);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace iLynx.Common
         private readonly Dictionary<object, PropertyWrapper<TValue>> targets = new Dictionary<object, PropertyWrapper<TValue>>();
         private bool changing = false;
 
-        public MultiBinding<TValue> Bind<TTarget>(TTarget target, string propertyName) where TTarget : IBindingSource
+        public IBinding<TValue> Bind<TTarget>(TTarget target, string propertyName) where TTarget : IBindingSource
         {
             if (targets.ContainsKey(target)) return this;
             var wrapper = PropertyWrapper<TValue>.Create(target, propertyName); //new PropertyWrapper<TValue>(target, propertyName);
@@ -22,16 +22,12 @@ namespace iLynx.Common
         {
             if (changing) return;
             changing = true;
-            Debug.WriteLine($"MultiBinding property changed, Source: {source}, old value: {e.OldValue}, new value: {e.NewValue}");
             foreach (var target in targets.Where(x => x.Key != source))
-            {
-                Debug.WriteLine($"MultiBinding setting property {target.Value.PropertyName} of {target.Key} to {e.NewValue}");
                 target.Value.SetValue(e.NewValue);
-            }
             changing = false;
         }
 
-        public MultiBinding<TValue> Unbind<TTarget>(TTarget target) where TTarget : IBindingSource
+        public IBinding<TValue> Unbind<TTarget>(TTarget target) where TTarget : IBindingSource
         {
             if (targets.Remove(target, out var propertyWrapper))
                 target.RemovePropertyChangedHandler<TValue>(propertyWrapper.PropertyName, OnPropertyChanged);

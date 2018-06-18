@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using iLynx.Common;
 using iLynx.Common.Threading;
 using SFML.Graphics;
@@ -14,27 +15,46 @@ namespace iLynx.UI.Sfml.Controls
     {
         private Thickness margin = Thickness.Zero;
         protected Transform RenderTransform = Transform.Identity;
-        //private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
-        private readonly object lockObject = new object();
-        
-        protected DisposableMonitor AcquireLock()
-        {
-            return new DisposableMonitor(lockObject);
-        }
+        private Vector2f size = new Vector2f(float.NaN, float.NaN);
+        private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
 
         public virtual FloatRect Layout(FloatRect target)
         {
-            using (AcquireLock())
+            try
             {
-                target -= margin; // Shrink available space to account for the element's margin
+                rwl.EnterWriteLock();
+                var dims = size;
+                var m = margin;
+                target -= m; // Shrink available space to account for the element's margin
+                if (!float.IsNaN(dims.X) && dims.X < target.Width)
+                    target.Width = dims.X;
+                if (!float.IsNaN(dims.Y) && dims.Y < target.Height)
+                    target.Height = dims.Y;
                 BoundingBox = LayoutInternal(target);
-                return BoundingBox + margin; // The final layout size of this element is it's bounding box plus margins
+                return BoundingBox + m; // The final layout size of this element is it's bounding box plus margins
+            }
+            finally
+            {
+                rwl.ExitWriteLock();
             }
         }
 
         public Vector2f ComputedPosition => new Vector2f(BoundingBox.Left, BoundingBox.Top);
 
         public Vector2f ComputedSize => new Vector2f(BoundingBox.Width, BoundingBox.Height);
+
+        public Vector2f Size
+        {
+            get => size;
+            set
+            {
+                if (value == size) return;
+                var old = size;
+                size = value;
+                OnPropertyChanged(old, size);
+                OnLayoutPropertyChanged();
+            }
+        }
 
 
         /// <summary>
@@ -68,11 +88,12 @@ namespace iLynx.UI.Sfml.Controls
 
         public void Draw(RenderTarget target, RenderStates states)
         {
-            using (AcquireLock())
-                DrawLocked(target, states);
+            rwl.EnterReadLock();
+            DrawInternal(target, states);
+            rwl.ExitReadLock();
         }
 
-        protected abstract void DrawLocked(RenderTarget target, RenderStates states);
+        protected abstract void DrawInternal(RenderTarget target, RenderStates states);
     }
 
     // ReSharper disable once InconsistentNaming

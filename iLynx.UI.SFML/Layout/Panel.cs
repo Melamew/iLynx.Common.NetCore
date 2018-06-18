@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using iLynx.Common.Threading;
 using iLynx.UI.Sfml.Controls;
 using SFML.Graphics;
 using SFML.System;
@@ -14,8 +17,8 @@ namespace iLynx.UI.Sfml.Layout
         private Color background;
         private RenderTexture texture;
         private Sprite sprite;
-        private bool requireNewTexture = true;
         private Vector2u textureDimensions;
+        private volatile bool requireNewTexture = true;
 
         public Color Background
         {
@@ -26,21 +29,22 @@ namespace iLynx.UI.Sfml.Layout
                 var old = background;
                 background = value;
                 OnPropertyChanged(old, value);
-                OnLayoutPropertyChanged();
             }
+        }
+
+        protected override void OnLayoutPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            base.OnLayoutPropertyChanged(propertyName);
         }
 
         public void AddChild(params IUIElement[] elements)
         {
-            using (AcquireLock())
+            children.AddRange(elements.Select(x =>
             {
-                children.AddRange(elements.Select(x =>
-                {
-                    x.LayoutPropertyChanged += OnChildLayoutPropertyChanged;
-                    return x;
-                }));
-            }
-            OnLayoutPropertyChanged();
+                x.LayoutPropertyChanged += OnChildLayoutPropertyChanged;
+                return x;
+            }));
+            OnLayoutPropertyChanged(nameof(Children));
         }
 
         private void OnChildLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -50,42 +54,49 @@ namespace iLynx.UI.Sfml.Layout
 
         public void RemoveChild(params IUIElement[] elements)
         {
-            using (AcquireLock())
+            foreach (var element in elements)
             {
-                foreach (var element in elements)
-                {
-                    children.Remove(element);
-                    element.LayoutPropertyChanged -= OnChildLayoutPropertyChanged;
-                }
+                children.Remove(element);
+                element.LayoutPropertyChanged -= OnChildLayoutPropertyChanged;
             }
-            OnLayoutPropertyChanged();
+            OnLayoutPropertyChanged(nameof(Children));
         }
 
-        protected override void DrawLocked(RenderTarget target, RenderStates states)
+        private (RenderTexture, Sprite) GetRenderItems()
         {
-            if (textureDimensions.X == 0 || textureDimensions.Y == 0) return;
-            if (requireNewTexture || null == texture)
+            if (requireNewTexture && textureDimensions.X > 0 && textureDimensions.Y > 0)
             {
                 texture?.Dispose();
                 texture = null;
                 texture = new RenderTexture(textureDimensions.X, textureDimensions.Y);
-                requireNewTexture = false;
                 sprite = new Sprite(texture.Texture);
+                requireNewTexture = false;
             }
-            texture.Clear(background);
-            foreach (var child in children)
-                child.Draw(texture, states);
-            texture.Display();
-            states.Transform.Translate(ComputedPosition);
-            target.Draw(sprite, states);
+            return (texture, sprite);
+        }
+
+        protected override void DrawInternal(RenderTarget target, RenderStates states)
+        {
+            var renderItems = GetRenderItems();
+            var t = renderItems.Item1;
+            if (null == t) return;
+            var s = renderItems.Item2;
+            var c = children.ToArray();
+            var pos = ComputedPosition;
+            t.Clear(background);
+            foreach (var child in c)
+                child.Draw(t, states);
+            t.Display();
+            states.Transform.Translate(pos);
+            target.Draw(s, states);
         }
 
         protected override FloatRect LayoutInternal(FloatRect target)
         {
-            var result = base.LayoutInternal(target);
+            var result = target;
             var dimensions = (Vector2u)result.Size();
+            requireNewTexture = null == texture || textureDimensions != dimensions;
             textureDimensions = dimensions;
-            requireNewTexture = dimensions != textureDimensions;
             return result;
         }
     }

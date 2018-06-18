@@ -37,6 +37,10 @@ namespace iLynx.UI.Sfml
             {
                 EventType.Closed,
                 (w, e) => w.Close()
+            },
+            {
+                EventType.TextEntered,
+                (w, e) => InputHandler.OnTextEntered(w, new TextEventArgs(e.Text))
             }
         };
 

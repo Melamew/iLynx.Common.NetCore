@@ -14,42 +14,38 @@ namespace iLynx.UI.Sfml.Layout
         {
             target = base.LayoutInternal(target);
             var totalSize = new Vector2f(target.Width, target.Height);
-            var offset = new Vector2f(target.Left, target.Top);
             foreach (var child in Children)
             {
                 if (!positions.TryGetValue(child, out var position))
                     position = new Vector2f();
-                var relativePosition = position - offset;
+                var relativePosition = position;
                 var subTarget = new FloatRect(relativePosition, totalSize - relativePosition);
                 child.Layout(subTarget);
             }
             return target;
         }
 
-        public void SetPosition(IUIElement element, Vector2f position)
+        public void SetGlobalPosition(IUIElement element, Vector2f position)
         {
-            using (AcquireLock())
-            {
-                if (Children.All(x => x != element))
-                    throw new InvalidOperationException("The specified target element is not contained in this canvas");
-                positions.AddOrUpdate(element, position);
-            }
-            OnLayoutPropertyChanged();
+            SetRelativePosition(element, position - ComputedPosition);
         }
 
         public void SetRelativePosition(IUIElement element, Vector2f position)
         {
-            SetPosition(element, ComputedPosition + position);
+            if (Children.All(x => x != element))
+                throw new InvalidOperationException("The specified target element is not contained in this canvas");
+            positions.AddOrUpdate(element, position);
+            OnLayoutPropertyChanged(nameof(Children));
         }
 
-        public Vector2f GetPosition(IUIElement element)
+        public Vector2f GetGlobalPosition(IUIElement element)
         {
-            return !positions.TryGetValue(element, out var value) ? new Vector2f() : value;
+            return GetRelativePosition(element) - ComputedPosition;
         }
 
         public Vector2f GetRelativePosition(IUIElement element)
         {
-            return GetPosition(element) - ComputedPosition;
+            return !positions.TryGetValue(element, out var value) ? new Vector2f() : value;
         }
     }
 }

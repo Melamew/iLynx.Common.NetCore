@@ -54,8 +54,10 @@ namespace iLynx.UI.Sfml.Animation
                 (DateTime, IAnimation)[] runningAnimations;
                 lock (animations)
                     runningAnimations = animations.Where(x => !x.Item2.IsFinished).ToArray();
-                Parallel.ForEach(runningAnimations,
-                    animation => { animation.Item2.Tick(DateTime.Now - animation.Item1); });
+                foreach (var animation in runningAnimations)
+                    animation.Item2.Tick(DateTime.Now - animation.Item1);
+                //Parallel.ForEach(runningAnimations,
+                //    animation => { animation.Item2.Tick(DateTime.Now - animation.Item1); });
                 Thread.CurrentThread.Join(frameInterval);
                 if (DateTime.Now - lastCleanup < cleanupInterval) continue;
                 lock (animations)
