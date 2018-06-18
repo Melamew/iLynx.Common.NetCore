@@ -65,7 +65,7 @@ namespace iLynx.UI.Sfml.Animation
             }
         }
 
-        private static void DoAnimations(object state)
+        private static async void DoAnimations(object state)
         {
             var lastCleanup = DateTime.Now;
             while (isRunning)
@@ -81,7 +81,7 @@ namespace iLynx.UI.Sfml.Animation
                     rwl.ExitReadLock();
                 }
                 foreach (var animation in anims.Where(x => !x.Key.IsFinished))
-                    animation.Key.Tick(DateTime.Now - animation.Value);
+                    await Task.Run(() => animation.Key.Tick(DateTime.Now - animation.Value));
                 Thread.CurrentThread.Join(frameInterval);
                 if (DateTime.Now - lastCleanup < CleanupInterval) continue;
                 try

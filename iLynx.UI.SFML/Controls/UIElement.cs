@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using iLynx.Common;
@@ -35,6 +36,7 @@ namespace iLynx.UI.Sfml.Controls
 
         public virtual FloatRect Layout(FloatRect target)
         {
+            var sw = Stopwatch.StartNew();
             try
             {
                 rwl.EnterWriteLock();
@@ -76,6 +78,9 @@ namespace iLynx.UI.Sfml.Controls
             finally
             {
                 rwl.ExitWriteLock();
+
+                sw.Stop();
+                Console.WriteLine($"Layout for {this} finished in {sw.Elapsed.TotalMilliseconds}ms");
             }
         }
 

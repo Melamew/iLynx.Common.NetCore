@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using SFML.Graphics;
 using SFML.System;
@@ -35,7 +36,8 @@ namespace iLynx.UI.Sfml.Layout
             if (Children.All(x => x != element))
                 throw new InvalidOperationException("The specified finalRect element is not contained in this canvas");
             positions.AddOrUpdate(element, position);
-            OnLayoutPropertyChanged(nameof(Children));
+            OnChildLayoutPropertyChanged(element, new PropertyChangedEventArgs("Canvas.Position"));
+            //OnLayoutPropertyChanged(nameof(Children));
         }
 
         public Vector2f GetGlobalPosition(IUIElement element)

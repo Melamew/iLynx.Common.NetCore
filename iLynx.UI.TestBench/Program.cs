@@ -63,18 +63,18 @@ namespace iLynx.UI.TestBench
             Console.WriteLine(3 % 2);
             Console.WriteLine(4 % 2);
             StartWindow();
-            var button = new Button
-            {
-                Content = new Label("This is moving", Color.Red),
-                Background = Color.Green
-            };
-            canvas.AddChild(button);
+            //var button = new ContentControl
+            //{
+            //    Content = new Label("This is moving", Color.Red),
+            //    Background = Color.Green
+            //};
+            //canvas.AddChild(button);
             canvas.AddChild(BoundLabel);
-            var start = new Vector2f(0f, canvas.RenderSize.Y / 2f - button.RenderSize.Y / 2);
-            var end = new Vector2f(canvas.RenderSize.X - button.RenderSize.X, start.Y);
-            Animator.AddAnimation(new CallbackAnimation(
-                p => canvas.SetRelativePosition(button, start + (end - start) * (float) p), TimeSpan.FromSeconds(2f),
-                LoopMode.Reverse));
+            //var start = new Vector2f(0f, canvas.RenderSize.Y / 2f - button.RenderSize.Y / 2);
+            //var end = new Vector2f(canvas.RenderSize.X - button.RenderSize.X, start.Y);
+            //Animator.AddAnimation(new CallbackAnimation(
+            //    p => canvas.SetRelativePosition(button, start + (end - start) * (float) p), TimeSpan.FromSeconds(2f),
+            //    LoopMode.Reverse));
             var foo = new Foo();
             textBinding = new MultiBinding<string>().Bind(foo, nameof(Foo.A)).Bind(BoundLabel, nameof(Label.Text));
             InputHandler.TextEntered += (s, e) =>
@@ -89,7 +89,7 @@ namespace iLynx.UI.TestBench
                 var offset = new Vector2f(0f, 50f);
                 var target = new Vector2f(canvas.RenderSize.X - BoundLabel.RenderSize.X, 0f);
                 canvas.SetRelativePosition(BoundLabel, offset + (float)p * target);
-            }, TimeSpan.FromMilliseconds(2000d), LoopMode.Reverse, EasingFunctions.QuadraticInOut));
+            }, TimeSpan.FromMilliseconds(2000d), LoopMode.Reverse, EasingFunctions.CubicEaseIn));
         }
 
         private static void StartWindow()
@@ -109,7 +109,7 @@ namespace iLynx.UI.TestBench
             window.RootPanel = root;
             var stackPanel = new StackPanel
             {
-                Size = (Vector2f) window.Size * 0.5f,
+                Size = (Vector2f)window.Size * 0.5f,
                 Background = Color.Black,
                 Margin = 4f
             };
@@ -117,9 +117,16 @@ namespace iLynx.UI.TestBench
             {
                 Margin = 64f
             },
-                new Label("Label 2", Color.Green) {
-                Margin = 4f,
-                HorizontalAlignment = Alignment.End
+                new Label("Label 2", Color.Green)
+                {
+                    Margin = 4f,
+                    HorizontalAlignment = Alignment.End
+                },
+                new ContentControl
+                {
+                    Content = "Some text",
+                    Margin = 4f,
+                    HorizontalAlignment = Alignment.Centre
                 });
             canvas = new Canvas
             {

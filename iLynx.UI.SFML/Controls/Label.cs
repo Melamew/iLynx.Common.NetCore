@@ -8,20 +8,23 @@ namespace iLynx.UI.Sfml.Controls
         private readonly Text renderable = new Text(string.Empty, DefaultFont, 24);
 
         public Label()
-            : this(string.Empty, Color.Black)
-        {
-        }
+            : this(string.Empty, Color.Black) { }
 
         public Label(Color color)
-            : this(string.Empty, color)
-        {
-
-        }
+            : this(string.Empty, color) { }
 
         public Label(string text, Color color)
         {
             Text = text ?? string.Empty;
             Color = color;
+        }
+
+        public Label(string text, Font font, uint fontSize)
+            : this(text, Color.Black)
+        {
+            Text = text ?? string.Empty;
+            Font = font;
+            FontSize = fontSize;
         }
 
         public string Text
@@ -57,6 +60,19 @@ namespace iLynx.UI.Sfml.Controls
                 if (value == renderable.CharacterSize) return;
                 var old = renderable.CharacterSize;
                 renderable.CharacterSize = value;
+                OnPropertyChanged(old, value);
+                OnLayoutPropertyChanged();
+            }
+        }
+
+        public Font Font
+        {
+            get => renderable.Font;
+            set
+            {
+                if (value == renderable.Font) return;
+                var old = renderable.Font;
+                renderable.Font = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }

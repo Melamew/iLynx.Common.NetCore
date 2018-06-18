@@ -52,9 +52,12 @@ namespace iLynx.UI.Sfml.Layout
             OnLayoutPropertyChanged(nameof(Children));
         }
 
-        private void OnChildLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected virtual void OnChildLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            OnLayoutPropertyChanged(e.PropertyName);
+            if (null == texture || requireNewTexture)
+                OnLayoutPropertyChanged(e.PropertyName);
+            else
+                Layout(BoundingBox + Margin);
         }
 
         public void RemoveChild(params IUIElement[] elements)
@@ -67,7 +70,7 @@ namespace iLynx.UI.Sfml.Layout
             OnLayoutPropertyChanged(nameof(Children));
         }
 
-        private (RenderTexture, Sprite) GetRenderItems()
+        private (RenderTexture texture, Sprite sprite) GetRenderItems()
         {
             if (requireNewTexture && textureDimensions.X > 0 && textureDimensions.Y > 0)
             {
@@ -83,9 +86,9 @@ namespace iLynx.UI.Sfml.Layout
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
             var renderItems = GetRenderItems();
-            var t = renderItems.Item1;
+            var t = renderItems.texture;
             if (null == t) return;
-            var s = renderItems.Item2;
+            var s = renderItems.sprite;
             var c = children.ToArray();
             var pos = RenderPosition;
             t.Clear(background);
@@ -102,7 +105,7 @@ namespace iLynx.UI.Sfml.Layout
             var dimensions = (Vector2u)result.Size();
             requireNewTexture = null == texture || textureDimensions != dimensions;
             textureDimensions = dimensions;
-            return result;
+            return result;//new FloatRect(0f,0f, textureDimensions.X, textureDimensions.Y);
         }
     }
 }
