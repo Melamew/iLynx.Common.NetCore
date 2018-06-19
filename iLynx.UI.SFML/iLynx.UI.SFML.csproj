@@ -23,6 +23,9 @@
     <None Update="fonts\Mechanical.otf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="fonts\OpenSans-Regular.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="lib\win64\csfml-audio-2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

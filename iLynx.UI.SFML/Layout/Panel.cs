@@ -10,18 +10,18 @@ using SFML.System;
 
 namespace iLynx.UI.Sfml.Layout
 {
-    public abstract class Panel : SfmlControlBase
+    public abstract class Panel : UIElement
     {
         private readonly List<IUIElement> children = new List<IUIElement>();
         public IEnumerable<IUIElement> Children => children;
-        private Color background;
+        private Color background = Color.Transparent;
         private RenderTexture texture;
         private Sprite sprite;
         private Vector2u textureDimensions;
         private volatile bool requireNewTexture = true;
 
         protected Panel()
-            : base(Alignment.Fill, Alignment.Fill)
+            : base(Alignment.Stretch, Alignment.Stretch)
         {
         }
 
@@ -90,22 +90,23 @@ namespace iLynx.UI.Sfml.Layout
             if (null == t) return;
             var s = renderItems.sprite;
             var c = children.ToArray();
-            var pos = RenderPosition;
             t.Clear(background);
+            var childStates = new RenderStates(states) {Transform = Transform.Identity};
             foreach (var child in c)
-                child.Draw(t, states);
+                child.Draw(t, childStates);
             t.Display();
-            states.Transform.Translate(pos);
             target.Draw(s, states);
         }
 
         protected override FloatRect LayoutInternal(FloatRect finalRect)
         {
-            var result = finalRect;
-            var dimensions = (Vector2u)result.Size();
+            var dimensions = (Vector2u)finalRect.Size();
             requireNewTexture = null == texture || textureDimensions != dimensions;
             textureDimensions = dimensions;
-            return result;//new FloatRect(0f,0f, textureDimensions.X, textureDimensions.Y);
+            LayoutChildren(finalRect);
+            return finalRect;
         }
+
+        protected abstract void LayoutChildren(FloatRect target);
     }
 }

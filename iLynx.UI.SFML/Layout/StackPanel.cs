@@ -36,15 +36,15 @@ namespace iLynx.UI.Sfml.Layout
             }
         }
 
-        protected override FloatRect LayoutInternal(FloatRect finalRect)
+        protected override void LayoutChildren(FloatRect target)
         {
-            var availableSpace = base.LayoutInternal(finalRect);
+            var availableSpace = target;
             var scalar = orientation == Orientation.Horizontal ? new Vector2f(0f, 1f) : new Vector2f(1f, 0f);
             var childSpaceScalar = orientation == Orientation.Horizontal ? new Vector2f(1f, 0f) : new Vector2f(0f, 1f); // The inverse for stepping size
             var usedSpace = new FloatRect(availableSpace.Position(), availableSpace.Size().Scale(scalar));
             foreach (var child in reverse ? Children.Reverse() : Children)
             {
-                var childSpace = child.Layout(availableSpace).Size().Scale(childSpaceScalar);
+                var childSpace = (child.Layout(availableSpace).Size() + child.Margin).Scale(childSpaceScalar);
                 usedSpace.Height += childSpace.Y;
                 usedSpace.Width += childSpace.X;
                 availableSpace.Left += childSpace.X;
@@ -52,7 +52,6 @@ namespace iLynx.UI.Sfml.Layout
                 availableSpace.Top += childSpace.Y;
                 availableSpace.Height -= childSpace.Y;
             }
-            return usedSpace;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using iLynx.Common;
+using iLynx.Common.Threading;
 using SFML.Graphics;
 using SFML.System;
 
@@ -12,9 +13,9 @@ namespace iLynx.UI.Sfml.Controls
     public enum Alignment
     {
         Start = 0,
-        Centre = 1,
+        Center = 1,
         End = 2,
-        Fill = 3
+        Stretch = 3
     }
 
     // ReSharper disable once InconsistentNaming
@@ -34,6 +35,16 @@ namespace iLynx.UI.Sfml.Controls
             this.verticalAlignment = verticalAlignment;
         }
 
+        protected WriterLock AcquireLayoutLock()
+        {
+            return new WriterLock(rwl);
+        }
+
+        protected ReaderLock AcquireRenderLock()
+        {
+            return new ReaderLock(rwl);
+        }
+
         public virtual FloatRect Layout(FloatRect target)
         {
             var sw = Stopwatch.StartNew();
@@ -42,17 +53,16 @@ namespace iLynx.UI.Sfml.Controls
                 rwl.EnterWriteLock();
                 var va = verticalAlignment;
                 var ha = horizontalAlignment;
-                target -= margin;
-                var computedSize = Measure(target.Size());
+                var computedSize = Measure(target.Size()) + margin;
                 var final = target;
                 final.Width = computedSize.X;
                 final.Height = computedSize.Y;
                 switch (ha)
                 {
-                    case Alignment.Fill when float.IsNaN(size.X):
+                    case Alignment.Stretch when float.IsNaN(size.X):
                         final.Width = target.Width;
                         break;
-                    case Alignment.Centre:
+                    case Alignment.Center:
                         final.Left = final.Left + (target.Width / 2f - computedSize.X / 2f);
                         break;
                     case Alignment.End:
@@ -62,25 +72,25 @@ namespace iLynx.UI.Sfml.Controls
 
                 switch (va)
                 {
-                    case Alignment.Fill when float.IsNaN(size.Y):
+                    case Alignment.Stretch when float.IsNaN(size.Y):
                         final.Height = target.Height;
                         break;
-                    case Alignment.Centre:
+                    case Alignment.Center:
                         final.Top = final.Top + (target.Height / 2f - computedSize.Y / 2f);
                         break;
                     case Alignment.End:
                         final.Top = final.Top + target.Height - computedSize.Y;
                         break;
                 }
+                final -= margin;
                 BoundingBox = LayoutInternal(final);
-                return BoundingBox + margin; // The final layout size of this element is it's bounding box plus margins
+                return BoundingBox; // The final layout size of this element is it's bounding box plus margins
             }
             finally
             {
                 rwl.ExitWriteLock();
-
                 sw.Stop();
-                Console.WriteLine($"Layout for {this} finished in {sw.Elapsed.TotalMilliseconds}ms");
+                //Console.WriteLine($"Layout for {this} finished in {sw.Elapsed.TotalMilliseconds}ms");
             }
         }
 
@@ -176,16 +186,13 @@ namespace iLynx.UI.Sfml.Controls
         public void Draw(RenderTarget target, RenderStates states)
         {
             rwl.EnterReadLock();
+            states.Transform.Translate(RenderPosition);
             DrawInternal(target, states);
             rwl.ExitReadLock();
         }
 
         protected abstract void DrawInternal(RenderTarget target, RenderStates states);
 
-        static UIElement()
-        {
-            DefaultFont = new Font("fonts/Mechanical.otf");
-        }
-        public static Font DefaultFont { get; }
+        public static Font DefaultFont => new Font("fonts/OpenSans-Regular.ttf");
     }
 }

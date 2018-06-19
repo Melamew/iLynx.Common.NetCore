@@ -11,10 +11,9 @@ namespace iLynx.UI.Sfml.Layout
     {
         private readonly Dictionary<IUIElement, Vector2f> positions = new Dictionary<IUIElement, Vector2f>();
 
-        protected override FloatRect LayoutInternal(FloatRect finalRect)
+        protected override void LayoutChildren(FloatRect target)
         {
-            finalRect = base.LayoutInternal(finalRect);
-            var totalSize = new Vector2f(finalRect.Width, finalRect.Height);
+            var totalSize = target.Size();
             foreach (var child in Children)
             {
                 if (!positions.TryGetValue(child, out var position))
@@ -23,7 +22,11 @@ namespace iLynx.UI.Sfml.Layout
                 var subTarget = new FloatRect(relativePosition, totalSize - relativePosition);
                 child.Layout(subTarget);
             }
-            return finalRect;
+        }
+
+        protected override void DrawInternal(RenderTarget target, RenderStates states)
+        {
+            base.DrawInternal(target, states);
         }
 
         public void SetGlobalPosition(IUIElement element, Vector2f position)
@@ -37,7 +40,6 @@ namespace iLynx.UI.Sfml.Layout
                 throw new InvalidOperationException("The specified finalRect element is not contained in this canvas");
             positions.AddOrUpdate(element, position);
             OnChildLayoutPropertyChanged(element, new PropertyChangedEventArgs("Canvas.Position"));
-            //OnLayoutPropertyChanged(nameof(Children));
         }
 
         public Vector2f GetGlobalPosition(IUIElement element)

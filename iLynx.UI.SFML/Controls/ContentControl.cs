@@ -6,9 +6,7 @@ namespace iLynx.UI.Sfml.Controls
 {
     public class ContentControl : SfmlControlBase
     {
-        private Color background = Color.White;
         private IUIElement content = new Label { Color = Color.Black };
-        private Geometry geometry;
         private Color foreground;
         private Thickness padding = 4f;
 
@@ -22,19 +20,6 @@ namespace iLynx.UI.Sfml.Controls
                 padding = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
-            }
-        }
-
-        public Color Background
-        {
-            get => background;
-            set
-            {
-                if (value == background) return;
-                var old = background;
-                background = value;
-                geometry = new RectangleGeometry(RenderSize.X, RenderSize.Y, background);
-                OnPropertyChanged(old, value);
             }
         }
 
@@ -54,9 +39,7 @@ namespace iLynx.UI.Sfml.Controls
 
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
-            if (null == geometry) return;
-            states.Transform.Translate(RenderPosition);
-            target.Draw(geometry, states);
+            base.DrawInternal(target, states);
             content?.Draw(target, RenderStates.Default); //, states);
         }
 
@@ -74,10 +57,9 @@ namespace iLynx.UI.Sfml.Controls
 
         protected override FloatRect LayoutInternal(FloatRect finalRect)
         {
-            var available = finalRect;
-            content?.Layout(available - padding);
-            geometry = new RectangleGeometry(available.Width, available.Height, background);
-            return available;
+            finalRect = base.LayoutInternal(finalRect);
+            content?.Layout(finalRect - padding);
+            return finalRect;
         }
 
         public object Content

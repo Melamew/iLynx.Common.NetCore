@@ -34,7 +34,8 @@ namespace iLynx.UI.Sfml.Controls
             {
                 if (value == renderable.DisplayedString) return;
                 var old = renderable.DisplayedString;
-                renderable.DisplayedString = value;
+                using (AcquireLayoutLock())
+                    renderable.DisplayedString = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
@@ -47,7 +48,8 @@ namespace iLynx.UI.Sfml.Controls
             {
                 if (value == renderable.FillColor) return;
                 var old = renderable.FillColor;
-                renderable.FillColor = value;
+                using (AcquireLayoutLock())
+                    renderable.FillColor = value;
                 OnPropertyChanged(old, value);
             }
         }
@@ -59,7 +61,8 @@ namespace iLynx.UI.Sfml.Controls
             {
                 if (value == renderable.CharacterSize) return;
                 var old = renderable.CharacterSize;
-                renderable.CharacterSize = value;
+                using (AcquireLayoutLock())
+                    renderable.CharacterSize = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
@@ -72,7 +75,8 @@ namespace iLynx.UI.Sfml.Controls
             {
                 if (value == renderable.Font) return;
                 var old = renderable.Font;
-                renderable.Font = value;
+                using (AcquireLayoutLock())
+                    renderable.Font = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
@@ -80,8 +84,16 @@ namespace iLynx.UI.Sfml.Controls
 
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
-            states.Transform.Translate(RenderPosition);
-            renderable.Draw(target, states);
+            var rect = new RectangleShape(BoundingBox.Size())
+            {
+                OutlineColor = Color.Red,
+                FillColor = Color.Transparent,
+                OutlineThickness = 2f
+            };
+            target.Draw(rect, states);
+            var textStates = states;
+            textStates.Transform.Translate(-renderable.GetLocalBounds().Position());
+            target.Draw(renderable, textStates);
         }
 
         public override string ToString()
@@ -92,18 +104,18 @@ namespace iLynx.UI.Sfml.Controls
         public override Vector2f Measure(Vector2f availableSpace)
         {
             var localBounds = renderable.GetLocalBounds();
-            return new Vector2f(localBounds.Width + localBounds.Left,
-                renderable.CharacterSize);
+            return new Vector2f(localBounds.Width,
+                localBounds.Height);
         }
 
         protected override FloatRect LayoutInternal(FloatRect finalRect)
         {
             var localBounds = renderable.GetLocalBounds();
             return new FloatRect(
-                finalRect.Left - localBounds.Left,
-                finalRect.Top - localBounds.Top,
-                localBounds.Width + localBounds.Left,
-                renderable.CharacterSize);
+                finalRect.Left,
+                finalRect.Top,
+                localBounds.Width,
+                localBounds.Height);
         }
     }
 }

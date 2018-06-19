@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using iLynx.Common;
-using iLynx.UI.Sfml.Controls;
 using iLynx.UI.Sfml.Layout;
 using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 
 namespace iLynx.UI.Sfml
@@ -48,19 +47,23 @@ namespace iLynx.UI.Sfml
         };
 
         private readonly DetachedBindingSource bindingSource = new DetachedBindingSource();
-        private Color background = Color.Black;
+        private Color background = Color.Transparent;
         private Panel rootPanel;
-        private readonly StatisticsElement stats = new StatisticsElement();
+        private readonly StatisticsElement stats = new StatisticsElement { Padding = 16f, Margin = 16f };
         private TimeSpan frameTime;
         private readonly IBinding<TimeSpan> frameTimeBinding;
         private TimeSpan layoutTime;
         private readonly IBinding<TimeSpan> layoutTimeBinding;
 
-        public Window(uint width, uint height, string title, Styles style = Styles.Default)
-            : base(new VideoMode(width, height, 32), title, style)
+        public Window(string title = "", Styles style = Styles.None)
+            : this(VideoMode.DesktopMode, title, style) { }
+
+        public Window(VideoMode mode, string title = "", Styles style = Styles.None)
+            : base(mode, title, style)
         {
             SetupAlpha();
             base.SetFramerateLimit(120);
+            stats.LayoutPropertyChanged += OnStatsLayoutPropertyChanged;
             rootPanel = new Canvas { Background = background };
             frameTimeBinding = new MultiBinding<TimeSpan>().Bind(this, nameof(FrameTime))
                 .Bind(stats, nameof(StatisticsElement.FrameTime));
@@ -71,6 +74,7 @@ namespace iLynx.UI.Sfml
         ~Window()
         {
             frameTimeBinding.Unbind(this).Unbind(stats);
+            layoutTimeBinding.Unbind(this).Unbind(stats);
         }
 
         public TimeSpan LayoutTime
@@ -147,6 +151,7 @@ namespace iLynx.UI.Sfml
                 Draw(rootPanel);
                 sw.Stop();
                 FrameTime = sw.Elapsed;
+                sw.Reset();
                 Draw(stats);
                 Display();
             }
@@ -166,16 +171,22 @@ namespace iLynx.UI.Sfml
 
         private void OnLayoutChanged(object sender, PropertyChangedEventArgs e)
         {
-            var sw = Stopwatch.StartNew();
             Layout();
-            sw.Stop();
-            LayoutTime = sw.Elapsed;
-            stats.Layout(new FloatRect(0f, 0f, Size.X, Size.Y));
         }
 
         protected virtual void Layout()
         {
+            var sw = Stopwatch.StartNew();
             rootPanel.Layout(new FloatRect(0f, 0f, Size.X, Size.Y));
+            sw.Stop();
+            LayoutTime = sw.Elapsed;
+        }
+
+        private void OnStatsLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var statsSize = stats.Measure((Vector2f)Size);
+            var verticalOffset = Size.Y - statsSize.Y - stats.Margin.Vertical;
+            stats.Layout(new FloatRect(0f, verticalOffset, Size.X, Size.Y - verticalOffset));
         }
 
         private void SetupAlpha()
@@ -205,62 +216,6 @@ namespace iLynx.UI.Sfml
             public int bottomHeight;
             // ReSharper restore FieldCanBeMadeReadOnly.Local
             // ReSharper restore MemberCanBePrivate.Local
-        }
-    }
-
-    public class StatisticsElement : ContentControl
-    {
-        private TimeSpan frameTime;
-        private TimeSpan animationFrameTime;
-        private TimeSpan layoutTime;
-        readonly StringBuilder builder = new StringBuilder();
-
-        private void GenContent()
-        {
-            builder.Clear();
-            builder.AppendLine($"FrameTime: {frameTime.TotalMilliseconds:f2} ms");
-            builder.AppendLine($"Animation FrameTime: {animationFrameTime.TotalMilliseconds:f2} ms");
-            builder.AppendLine($"Layout Time: {layoutTime.TotalMilliseconds:f2} ms");
-            Content = builder.ToString();
-        }
-
-        public TimeSpan FrameTime
-        {
-            get => frameTime;
-            set
-            {
-                if (value == frameTime) return;
-                var old = frameTime;
-                frameTime = value;
-                OnPropertyChanged(old, value);
-                GenContent();
-            }
-        }
-
-        public TimeSpan AnimationFrameTime
-        {
-            get => animationFrameTime;
-            set
-            {
-                if (value == animationFrameTime) return;
-                var old = animationFrameTime;
-                animationFrameTime = value;
-                OnPropertyChanged(old, value);
-                GenContent();
-            }
-        }
-
-        public TimeSpan LayoutTime
-        {
-            get => layoutTime;
-            set
-            {
-                if (value == layoutTime) return;
-                var old = layoutTime;
-                layoutTime = value;
-                OnPropertyChanged(old, value);
-                GenContent();
-            }
         }
     }
 }

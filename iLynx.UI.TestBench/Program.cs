@@ -57,29 +57,13 @@ namespace iLynx.UI.TestBench
 
         private static void Main()
         {
-            Console.WriteLine(0 % 2);
-            Console.WriteLine(1 % 2);
-            Console.WriteLine(2 % 2);
-            Console.WriteLine(3 % 2);
-            Console.WriteLine(4 % 2);
             StartWindow();
-            //var button = new ContentControl
-            //{
-            //    Content = new Label("This is moving", Color.Red),
-            //    Background = Color.Green
-            //};
-            //canvas.AddChild(button);
             canvas.AddChild(BoundLabel);
-            //var start = new Vector2f(0f, canvas.RenderSize.Y / 2f - button.RenderSize.Y / 2);
-            //var end = new Vector2f(canvas.RenderSize.X - button.RenderSize.X, start.Y);
-            //Animator.AddAnimation(new CallbackAnimation(
-            //    p => canvas.SetRelativePosition(button, start + (end - start) * (float) p), TimeSpan.FromSeconds(2f),
-            //    LoopMode.Reverse));
             var foo = new Foo();
             textBinding = new MultiBinding<string>().Bind(foo, nameof(Foo.A)).Bind(BoundLabel, nameof(Label.Text));
             InputHandler.TextEntered += (s, e) =>
             {
-                if (e.Unicode == "\b")
+                if (e.Unicode == "\b" && foo.A.Length > 0)
                     foo.A = foo.A.Remove(foo.A.Length - 1);
                 else if (!char.IsControl(e.Unicode, 0))
                     foo.A += e.Unicode;
@@ -96,7 +80,7 @@ namespace iLynx.UI.TestBench
         {
             var t = new Thread(() =>
             {
-                window = new Window(1280, 720, "Test", Styles.None) { Background = new Color(32, 32, 32, 128) };
+                window = new Window(new VideoMode(1920, 1080), "Test");
                 window.Show();
             });
             t.Start();
@@ -104,33 +88,49 @@ namespace iLynx.UI.TestBench
             var root = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
-                Background = Color.Blue
+                Background = ColorUtils.FromRgbA(.1f, .1f, .1f, 1f)
             };
             window.RootPanel = root;
             var stackPanel = new StackPanel
             {
                 Size = (Vector2f)window.Size * 0.5f,
-                Background = Color.Black,
+                Background = ColorUtils.FromRgbA(.2f, .2f, .2f, 1f),
                 Margin = 4f
             };
-            stackPanel.AddChild(new Label("Label 1", Color.Red)
+            stackPanel.AddChild(new ContentControl()
             {
-                Margin = 64f
+                Content = "Left Aligned",
+                Foreground = Color.Green,
+                Background = Color.Black,
+                Margin = 4f
             },
-                new Label("Label 2", Color.Green)
+                new ContentControl
                 {
+                    Foreground = Color.Green,
+                    Background = Color.Black,
                     Margin = 4f,
-                    HorizontalAlignment = Alignment.End
+                    HorizontalAlignment = Alignment.End,
+                    Content = "Right Aligned"
                 },
                 new ContentControl
                 {
-                    Content = "Some text",
+                    Content = "Centered",
                     Margin = 4f,
-                    HorizontalAlignment = Alignment.Centre
+                    HorizontalAlignment = Alignment.Center,
+                    Foreground = Color.Green,
+                    Background = Color.Black
+                },
+                new ContentControl
+                {
+                    Content = "Stretched",
+                    Margin = 4f,
+                    HorizontalAlignment = Alignment.Stretch,
+                    Foreground = Color.Green,
+                    Background = Color.Black
                 });
             canvas = new Canvas
             {
-                Background = Color.Black,
+                Background = ColorUtils.FromRgbA(.3f, .3f, .3f, 1f),
                 Margin = 4f
             };
             root.AddChild(stackPanel, canvas);
