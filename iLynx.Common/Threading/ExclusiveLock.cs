@@ -25,14 +25,24 @@
  *
  */
 #endregion
-using System.Collections.Generic;
+using System;
+using System.Threading;
 
-namespace iLynx.UI.OpenGL
+namespace iLynx.Common.Threading
 {
-    public interface IGeometry
+    public class ExclusiveLock : IDisposable
     {
-        void GenerateVertexArrays();
+        private readonly object target;
 
-        void DeleteVertexArrays();
+        public ExclusiveLock(object target)
+        {
+            this.target = target;
+            Monitor.Enter(this.target);
+        }
+
+        public void Dispose()
+        {
+            Monitor.Exit(target);
+        }
     }
 }

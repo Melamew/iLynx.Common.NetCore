@@ -25,14 +25,16 @@
  *
  */
 #endregion
-using System.Collections.Generic;
+using System.Linq;
 
-namespace iLynx.UI.OpenGL
+namespace iLynx.Common
 {
-    public interface IGeometry
+    public static class ExtensionMethods
     {
-        void GenerateVertexArrays();
-
-        void DeleteVertexArrays();
+        public static IBinding<T> Bind<TTarget, T>(this IBindingSource source, params (TTarget target, string propertyName)[] targets) where TTarget : IBindingSource
+        {
+            return targets.Aggregate(new MultiBinding<T>(),
+                (binding, tuple) => (MultiBinding<T>)binding.Bind(tuple.target, tuple.propertyName));
+        }
     }
 }

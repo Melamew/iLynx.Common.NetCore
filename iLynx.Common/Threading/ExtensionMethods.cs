@@ -25,14 +25,26 @@
  *
  */
 #endregion
-using System.Collections.Generic;
+using System;
+using System.Threading;
 
-namespace iLynx.UI.OpenGL
+namespace iLynx.Common.Threading
 {
-    public interface IGeometry
+    public static class ExtensionMethods
     {
-        void GenerateVertexArrays();
+        public static IDisposable AcquireReaderLock(this ReaderWriterLockSlim rwl)
+        {
+            return new ReaderLock(rwl);
+        }
 
-        void DeleteVertexArrays();
+        public static IDisposable AcquireWriterLock(this ReaderWriterLockSlim rwl)
+        {
+            return new WriterLock(rwl);
+        }
+
+        public static IDisposable AcquireExclusiveLock(this object obj)
+        {
+            return new ExclusiveLock(obj);
+        }
     }
 }

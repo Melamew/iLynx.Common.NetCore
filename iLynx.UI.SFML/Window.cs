@@ -1,10 +1,39 @@
-﻿using System;
+﻿#region LICENSE
+/*
+ * Copyright 2018 Melanie Hjorth
+ *
+ * Redistribution and use in source and binary forms,
+ * with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+#endregion
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using iLynx.Common;
+using iLynx.Common.Threading;
 using iLynx.UI.Sfml.Layout;
 using SFML.Graphics;
 using SFML.System;
@@ -12,37 +41,69 @@ using SFML.Window;
 
 namespace iLynx.UI.Sfml
 {
+    //public static class Statistics
+    //{
+    //    private static ulong frameCount = 0UL;
+    //    private static TimeSpan lastFrameTime = TimeSpan.Zero;
+    //    private static TimeSpan totalFrameTime = TimeSpan.Zero;
+    //    private static ulong layoutCount = 0UL;
+    //    private static TimeSpan lastLayoutTime = TimeSpan.Zero;
+    //    private static TimeSpan totalLayoutTime = TimeSpan.Zero;
+
+    //    public static TimeSpan LastFrameTime
+    //    {
+    //        get => lastFrameTime;
+    //        set
+    //        {
+    //            lastFrameTime = value;
+    //            totalFrameTime += value;
+    //            ++frameCount;
+    //        }
+    //    }
+
+    //    public static TimeSpan AverageFrameTime => totalFrameTime / frameCount;
+    //}
+
+    public static class SfmlEventPump
+    {
+        public delegate bool PollEvent(out Event e);
+
+        private static readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
+
+        private static readonly List<PollEvent> EventSources = new List<PollEvent>();
+        private static double pollFrequency = 250d;
+        private static TimeSpan pollInterval = TimeSpan.FromMilliseconds(1000d / pollFrequency);
+
+        public static double PollFrequency
+        {
+            get => pollFrequency;
+            set
+            {
+                if (Math.Abs(value - pollFrequency) < 0.0000001d) return;
+
+            }
+        }
+
+        public static void AddEventSource(PollEvent poll)
+        {
+            using (rwl.AcquireWriterLock())
+                EventSources.Add(poll);
+        }
+
+        public static void RemoveEventSource(PollEvent poll)
+        {
+            using (rwl.AcquireWriterLock())
+                EventSources.Remove(poll);
+        }
+    }
+
     public class Window : RenderWindow, IBindingSource
     {
         private static readonly Dictionary<EventType, EventMapper> EventMap = new Dictionary<EventType, EventMapper>
         {
             {
-                EventType.MouseMoved,
-                (w, e) => InputHandler.OnMouseMoved(w, new MouseMoveEventArgs(e.MouseMove))
-            },
-            {
-                EventType.MouseButtonPressed,
-                (w, e) => InputHandler.OnMouseDown(w, new MouseButtonEventArgs(e.MouseButton))
-            },
-            {
-                EventType.MouseButtonReleased,
-                (w, e) => InputHandler.OnMouseUp(w, new MouseButtonEventArgs(e.MouseButton))
-            },
-            {
-                EventType.KeyPressed,
-                (w, e) => InputHandler.OnKeyDown(w, new KeyEventArgs(e.Key))
-            },
-            {
-                EventType.KeyReleased,
-                (w, e) => InputHandler.OnKeyUp(w, new KeyEventArgs(e.Key))
-            },
-            {
                 EventType.Closed,
                 (w, e) => w.Close()
-            },
-            {
-                EventType.TextEntered,
-                (w, e) => InputHandler.OnTextEntered(w, new TextEventArgs(e.Text))
             }
         };
 
@@ -126,36 +187,24 @@ namespace iLynx.UI.Sfml
             bindingSource.RemovePropertyChangedHandler(valueName, handler);
         }
 
-        protected override bool PollEvent(out Event eventToFill)
-        {
-            if (base.PollEvent(out eventToFill) && EventMap.TryGetValue(eventToFill.Type, out var mapper))
-            {
-                var e = eventToFill;
-                Task.Run(() => mapper?.Invoke(this, e));
-                return true;
-            }
-
-            return false;
-        }
-
-        //public IEnumerable<IUIElement> Children => children;
-
         public void Show()
         {
             var sw = new Stopwatch();
             while (IsOpen)
             {
                 sw.Start();
-                DispatchEvents();
                 Clear(background);
                 Draw(rootPanel);
                 sw.Stop();
                 FrameTime = sw.Elapsed;
                 sw.Reset();
-                Draw(stats);
+                if (ShowStats)
+                    Draw(stats);
                 Display();
             }
         }
+
+        public bool ShowStats { get; set; } = true;
 
         public TimeSpan FrameTime
         {
