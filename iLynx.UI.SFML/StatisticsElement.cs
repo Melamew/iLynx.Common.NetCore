@@ -76,7 +76,7 @@ namespace iLynx.UI.Sfml
                 builder.Append($"FrameTime: {frameTime.TotalMilliseconds:f2} ms\n");
                 builder.Append($"Animation FrameTime: {animationFrameTime.TotalMilliseconds:f2} ms\n");
                 builder.Append($"Layout Time: {layoutTime.TotalMilliseconds:f2} ms");
-                Content = builder.ToString();
+                ContentString = builder.ToString();
             }
             finally
             {

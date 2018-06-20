@@ -44,7 +44,8 @@ namespace iLynx.UI.Sfml.Layout
             var usedSpace = new FloatRect(availableSpace.Position(), availableSpace.Size().Scale(scalar));
             foreach (var child in reverse ? Children.Reverse() : Children)
             {
-                var childSpace = (child.Layout(availableSpace).Size() + child.Margin).Scale(childSpaceScalar);
+                child.Layout(availableSpace);
+                var childSpace = (child.BoundingBox + child.Margin).Size().Scale(childSpaceScalar);
                 usedSpace.Height += childSpace.Y;
                 usedSpace.Width += childSpace.X;
                 availableSpace.Left += childSpace.X;

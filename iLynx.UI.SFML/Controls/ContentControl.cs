@@ -1,4 +1,5 @@
-﻿using iLynx.UI.Sfml.Rendering;
+﻿using System.ComponentModel;
+using iLynx.UI.Sfml.Rendering;
 using SFML.Graphics;
 using SFML.System;
 
@@ -9,6 +10,11 @@ namespace iLynx.UI.Sfml.Controls
         private IUIElement content = new Label { Color = Color.Black };
         private Color foreground;
         private Thickness padding = 4f;
+
+        public ContentControl()
+        {
+            content.LayoutPropertyChanged += Content_LayoutPropertyChanged;
+        }
 
         public Thickness Padding
         {
@@ -62,38 +68,40 @@ namespace iLynx.UI.Sfml.Controls
             return finalRect;
         }
 
-        public object Content
+        public string ContentString
+        {
+            get => (content as Label)?.Text;
+            set
+            {
+                if (!(content is Label l))
+                {
+                    l = new Label(foreground) { Text = value };
+                    Content = l;
+                }
+                else
+                    l.Text = value;
+            }
+        }
+
+        public IUIElement Content
         {
             get => content;
             set
             {
-                var changed = false;
-                object old = null;
-                switch (value)
-                {
-                    case string s when content is Label l:
-                        if (s == l.Text) return;
-                        old = l.Text;
-                        l.Text = s;
-                        changed = true;
-                        break;
-                    case string s:
-                        var label = new Label(s, foreground);
-                        old = content;
-                        content = label;
-                        changed = true;
-                        break;
-                    case IUIElement e:
-                        old = content;
-                        content = e;
-                        changed = true;
-                        break;
-                }
-
-                if (!changed) return;
+                if (value == content) return;
+                var old = content;
+                if (null != old)
+                    old.LayoutPropertyChanged -= Content_LayoutPropertyChanged;
+                content = value;
+                content.LayoutPropertyChanged += Content_LayoutPropertyChanged;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
+        }
+
+        private void Content_LayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnLayoutPropertyChanged($"{nameof(Content)}.{e.PropertyName}");
         }
     }
 }

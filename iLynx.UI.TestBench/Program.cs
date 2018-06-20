@@ -54,6 +54,7 @@ namespace iLynx.UI.TestBench
         private static Canvas canvas;
         private static readonly Label BoundLabel = new Label(Color.Green);
         private static IBinding<string> textBinding;
+        private static ContentControl stretchedControl;
 
         private static void Main()
         {
@@ -73,7 +74,12 @@ namespace iLynx.UI.TestBench
                 var offset = new Vector2f(0f, 50f);
                 var target = new Vector2f(canvas.RenderSize.X - BoundLabel.RenderSize.X, 0f);
                 canvas.SetRelativePosition(BoundLabel, offset + (float)p * target);
-            }, TimeSpan.FromMilliseconds(2000d), LoopMode.Reverse, EasingFunctions.CubicEaseIn));
+            }, TimeSpan.FromSeconds(5d), LoopMode.Reverse, EasingFunctions.CubicInOut));
+            var endMargin = stretchedControl.RenderSize.X / 2f - 120f;
+            Animator.AddAnimation(new CallbackAnimation(p =>
+                {
+                    stretchedControl.Margin = new Thickness((float)p * endMargin, 4f);
+                }, TimeSpan.FromSeconds(5d), LoopMode.Reverse));
         }
 
         private static void StartWindow()
@@ -95,35 +101,36 @@ namespace iLynx.UI.TestBench
             {
                 Size = (Vector2f)window.Size * 0.5f,
                 Background = ColorUtils.FromRgbA(.2f, .2f, .2f, 1f),
-                Margin = 4f
+                Margin = 16f
             };
-            stackPanel.AddChild(new ContentControl()
-            {
-                Content = "Left Aligned",
+            var labelMargins = new Thickness(8f);
+            stackPanel.AddChild(new ContentControl
+                {
+                ContentString = "Left Aligned",
                 Foreground = Color.Green,
                 Background = Color.Black,
-                Margin = 4f
+                Margin = labelMargins
             },
                 new ContentControl
                 {
                     Foreground = Color.Green,
                     Background = Color.Black,
-                    Margin = 4f,
+                    Margin = labelMargins,
                     HorizontalAlignment = Alignment.End,
-                    Content = "Right Aligned"
+                    ContentString = "Right Aligned"
                 },
                 new ContentControl
                 {
-                    Content = "Centered",
-                    Margin = 4f,
+                    ContentString = "Centered",
+                    Margin = labelMargins,
                     HorizontalAlignment = Alignment.Center,
                     Foreground = Color.Green,
                     Background = Color.Black
                 },
-                new ContentControl
+                stretchedControl = new ContentControl
                 {
-                    Content = "Stretched",
-                    Margin = 4f,
+                    ContentString = "Stretched",
+                    Margin = labelMargins,
                     HorizontalAlignment = Alignment.Stretch,
                     Foreground = Color.Green,
                     Background = Color.Black
@@ -131,7 +138,7 @@ namespace iLynx.UI.TestBench
             canvas = new Canvas
             {
                 Background = ColorUtils.FromRgbA(.3f, .3f, .3f, 1f),
-                Margin = 4f
+                Margin = 16f
             };
             root.AddChild(stackPanel, canvas);
         }

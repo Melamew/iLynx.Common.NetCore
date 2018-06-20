@@ -103,7 +103,7 @@ namespace iLynx.UI.Sfml.Layout
             var dimensions = (Vector2u)finalRect.Size();
             requireNewTexture = null == texture || textureDimensions != dimensions;
             textureDimensions = dimensions;
-            LayoutChildren(finalRect);
+            LayoutChildren(new FloatRect(0f, 0f, dimensions.X, dimensions.Y));
             return finalRect;
         }
 
