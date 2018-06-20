@@ -75,7 +75,7 @@ namespace iLynx.UI.TestBench
                 var target = new Vector2f(canvas.RenderSize.X - BoundLabel.RenderSize.X, 0f);
                 canvas.SetRelativePosition(BoundLabel, offset + (float)p * target);
             }, TimeSpan.FromSeconds(5d), LoopMode.Reverse, EasingFunctions.CubicInOut));
-            var endMargin = stretchedControl.RenderSize.X / 2f - 120f;
+            var endMargin = stretchedControl.RenderSize.X / 2f - stretchedControl.Content.BoundingBox.Width / 2f;
             Animator.AddAnimation(new CallbackAnimation(p =>
                 {
                     stretchedControl.Margin = new Thickness((float)p * endMargin, 4f);
@@ -109,7 +109,8 @@ namespace iLynx.UI.TestBench
                 ContentString = "Left Aligned",
                 Foreground = Color.Green,
                 Background = Color.Black,
-                Margin = labelMargins
+                Margin = labelMargins,
+                    Padding = 16f
             },
                 new ContentControl
                 {

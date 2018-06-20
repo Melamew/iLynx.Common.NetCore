@@ -7,7 +7,7 @@ namespace iLynx.UI.Sfml.Controls
 {
     public class ContentControl : SfmlControlBase
     {
-        private IUIElement content = new Label { Color = Color.Black };
+        private IUIElement content = new Label { HorizontalAlignment = Alignment.Center, VerticalAlignment = Alignment.Center, Color = Color.Black };
         private Color foreground;
         private Thickness padding = 4f;
 
@@ -58,7 +58,7 @@ namespace iLynx.UI.Sfml.Controls
             if (0 == dims.Y)
                 dims.Y = availableSpace.Y;
             // ReSharper restore CompareOfFloatsByEqualityOperator
-            return content?.Measure(dims - padding) + padding ?? dims;
+            return content?.Measure(dims - padding) + padding + content?.Margin ?? dims;
         }
 
         protected override FloatRect LayoutInternal(FloatRect finalRect)

@@ -17,6 +17,7 @@ namespace iLynx.UI.Sfml.Controls
         {
             Text = text ?? string.Empty;
             Color = color;
+            Margin = 2f;
         }
 
         public Label(string text, Font font, uint fontSize)
@@ -84,13 +85,6 @@ namespace iLynx.UI.Sfml.Controls
 
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
-            var rect = new RectangleShape(BoundingBox.Size())
-            {
-                OutlineColor = Color.Red,
-                FillColor = Color.Transparent,
-                OutlineThickness = 2f
-            };
-            target.Draw(rect, states);
             var textStates = states;
             textStates.Transform.Translate(-renderable.GetLocalBounds().Position());
             target.Draw(renderable, textStates);

@@ -188,13 +188,6 @@ namespace iLynx.UI.Sfml.Controls
             rwl.EnterReadLock();
             states.Transform.Translate(RenderPosition);
             DrawInternal(target, states);
-            var boundingShape = new RectangleShape(BoundingBox.Size())
-            {
-                OutlineColor = Color.Red,
-                FillColor = Color.Transparent,
-                OutlineThickness = 2f
-            };
-            target.Draw(boundingShape, states);
             rwl.ExitReadLock();
         }
 
