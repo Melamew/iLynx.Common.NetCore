@@ -30,10 +30,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using iLynx.Common;
-using iLynx.Common.Threading;
 using iLynx.UI.Sfml.Layout;
 using SFML.Graphics;
 using SFML.System;
@@ -41,72 +39,8 @@ using SFML.Window;
 
 namespace iLynx.UI.Sfml
 {
-    //public static class Statistics
-    //{
-    //    private static ulong frameCount = 0UL;
-    //    private static TimeSpan lastFrameTime = TimeSpan.Zero;
-    //    private static TimeSpan totalFrameTime = TimeSpan.Zero;
-    //    private static ulong layoutCount = 0UL;
-    //    private static TimeSpan lastLayoutTime = TimeSpan.Zero;
-    //    private static TimeSpan totalLayoutTime = TimeSpan.Zero;
-
-    //    public static TimeSpan LastFrameTime
-    //    {
-    //        get => lastFrameTime;
-    //        set
-    //        {
-    //            lastFrameTime = value;
-    //            totalFrameTime += value;
-    //            ++frameCount;
-    //        }
-    //    }
-
-    //    public static TimeSpan AverageFrameTime => totalFrameTime / frameCount;
-    //}
-
-    public static class SfmlEventPump
-    {
-        public delegate bool PollEvent(out Event e);
-
-        private static readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
-
-        private static readonly List<PollEvent> EventSources = new List<PollEvent>();
-        private static double pollFrequency = 250d;
-        private static TimeSpan pollInterval = TimeSpan.FromMilliseconds(1000d / pollFrequency);
-
-        public static double PollFrequency
-        {
-            get => pollFrequency;
-            set
-            {
-                if (Math.Abs(value - pollFrequency) < 0.0000001d) return;
-
-            }
-        }
-
-        public static void AddEventSource(PollEvent poll)
-        {
-            using (rwl.AcquireWriterLock())
-                EventSources.Add(poll);
-        }
-
-        public static void RemoveEventSource(PollEvent poll)
-        {
-            using (rwl.AcquireWriterLock())
-                EventSources.Remove(poll);
-        }
-    }
-
     public class Window : RenderWindow, IBindingSource
     {
-        private static readonly Dictionary<EventType, EventMapper> EventMap = new Dictionary<EventType, EventMapper>
-        {
-            {
-                EventType.Closed,
-                (w, e) => w.Close()
-            }
-        };
-
         private readonly DetachedBindingSource bindingSource = new DetachedBindingSource();
         private Color background = Color.Transparent;
         private Panel rootPanel;
@@ -122,6 +56,12 @@ namespace iLynx.UI.Sfml
         public Window(VideoMode mode, string title = "", Styles style = Styles.None)
             : base(mode, title, style)
         {
+            EventManager.AddHandler(EventType.Closed, e => Close());
+            EventManager.AddHandler(EventType.MouseButtonPressed, e =>
+            {
+                if (!HasFocus())
+                    RequestFocus();
+            });
             SetupAlpha();
             base.SetFramerateLimit(120);
             stats.LayoutPropertyChanged += OnStatsLayoutPropertyChanged;
@@ -193,6 +133,8 @@ namespace iLynx.UI.Sfml
             while (IsOpen)
             {
                 sw.Start();
+                if (PollEvent(out var e))
+                    EventManager.Dispatch(e);
                 Clear(background);
                 Draw(rootPanel);
                 sw.Stop();

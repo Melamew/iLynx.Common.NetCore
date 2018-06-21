@@ -83,5 +83,12 @@ namespace iLynx.UI.Sfml
         /// If this element does not have a parent (IE. It is the root of a tree) this property will return null
         /// </summary>
         IUIElement Parent { get; }
+
+        /// <summary>
+        /// Called when this element is added to or removed from a content control, panel or other elements with children
+        /// WARNING: Do not call this method unless the parent of this element has ACTUALLY changed.
+        /// </summary>
+        /// <param name="parent"></param>
+        void SetLogicalParent(IUIElement parent);
     }
 }

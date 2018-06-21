@@ -71,6 +71,7 @@ namespace iLynx.UI.Sfml.Layout
         {
             children.AddRange(elements.Select(x =>
             {
+                x.SetLogicalParent(this);
                 x.LayoutPropertyChanged += OnChildLayoutPropertyChanged;
                 return x;
             }));
@@ -89,8 +90,9 @@ namespace iLynx.UI.Sfml.Layout
         {
             foreach (var element in elements)
             {
-                children.Remove(element);
                 element.LayoutPropertyChanged -= OnChildLayoutPropertyChanged;
+                children.Remove(element);
+                element.SetLogicalParent(null);
             }
             OnLayoutPropertyChanged(nameof(Children));
         }
@@ -116,7 +118,7 @@ namespace iLynx.UI.Sfml.Layout
             var s = renderItems.sprite;
             var c = children.ToArray();
             t.Clear(background);
-            var childStates = new RenderStates(states) {Transform = Transform.Identity};
+            var childStates = new RenderStates(states) { Transform = Transform.Identity };
             foreach (var child in c)
                 child.Draw(t, childStates);
             t.Display();

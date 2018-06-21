@@ -30,9 +30,9 @@ using SFML.Window;
 
 namespace iLynx.UI.Sfml
 {
-    public interface IControl : IUIElement, IDisposable
-    {
-        event EventHandler<MouseButtonEventArgs> Clicked;
+    //public interface IControl : IUIElement, IDisposable
+    //{
+    //    event EventHandler<MouseButtonEventArgs> Clicked;
 
-    }
+    //}
 }

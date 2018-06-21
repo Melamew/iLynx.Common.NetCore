@@ -34,7 +34,7 @@ using SFML.Window;
 namespace iLynx.UI.Sfml.Controls
 {
     // ReSharper disable once InconsistentNaming
-    public abstract class SfmlControlBase : UIElement, IControl
+    public abstract class SfmlControlBase : UIElement
     {
         private Color background = Color.White;
         private Shape shape;
@@ -63,16 +63,16 @@ namespace iLynx.UI.Sfml.Controls
 
         private void HookEvents()
         {
-            InputHandler.MouseDown += InputHandler_MouseDown;
-            InputHandler.MouseUp += InputHandler_MouseUp;
-            InputHandler.MouseMove += InputHandler_MouseMove;
+            //InputHandler.MouseDown += InputHandler_MouseDown;
+            //InputHandler.MouseUp += InputHandler_MouseUp;
+            //InputHandler.MouseMove += InputHandler_MouseMove;
         }
 
         private void UnhookEvents()
         {
-            InputHandler.MouseDown -= InputHandler_MouseDown;
-            InputHandler.MouseUp -= InputHandler_MouseUp;
-            InputHandler.MouseMove -= InputHandler_MouseMove;
+            //InputHandler.MouseDown -= InputHandler_MouseDown;
+            //InputHandler.MouseUp -= InputHandler_MouseUp;
+            //InputHandler.MouseMove -= InputHandler_MouseMove;
         }
 
         private void InputHandler_MouseMove(Vector2f position)

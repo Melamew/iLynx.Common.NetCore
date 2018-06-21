@@ -32,12 +32,12 @@ namespace iLynx.Common.Threading
 {
     public static class ExtensionMethods
     {
-        public static IDisposable AcquireReaderLock(this ReaderWriterLockSlim rwl)
+        public static IDisposable AcquireReadLock(this ReaderWriterLockSlim rwl)
         {
             return new ReaderLock(rwl);
         }
 
-        public static IDisposable AcquireWriterLock(this ReaderWriterLockSlim rwl)
+        public static IDisposable AcquireWriteLock(this ReaderWriterLockSlim rwl)
         {
             return new WriterLock(rwl);
         }

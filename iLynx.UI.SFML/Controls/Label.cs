@@ -62,7 +62,7 @@ namespace iLynx.UI.Sfml.Controls
             {
                 if (value == renderable.DisplayedString) return;
                 var old = renderable.DisplayedString;
-                using (AcquireLayoutLock())
+                using (AcquireWriteLock())
                     renderable.DisplayedString = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
@@ -76,7 +76,7 @@ namespace iLynx.UI.Sfml.Controls
             {
                 if (value == renderable.FillColor) return;
                 var old = renderable.FillColor;
-                using (AcquireLayoutLock())
+                using (AcquireWriteLock())
                     renderable.FillColor = value;
                 OnPropertyChanged(old, value);
             }
@@ -89,7 +89,7 @@ namespace iLynx.UI.Sfml.Controls
             {
                 if (value == renderable.CharacterSize) return;
                 var old = renderable.CharacterSize;
-                using (AcquireLayoutLock())
+                using (AcquireWriteLock())
                     renderable.CharacterSize = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
@@ -103,7 +103,7 @@ namespace iLynx.UI.Sfml.Controls
             {
                 if (value == renderable.Font) return;
                 var old = renderable.Font;
-                using (AcquireLayoutLock())
+                using (AcquireWriteLock())
                     renderable.Font = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();

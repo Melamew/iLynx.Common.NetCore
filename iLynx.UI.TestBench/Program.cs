@@ -90,13 +90,13 @@ namespace iLynx.UI.TestBench
             canvas.AddChild(BoundLabel);
             var foo = new Foo();
             textBinding = new MultiBinding<string>().Bind(foo, nameof(Foo.A)).Bind(BoundLabel, nameof(Label.Text));
-            InputHandler.TextEntered += (s) =>
-            {
-                if (s == "\b" && foo.A.Length > 0)
-                    foo.A = foo.A.Remove(foo.A.Length - 1);
-                else if (!char.IsControl(s, 0))
-                    foo.A += s;
-            };
+            //InputHandler.TextEntered += (s) =>
+            //{
+            //    if (s == "\b" && foo.A.Length > 0)
+            //        foo.A = foo.A.Remove(foo.A.Length - 1);
+            //    else if (!char.IsControl(s, 0))
+            //        foo.A += s;
+            //};
             Animator.AddAnimation(new CallbackAnimation(p =>
             {
                 var offset = new Vector2f(0f, 50f);

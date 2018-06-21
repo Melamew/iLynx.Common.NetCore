@@ -73,7 +73,7 @@ namespace iLynx.UI.Sfml.Controls
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
             base.DrawInternal(target, states);
-            content?.Draw(target, RenderStates.Default); //, states);
+            content?.Draw(target, RenderStates.Default);
         }
 
         public override Vector2f Measure(Vector2f availableSpace)
@@ -120,7 +120,11 @@ namespace iLynx.UI.Sfml.Controls
                 if (null != old)
                     old.LayoutPropertyChanged -= Content_LayoutPropertyChanged;
                 content = value;
-                content.LayoutPropertyChanged += Content_LayoutPropertyChanged;
+                if (null != content)
+                {
+                    content.SetLogicalParent(this);
+                    content.LayoutPropertyChanged += Content_LayoutPropertyChanged;
+                }
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }

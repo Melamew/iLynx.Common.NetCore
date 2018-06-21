@@ -30,52 +30,43 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using iLynx.Common.Threading;
 
 namespace iLynx.UI.Sfml.Animation
 {
     public static class Animator
     {
-        private static Thread animationThread;
         private static readonly Dictionary<IAnimation, DateTime> Animations = new Dictionary<IAnimation, DateTime>();
-        private static volatile bool isRunning;
-        private static TimeSpan frameInterval;
-        private static double desiredFramerate = 60d;
-        // ReSharper disable once InconsistentNaming
-        private static readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
+        private static readonly ReaderWriterLockSlim Rwl = new ReaderWriterLockSlim();
+        private static DateTime lastCleanup = DateTime.Now;
+        private static readonly BackgroundTicker Ticker = new BackgroundTicker();
 
         static Animator()
         {
-            frameInterval = TimeSpan.FromSeconds(1d / desiredFramerate);
             StartAnimationThread();
         }
 
         public static void StartAnimationThread()
         {
-            if (isRunning) return;
-            isRunning = true;
-            animationThread = new Thread(DoAnimations) { IsBackground = true };
-            animationThread.Start();
+            lastCleanup = DateTime.Now;
+            Ticker.Start(DoAnimations);
         }
 
         public static void StopAnimationThread()
         {
-            if (!isRunning) return;
-            isRunning = false;
-            animationThread.Join();
+            Ticker.Stop();
         }
 
         public static IAnimation AddAnimation(IAnimation animation)
         {
             try
             {
-                rwl.EnterWriteLock();
+                Rwl.EnterWriteLock();
                 Animations.Add(animation, DateTime.Now);
                 return animation;
             }
             finally
             {
-                rwl.ExitWriteLock();
+                Rwl.ExitWriteLock();
             }
         }
 
@@ -83,56 +74,40 @@ namespace iLynx.UI.Sfml.Animation
         {
             try
             {
-                rwl.EnterWriteLock();
+                Rwl.EnterWriteLock();
                 return Animations.Remove(animation) ? animation : null;
             }
             finally
             {
-                rwl.ExitWriteLock();
+                Rwl.ExitWriteLock();
             }
         }
 
-        private static async void DoAnimations(object state)
+        private static async void DoAnimations()
         {
-            var lastCleanup = DateTime.Now;
-            while (isRunning)
+            KeyValuePair<IAnimation, DateTime>[] anims;
+            try
             {
-                KeyValuePair<IAnimation, DateTime>[] anims;
-                try
-                {
-                    rwl.EnterReadLock();
-                    anims = Animations.ToArray();
-                }
-                finally
-                {
-                    rwl.ExitReadLock();
-                }
-                foreach (var animation in anims.Where(x => !x.Key.IsFinished))
-                    await Task.Run(() => animation.Key.Tick(DateTime.Now - animation.Value));
-                Thread.CurrentThread.Join(frameInterval);
-                if (DateTime.Now - lastCleanup < CleanupInterval) continue;
-                try
-                {
-                    lastCleanup = DateTime.Now;
-                    rwl.EnterWriteLock();
-                    foreach (var finished in anims.Where(x => x.Key.IsFinished))
-                        Animations.Remove(finished.Key);
-                }
-                finally
-                {
-                    rwl.ExitWriteLock();
-                }
+                Rwl.EnterReadLock();
+                anims = Animations.ToArray();
             }
-        }
-
-        public static double DesiredFramerate
-        {
-            get => desiredFramerate;
-            set
+            finally
             {
-                if (Math.Abs(value - desiredFramerate) <= double.Epsilon) return;
-                desiredFramerate = value;
-                frameInterval = TimeSpan.FromMilliseconds(1000d / desiredFramerate);
+                Rwl.ExitReadLock();
+            }
+            foreach (var animation in anims.Where(x => !x.Key.IsFinished))
+                await Task.Run(() => animation.Key.Tick(DateTime.Now - animation.Value));
+            if (DateTime.Now - lastCleanup < CleanupInterval) return;
+            try
+            {
+                lastCleanup = DateTime.Now;
+                Rwl.EnterWriteLock();
+                foreach (var finished in anims.Where(x => x.Key.IsFinished))
+                    Animations.Remove(finished.Key);
+            }
+            finally
+            {
+                Rwl.ExitWriteLock();
             }
         }
 

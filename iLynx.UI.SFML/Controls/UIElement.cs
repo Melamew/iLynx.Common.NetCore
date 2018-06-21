@@ -62,12 +62,12 @@ namespace iLynx.UI.Sfml.Controls
             this.verticalAlignment = verticalAlignment;
         }
 
-        protected WriterLock AcquireLayoutLock()
+        protected WriterLock AcquireWriteLock()
         {
             return new WriterLock(rwl);
         }
 
-        protected ReaderLock AcquireRenderLock()
+        protected ReaderLock AcquireReadLock()
         {
             return new ReaderLock(rwl);
         }
@@ -219,7 +219,7 @@ namespace iLynx.UI.Sfml.Controls
             return (Parent?.ToGlobalCoords(coords) ?? coords) + RenderPosition;
         }
 
-        public void SetParent(IUIElement parent)
+        public void SetLogicalParent(IUIElement parent)
         {
             Parent = parent;
         }
