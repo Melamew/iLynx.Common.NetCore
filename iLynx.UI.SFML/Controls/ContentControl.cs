@@ -26,7 +26,6 @@
  */
 #endregion
 using System.ComponentModel;
-using iLynx.UI.Sfml.Rendering;
 using SFML.Graphics;
 using SFML.System;
 
@@ -40,6 +39,7 @@ namespace iLynx.UI.Sfml.Controls
 
         public ContentControl()
         {
+            content.SetLogicalParent(this);
             content.LayoutPropertyChanged += Content_LayoutPropertyChanged;
         }
 
@@ -73,7 +73,7 @@ namespace iLynx.UI.Sfml.Controls
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
             base.DrawInternal(target, states);
-            content?.Draw(target, RenderStates.Default);
+            content?.Draw(target, states);
         }
 
         public override Vector2f Measure(Vector2f availableSpace)
@@ -88,10 +88,20 @@ namespace iLynx.UI.Sfml.Controls
             return content?.Measure(dims - padding) + padding + content?.Margin ?? dims;
         }
 
+        public override bool HitTest(Vector2f position, out IUIElement element)
+        {
+            var hit = base.HitTest(position, out element);
+            if (!hit) return false;
+            if (null == content || !content.HitTest(position, out var child)) return true;
+            element = child;
+            return true;
+        }
+
         protected override FloatRect LayoutInternal(FloatRect finalRect)
         {
             finalRect = base.LayoutInternal(finalRect);
-            content?.Layout(finalRect - padding);
+            var contentRect = new FloatRect(0f, 0f, finalRect.Width, finalRect.Height) - padding;
+            content?.Layout(contentRect);
             return finalRect;
         }
 

@@ -216,6 +216,13 @@ namespace iLynx.UI.Sfml.Controls
             Parent = parent;
         }
 
+        public virtual bool HitTest(Vector2f position, out IUIElement element)
+        {
+            element = this;
+            position = ToLocalCoords(position);
+            return new FloatRect(new Vector2f(), RenderSize).Contains(position.X, position.Y);
+        }
+
         public IUIElement Parent { get; protected set; }
 
         public void Draw(RenderTarget target, RenderStates states)

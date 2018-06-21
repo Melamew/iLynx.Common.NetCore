@@ -114,6 +114,7 @@ namespace iLynx.UI.TestBench
         {
             var t = new Thread(() =>
             {
+                InputHandler.HookEvents();
                 window = new Window(new VideoMode(1920, 1080), "Test");
                 window.Show();
             });

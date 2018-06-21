@@ -134,6 +134,20 @@ namespace iLynx.UI.Sfml.Layout
             return finalRect;
         }
 
+        public override bool HitTest(Vector2f position, out IUIElement element)
+        {
+            using (AcquireReadLock())
+            {
+                var hit = base.HitTest(position, out element);
+                if (!hit) return false;
+                foreach (var child in children)
+                    if (child.HitTest(position, out element))
+                        return true;
+                return true;
+            }
+            //return base.HitTest(position, out element) || children.Any(child => child.HitTest(position, out element));
+        }
+
         protected abstract void LayoutChildren(FloatRect target);
     }
 }

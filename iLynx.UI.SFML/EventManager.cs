@@ -37,10 +37,10 @@ namespace iLynx.UI.Sfml
     public class EventManager : BackgroundWorker
     {
         private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
-        private readonly ConcurrentQueue<Event> dispatchQueue = new ConcurrentQueue<Event>();
-        private readonly Dictionary<EventType, List<Action<Event>>> eventHandlers =
-            new Dictionary<EventType, List<Action<Event>>>();
-        private volatile bool isRunning = false;
+        private readonly ConcurrentQueue<(Window Window, Event Event)> dispatchQueue = new ConcurrentQueue<(Window, Event)>();
+        private readonly Dictionary<EventType, List<Action<Window, Event>>> eventHandlers =
+            new Dictionary<EventType, List<Action<Window, Event>>>();
+        private volatile bool isRunning;
         private readonly AutoResetEvent autoResetEvent = new AutoResetEvent(false);
         private static EventManager instance;
 
@@ -60,6 +60,7 @@ namespace iLynx.UI.Sfml
 
         static EventManager()
         {
+            AddHandler(EventType.Closed, (w, e) => w.Close());
             StartEventPump();
         }
 
@@ -73,12 +74,12 @@ namespace iLynx.UI.Sfml
             Instance.Stop();
         }
 
-        public static void AddHandler(EventType type, Action<Event> handler)
+        public static void AddHandler(EventType type, Action<Window, Event> handler)
         {
             Instance.RegisterHandler(type, handler);
         }
 
-        public void RegisterHandler(EventType type, Action<Event> handler)
+        public void RegisterHandler(EventType type, Action<Window, Event> handler)
         {
             using (rwl.AcquireWriteLock())
             {
@@ -86,18 +87,18 @@ namespace iLynx.UI.Sfml
                     list.Add(handler);
                 else if (null == list)
                 {
-                    list = new List<Action<Event>> { handler };
+                    list = new List<Action<Window, Event>> { handler };
                     eventHandlers.Add(type, list);
                 }
             }
         }
 
-        public static void RemoveHandler(EventType type, Action<Event> handler)
+        public static void RemoveHandler(EventType type, Action<Window, Event> handler)
         {
             Instance.UnregisterHandler(type, handler);
         }
 
-        public void UnregisterHandler(EventType type, Action<Event> handler)
+        public void UnregisterHandler(EventType type, Action<Window, Event> handler)
         {
             using (rwl.AcquireWriteLock())
             {
@@ -108,14 +109,14 @@ namespace iLynx.UI.Sfml
             }
         }
 
-        public static void Dispatch(Event e)
+        public static void Dispatch(Window source, Event e)
         {
-            Instance.DispatchEvent(e);
+            Instance.DispatchEvent(source, e);
         }
 
-        public void DispatchEvent(Event e)
+        public void DispatchEvent(Window source, Event e)
         {
-            dispatchQueue.Enqueue(e);
+            dispatchQueue.Enqueue((source, e));
             autoResetEvent.Set();
         }
 
@@ -126,8 +127,8 @@ namespace iLynx.UI.Sfml
                 autoResetEvent.WaitOne();
                 while (!dispatchQueue.IsEmpty)
                 {
-                    if (dispatchQueue.TryDequeue(out var e) && eventHandlers.TryGetValue(e.Type, out var handlers))
-                        handlers.ForEach(x => x?.Invoke(e));
+                    if (dispatchQueue.TryDequeue(out var e) && eventHandlers.TryGetValue(e.Event.Type, out var handlers))
+                        handlers.ForEach(x => x?.Invoke(e.Window, e.Event));
                 }
             }
         }

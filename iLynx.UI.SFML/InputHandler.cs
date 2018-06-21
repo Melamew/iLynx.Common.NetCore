@@ -33,26 +33,24 @@ namespace iLynx.UI.Sfml
 {
     public static class InputHandler
     {
-        //public static event Action<Vector2f> MouseMove;
-
-        //public static event Action<Vector2f, Mouse.Button> MouseDown;
-
-        //public static event Action<Vector2f, Mouse.Button> MouseUp;
-
-        //public static event Action<KeyEventArgs> KeyDown;
-
-        //public static event Action<KeyEventArgs> KeyUp;
-
-        //public static event Action<string> TextEntered;
-
-        static InputHandler()
+        private static bool haveHooked = false;
+        public static void HookEvents()
         {
-            //EventManager.AddHandler(EventType.MouseMoved, )
+            if (haveHooked) return;
+            haveHooked = true;
+            EventManager.AddHandler(EventType.MouseMoved, OnMouseMoved);
         }
 
-        public static void AddMouseMoveHandler(IUIElement element, Action<Vector2f> callback)
+        private static void OnMouseMoved(Window window, Event e)
         {
-
+            var position = new Vector2f(e.MouseMove.X, e.MouseMove.Y);
+            if (window.RootPanel.HitTest(position, out var element))
+                Console.WriteLine($"MouseOver: {element}");
         }
+
+        //public static void AddMouseMoveHandler(IUIElement element, Action<Vector2f> callback)
+        //{
+
+        //}
     }
 }

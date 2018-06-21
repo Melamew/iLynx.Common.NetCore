@@ -26,12 +26,9 @@
  */
 #endregion
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using iLynx.Common;
 using iLynx.UI.Sfml.Layout;
 using SFML.Graphics;
@@ -57,8 +54,8 @@ namespace iLynx.UI.Sfml
         public Window(VideoMode mode, string title = "", Styles style = Styles.None)
             : base(mode, title, style)
         {
-            EventManager.AddHandler(EventType.Closed, e => Close());
             SetupAlpha();
+            // ReSharper disable once RedundantBaseQualifier
             base.SetFramerateLimit(120);
             stats.LayoutPropertyChanged += OnStatsLayoutPropertyChanged;
             rootPanel = new Canvas { Background = background };
@@ -130,7 +127,7 @@ namespace iLynx.UI.Sfml
             {
                 sw.Start();
                 if (PollEvent(out var e))
-                    EventManager.Dispatch(e);
+                    EventManager.Dispatch(this, e);
                 Clear(background);
                 Draw(rootPanel);
                 sw.Stop();
@@ -187,8 +184,6 @@ namespace iLynx.UI.Sfml
 
         [DllImport("dwmapi.dll")]
         private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
-
-        private delegate void EventMapper(Window source, Event e);
 
         [StructLayout(LayoutKind.Sequential)]
         // ReSharper disable once InconsistentNaming

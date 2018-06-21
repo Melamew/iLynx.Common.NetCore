@@ -90,5 +90,13 @@ namespace iLynx.UI.Sfml
         /// </summary>
         /// <param name="parent"></param>
         void SetLogicalParent(IUIElement parent);
+
+        /// <summary>
+        /// Perform a "hit test" to check if the specified <see cref="Vector2f"/> (Position) is within the bounds of this element.
+        /// </summary>
+        /// <param name="position">The position (in global coordinates) to check against this element</param>
+        /// <param name="element">The element that this position hit</param>
+        /// <returns>True if the position is within this element, otherwise false</returns>
+        bool HitTest(Vector2f position, out IUIElement element);
     }
 }
