@@ -38,7 +38,7 @@ namespace iLynx.UI.Sfml.Animation
         private static readonly Dictionary<IAnimation, DateTime> Animations = new Dictionary<IAnimation, DateTime>();
         private static readonly ReaderWriterLockSlim Rwl = new ReaderWriterLockSlim();
         private static DateTime lastCleanup = DateTime.Now;
-        private static readonly BackgroundTicker Ticker = new BackgroundTicker();
+        private static readonly CallbackTicker Ticker = new CallbackTicker();
 
         static Animator()
         {

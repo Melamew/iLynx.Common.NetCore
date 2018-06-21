@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using iLynx.Common;
 using iLynx.UI.Sfml.Layout;
@@ -57,11 +58,6 @@ namespace iLynx.UI.Sfml
             : base(mode, title, style)
         {
             EventManager.AddHandler(EventType.Closed, e => Close());
-            EventManager.AddHandler(EventType.MouseButtonPressed, e =>
-            {
-                if (!HasFocus())
-                    RequestFocus();
-            });
             SetupAlpha();
             base.SetFramerateLimit(120);
             stats.LayoutPropertyChanged += OnStatsLayoutPropertyChanged;

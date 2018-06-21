@@ -26,6 +26,7 @@
  */
 #endregion
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -34,55 +35,67 @@ using SFML.Window;
 
 namespace iLynx.UI.Sfml
 {
-    public class BackgroundTicker
+    public abstract class BackgroundWorker
     {
-        private static Thread thread;
+        private Thread thread;
+        public virtual void Start()
+        {
+            thread = new Thread(Run) { IsBackground = true };
+            thread.Start();
+        }
+
+        public virtual void Stop()
+        {
+            thread.Join();
+            thread = null;
+        }
+
+        protected abstract void Run();
+    }
+
+    public class BackgroundTicker : BackgroundWorker
+    {
         private volatile bool isRunning;
         private TimeSpan frameInterval;
         private double desiredFrequency = 60d;
-        private Action callback;
 
-        public BackgroundTicker()
+        protected BackgroundTicker()
         {
             frameInterval = TimeSpan.FromMilliseconds(1000d / desiredFrequency);
         }
 
-        public void Start(Action tickCallback)
+        public override void Start()
         {
             if (isRunning) return;
             isRunning = true;
-            callback = tickCallback;
-            thread = new Thread(DoTicks) { IsBackground = true };
-            thread.Start();
+            base.Start();
         }
 
-        public void Stop()
-        {
-            if (!isRunning) return;
-            isRunning = false;
-            thread.Join();
-            thread = null;
-            callback = null;
-        }
-
-        private void DoTicks()
+        protected override void Run()
         {
             var sw = new Stopwatch();
             while (isRunning)
             {
                 sw.Start();
-                callback();
+                Tick();
                 sw.Stop();
                 var interval = frameInterval - sw.Elapsed;
                 sw.Reset();
                 if (TimeSpan.Zero > interval)
                 {
                     Console.WriteLine(
-                        $"{nameof(BackgroundTicker)} tick took longer than desired {frameInterval}, clamping to zero. Delta: {interval}");
+                        $"{nameof(CallbackTicker)} tick took longer than desired {frameInterval}, clamping to zero. Delta: {interval}");
                     interval = TimeSpan.Zero;
                 }
                 Thread.CurrentThread.Join(interval);
             }
+        }
+
+        public override void Stop()
+        {
+            if (!isRunning) return;
+            isRunning = false;
+            base.Stop();
         }
 
         public double DesiredFrequency
@@ -97,77 +110,136 @@ namespace iLynx.UI.Sfml
         }
 
         public TimeSpan TickInterval => frameInterval;
+
+        protected virtual void Tick()
+        {
+
+        }
     }
 
-    public static class EventManager
+    public class CallbackTicker : BackgroundTicker
     {
-        private static readonly ReaderWriterLockSlim Rwl = new ReaderWriterLockSlim();
-        private static readonly BackgroundTicker Ticker = new BackgroundTicker();
-        private static readonly Queue<Event> DispatchQueue = new Queue<Event>();
+        private Action callback;
+        public override void Start()
+        {
+            if (null == callback) throw new InvalidOperationException("The callback for this ticker has not been set");
+            base.Start();
+        }
 
-        private static readonly Dictionary<EventType, List<Action<Event>>> EventHandlers =
+        public void Start(Action tickCallback)
+        {
+            callback = tickCallback;
+            Start();
+        }
+
+        public override void Stop()
+        {
+            callback = null;
+            base.Stop();
+        }
+
+        protected override void Tick()
+        {
+            callback();
+        }
+    }
+
+    public class EventManager : BackgroundWorker
+    {
+        private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
+        private readonly ConcurrentQueue<Event> dispatchQueue = new ConcurrentQueue<Event>();
+        private readonly Dictionary<EventType, List<Action<Event>>> eventHandlers =
             new Dictionary<EventType, List<Action<Event>>>();
+        private volatile bool isRunning = false;
+        private readonly AutoResetEvent autoResetEvent = new AutoResetEvent(false);
+        private static EventManager instance;
+
+        private static EventManager Instance => instance ?? (instance = new EventManager());
+
+        public override void Start()
+        {
+            isRunning = true;
+            base.Start();
+        }
+
+        public override void Stop()
+        {
+            isRunning = false;
+            base.Stop();
+        }
 
         static EventManager()
         {
-            Ticker.DesiredFrequency = 120d;
             StartEventPump();
         }
 
         private static void StartEventPump()
         {
-            Ticker.Start(PollEvents);
+            Instance.Start();
         }
 
         public static void StopEventPump()
         {
-            Ticker.Stop();
-        }
-
-        private static void PollEvents()
-        {
-            using (Rwl.AcquireReadLock())
-            {
-                if (DispatchQueue.TryDequeue(out var e) && EventHandlers.TryGetValue(e.Type, out var handlers))
-                    handlers.ForEach(x => x?.Invoke(e));
-            }
+            Instance.Stop();
         }
 
         public static void AddHandler(EventType type, Action<Event> handler)
         {
-            using (Rwl.AcquireWriteLock())
+            Instance.RegisterHandler(type, handler);
+        }
+
+        public void RegisterHandler(EventType type, Action<Event> handler)
+        {
+            using (rwl.AcquireWriteLock())
             {
-                if (EventHandlers.TryGetValue(type, out var list) && !list.Contains(handler))
+                if (eventHandlers.TryGetValue(type, out var list) && !list.Contains(handler))
                     list.Add(handler);
                 else if (null == list)
                 {
                     list = new List<Action<Event>> { handler };
-                    EventHandlers.Add(type, list);
+                    eventHandlers.Add(type, list);
                 }
             }
         }
 
         public static void RemoveHandler(EventType type, Action<Event> handler)
         {
-            using (Rwl.AcquireWriteLock())
-            {
-                if (!EventHandlers.TryGetValue(type, out var list)) return;
-                list.Remove(handler);
-                if (0 >= list.Count)
-                    EventHandlers.Remove(type);
-            }
+            Instance.UnregisterHandler(type, handler);
         }
 
-        public static double PollFrequency
+        public void UnregisterHandler(EventType type, Action<Event> handler)
         {
-            get => Ticker.DesiredFrequency;
-            set => Ticker.DesiredFrequency = value;
+            using (rwl.AcquireWriteLock())
+            {
+                if (!eventHandlers.TryGetValue(type, out var list)) return;
+                list.Remove(handler);
+                if (0 >= list.Count)
+                    eventHandlers.Remove(type);
+            }
         }
 
         public static void Dispatch(Event e)
         {
-            using (Rwl.AcquireWriteLock())
-                DispatchQueue.Enqueue(e);
+            Instance.DispatchEvent(e);
+        }
+
+        public void DispatchEvent(Event e)
+        {
+            dispatchQueue.Enqueue(e);
+            autoResetEvent.Set();
+        }
+
+        protected override void Run()
+        {
+            while (isRunning)
+            {
+                autoResetEvent.WaitOne();
+                while (!dispatchQueue.IsEmpty)
+                {
+                    if (dispatchQueue.TryDequeue(out var e) && eventHandlers.TryGetValue(e.Type, out var handlers))
+                        handlers.ForEach(x => x?.Invoke(e));
+                }
+            }
         }
     }
 }
