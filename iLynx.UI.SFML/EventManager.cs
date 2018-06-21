@@ -28,122 +28,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using iLynx.Common.Threading;
 using SFML.Window;
 
 namespace iLynx.UI.Sfml
 {
-    public abstract class BackgroundWorker
-    {
-        private Thread thread;
-        public virtual void Start()
-        {
-            thread = new Thread(Run) { IsBackground = true };
-            thread.Start();
-        }
-
-        public virtual void Stop()
-        {
-            thread.Join();
-            thread = null;
-        }
-
-        protected abstract void Run();
-    }
-
-    public class BackgroundTicker : BackgroundWorker
-    {
-        private volatile bool isRunning;
-        private TimeSpan frameInterval;
-        private double desiredFrequency = 60d;
-
-        protected BackgroundTicker()
-        {
-            frameInterval = TimeSpan.FromMilliseconds(1000d / desiredFrequency);
-        }
-
-        public override void Start()
-        {
-            if (isRunning) return;
-            isRunning = true;
-            base.Start();
-        }
-
-        protected override void Run()
-        {
-            var sw = new Stopwatch();
-            while (isRunning)
-            {
-                sw.Start();
-                Tick();
-                sw.Stop();
-                var interval = frameInterval - sw.Elapsed;
-                sw.Reset();
-                if (TimeSpan.Zero > interval)
-                {
-                    Console.WriteLine(
-                        $"{nameof(CallbackTicker)} tick took longer than desired {frameInterval}, clamping to zero. Delta: {interval}");
-                    interval = TimeSpan.Zero;
-                }
-                Thread.CurrentThread.Join(interval);
-            }
-        }
-
-        public override void Stop()
-        {
-            if (!isRunning) return;
-            isRunning = false;
-            base.Stop();
-        }
-
-        public double DesiredFrequency
-        {
-            get => desiredFrequency;
-            set
-            {
-                if (Math.Abs(value - desiredFrequency) <= double.Epsilon * 10d) return;
-                desiredFrequency = value;
-                frameInterval = TimeSpan.FromMilliseconds(1000d / desiredFrequency);
-            }
-        }
-
-        public TimeSpan TickInterval => frameInterval;
-
-        protected virtual void Tick()
-        {
-
-        }
-    }
-
-    public class CallbackTicker : BackgroundTicker
-    {
-        private Action callback;
-        public override void Start()
-        {
-            if (null == callback) throw new InvalidOperationException("The callback for this ticker has not been set");
-            base.Start();
-        }
-
-        public void Start(Action tickCallback)
-        {
-            callback = tickCallback;
-            Start();
-        }
-
-        public override void Stop()
-        {
-            callback = null;
-            base.Stop();
-        }
-
-        protected override void Tick()
-        {
-            callback();
-        }
-    }
-
     public class EventManager : BackgroundWorker
     {
         private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();

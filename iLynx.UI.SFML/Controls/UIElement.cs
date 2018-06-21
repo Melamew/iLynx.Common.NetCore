@@ -37,14 +37,6 @@ using SFML.System;
 
 namespace iLynx.UI.Sfml.Controls
 {
-    public enum Alignment
-    {
-        Start = 0,
-        Center = 1,
-        End = 2,
-        Stretch = 3
-    }
-
     // ReSharper disable once InconsistentNaming
     public abstract class UIElement : BindingSource, IUIElement
     {
