@@ -25,34 +25,21 @@
  *
  */
 #endregion
-using System;
+using SFML.System;
+using SFML.Window;
 
-namespace iLynx.UI.Sfml
+namespace iLynx.UI.Sfml.Input
 {
-    public class CallbackTicker : BackgroundTicker
+    public class MouseScrollEvent : MouseEvent
     {
-        private Action callback;
-        public override void Start()
-        {
-            if (null == callback) throw new InvalidOperationException("The callback for this ticker has not been set");
-            base.Start();
-        }
+        public float Delta { get; }
 
-        public void Start(Action tickCallback)
-        {
-            callback = tickCallback;
-            Start();
-        }
+        public Mouse.Wheel Wheel { get; }
 
-        public override void Stop()
+        public MouseScrollEvent(Vector2f position, float delta, Mouse.Wheel wheel) : base(position)
         {
-            callback = null;
-            base.Stop();
-        }
-
-        protected override void Tick()
-        {
-            callback();
+            Delta = delta;
+            Wheel = wheel;
         }
     }
 }

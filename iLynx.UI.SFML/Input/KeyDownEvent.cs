@@ -25,10 +25,14 @@
  *
  */
 #endregion
-namespace iLynx.UI.OpenGL.Shapes
+using SFML.Window;
+
+namespace iLynx.UI.Sfml.Input
 {
-    public class Triangle : IRenderable
+    public class KeyDownEvent : KeyboardEvent
     {
-        public IGeometry Geometry { get; } = new TriangleGeometry();
+        public KeyDownEvent(Keyboard.Key key, ModifierKeys modifiers) : base(key, modifiers)
+        {
+        }
     }
 }

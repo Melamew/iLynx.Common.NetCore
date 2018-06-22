@@ -25,10 +25,21 @@
  *
  */
 #endregion
-namespace iLynx.UI.OpenGL.Shapes
+using iLynx.UI.Sfml.Input;
+using SFML.Graphics;
+
+namespace iLynx.UI.Sfml.Controls
 {
-    public class Triangle : IRenderable
+    public class TextBox : TextElement
     {
-        public IGeometry Geometry { get; } = new TriangleGeometry();
+        protected override void DrawInternal(RenderTarget target, RenderStates states)
+        {
+            base.DrawInternal(target, states);
+        }
+
+        protected override void OnTextEntered(TextInputEvent args)
+        {
+            base.OnTextEntered(args);
+        }
     }
 }

@@ -64,13 +64,4 @@ namespace iLynx.Common
                 handler?.Invoke(this, e);
         }
     }
-
-    public class DetachedBindingSource : BindingSource
-    {
-        public void RaisePropertyChanged<TValue>(TValue oldValue, TValue newValue,
-            [CallerMemberName] string propertyName = null)
-        {
-            OnPropertyChanged(oldValue, newValue, propertyName);
-        }
-    }
 }

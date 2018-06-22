@@ -26,6 +26,7 @@
  */
 #endregion
 using System.ComponentModel;
+using iLynx.UI.Sfml.Input;
 using SFML.Graphics;
 using SFML.System;
 
@@ -33,7 +34,7 @@ namespace iLynx.UI.Sfml.Controls
 {
     public class ContentControl : SfmlControlBase
     {
-        private IUIElement content = new Label { HorizontalAlignment = Alignment.Center, VerticalAlignment = Alignment.Center, Color = Color.Black };
+        private IUIElement content = new TextElement { HorizontalAlignment = Alignment.Center, VerticalAlignment = Alignment.Center, Color = Color.Black };
         private Color foreground;
         private Thickness padding = 4f;
 
@@ -58,13 +59,13 @@ namespace iLynx.UI.Sfml.Controls
 
         public Color Foreground
         {
-            get => (content as Label)?.Color ?? foreground;
+            get => (content as TextElement)?.Color ?? foreground;
             set
             {
                 var old = foreground;
                 if (value == old) return;
                 foreground = value;
-                if (content is Label label)
+                if (content is TextElement label)
                     label.Color = foreground;
                 OnPropertyChanged(old, value);
             }
@@ -107,12 +108,12 @@ namespace iLynx.UI.Sfml.Controls
 
         public string ContentString
         {
-            get => (content as Label)?.Text;
+            get => (content as TextElement)?.Text;
             set
             {
-                if (!(content is Label l))
+                if (!(content is TextElement l))
                 {
-                    l = new Label(foreground) { Text = value };
+                    l = new TextElement(foreground) { Text = value };
                     Content = l;
                 }
                 else

@@ -29,7 +29,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-namespace iLynx.UI.Sfml
+namespace iLynx.Common.Threading
 {
     public class BackgroundTicker : BackgroundWorker
     {

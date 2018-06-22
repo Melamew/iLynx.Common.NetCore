@@ -25,10 +25,9 @@
  *
  */
 #endregion
-namespace iLynx.UI.OpenGL.Shapes
+using SFML.Window;
+
+namespace iLynx.UI.Sfml.Input
 {
-    public class Triangle : IRenderable
-    {
-        public IGeometry Geometry { get; } = new TriangleGeometry();
-    }
+    public delegate void SfmlEventHandler(Window source, Event e);
 }

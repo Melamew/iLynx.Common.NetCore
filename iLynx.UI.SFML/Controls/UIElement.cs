@@ -32,20 +32,47 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using iLynx.Common;
 using iLynx.Common.Threading;
+using iLynx.UI.Sfml.Input;
 using SFML.Graphics;
 using SFML.System;
 
 namespace iLynx.UI.Sfml.Controls
 {
     // ReSharper disable once InconsistentNaming
-    public abstract class UIElement : BindingSource, IUIElement, IInputElement
+    public abstract class UIElement : BindingSource, IInputElement
     {
+        private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
+        private Alignment horizontalAlignment;
         private Thickness margin = Thickness.Zero;
         protected Transform RenderTransform = Transform.Identity;
         private Vector2f size = new Vector2f(float.NaN, float.NaN);
-        private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
-        private Alignment horizontalAlignment;
         private Alignment verticalAlignment;
+        private bool hasFocus;
+        private bool isMouseOver;
+
+        static UIElement()
+        {
+            InputHandler.Register<UIElement, MouseEvent>((e, args) => e?.OnMouseOver(args));
+            InputHandler.Register<UIElement, MouseDownEvent>((e, args) => e?.OnMouseButtonDown(args));
+            InputHandler.Register<UIElement, MouseUpEvent>((e, args) => e?.OnMouseButtonUp(args));
+            InputHandler.Register<UIElement, GotFocusEvent>((e, args) => e?.OnGotFocus());
+            InputHandler.Register<UIElement, LostFocusEvent>((e, args) => e?.OnLostFocus());
+            InputHandler.Register<UIElement, KeyDownEvent>((e, args) => e?.OnKeyDown(args));
+            InputHandler.Register<UIElement, KeyUpEvent>((e, args) => e?.OnKeyUp(args));
+            InputHandler.Register<UIElement, TextInputEvent>((e, args) => e?.OnTextEntered(args));
+            InputHandler.Register<UIElement, MouseEnterEvent>((e, args) => e?.OnMouseEntered(args));
+            InputHandler.Register<UIElement, MouseLeaveEvent>((e, args) => e?.OnMouseLeft(args));
+        }
+
+        protected virtual void OnMouseLeft(MouseLeaveEvent args)
+        {
+            Console.WriteLine($"Mouse Left: {this} at {args.Position}");
+        }
+
+        protected virtual void OnMouseEntered(MouseEnterEvent args)
+        {
+            Console.WriteLine($"Mouse Entered: {this} at {args.Position}");
+        }
 
         protected UIElement(Alignment horizontalAlignment = Alignment.Start,
             Alignment verticalAlignment = Alignment.Start)
@@ -54,14 +81,92 @@ namespace iLynx.UI.Sfml.Controls
             this.verticalAlignment = verticalAlignment;
         }
 
-        protected WriterLock AcquireWriteLock()
+        public Alignment HorizontalAlignment
         {
-            return new WriterLock(rwl);
+            get => horizontalAlignment;
+            set
+            {
+                if (value == horizontalAlignment) return;
+                var old = horizontalAlignment;
+                horizontalAlignment = value;
+                OnPropertyChanged(old, value);
+                OnLayoutPropertyChanged();
+            }
         }
 
-        protected ReaderLock AcquireReadLock()
+        public Alignment VerticalAlignment
         {
-            return new ReaderLock(rwl);
+            get => verticalAlignment;
+            set
+            {
+                if (value == verticalAlignment) return;
+                var old = verticalAlignment;
+                verticalAlignment = value;
+                OnPropertyChanged(old, value);
+                OnLayoutPropertyChanged();
+            }
+        }
+
+        public Vector2f RenderPosition => new Vector2f(BoundingBox.Left, BoundingBox.Top);
+
+        public Vector2f RenderSize => new Vector2f(BoundingBox.Width, BoundingBox.Height);
+
+        public Vector2f Size
+        {
+            get => size;
+            set
+            {
+                if (value == size) return;
+                var old = size;
+                size = value;
+                OnPropertyChanged(old, size);
+                OnLayoutPropertyChanged();
+            }
+        }
+
+        public static Font DefaultFont => new Font("fonts/Mechanical.otf");
+
+        public Vector2f ToLocalCoords(Vector2f coords)
+        {
+            return ((Parent as IInputElement)?.ToLocalCoords(coords) ?? coords) - RenderPosition;
+        }
+
+        public Vector2f ToGlobalCoords(Vector2f coords)
+        {
+            return ((Parent as IInputElement)?.ToGlobalCoords(coords) ?? coords) + RenderPosition;
+        }
+
+        public virtual bool HitTest(Vector2f position, out IInputElement element)
+        {
+            element = null;
+            position = ToLocalCoords(position);
+            if (!new FloatRect(new Vector2f(), RenderSize).Contains(position.X, position.Y)) return false;
+            element = this;
+            return true;
+        }
+
+        public virtual bool Focusable => true;
+        public bool HasFocus
+        {
+            get => hasFocus;
+            protected set
+            {
+                if (value == hasFocus) return;
+                var old = hasFocus;
+                hasFocus = value;
+                OnPropertyChanged(old, value);
+            }
+        }
+        public bool IsMouseOver
+        {
+            get => isMouseOver;
+            protected set
+            {
+                if (value == isMouseOver) return;
+                var old = isMouseOver;
+                isMouseOver = value;
+                OnPropertyChanged(old, value);
+            }
         }
 
         public virtual FloatRect Layout(FloatRect target)
@@ -101,6 +206,7 @@ namespace iLynx.UI.Sfml.Controls
                         final.Top = final.Top + target.Height - computedSize.Y;
                         break;
                 }
+
                 final -= margin;
                 BoundingBox = LayoutInternal(final);
                 return BoundingBox; // The final layout size of this element is it's bounding box plus margins
@@ -110,32 +216,6 @@ namespace iLynx.UI.Sfml.Controls
                 rwl.ExitWriteLock();
                 sw.Stop();
                 //Console.WriteLine($"Layout for {this} finished in {sw.Elapsed.TotalMilliseconds}ms");
-            }
-        }
-
-        public Alignment HorizontalAlignment
-        {
-            get => horizontalAlignment;
-            set
-            {
-                if (value == horizontalAlignment) return;
-                var old = horizontalAlignment;
-                horizontalAlignment = value;
-                OnPropertyChanged(old, value);
-                OnLayoutPropertyChanged();
-            }
-        }
-
-        public Alignment VerticalAlignment
-        {
-            get => verticalAlignment;
-            set
-            {
-                if (value == verticalAlignment) return;
-                var old = verticalAlignment;
-                verticalAlignment = value;
-                OnPropertyChanged(old, value);
-                OnLayoutPropertyChanged();
             }
         }
 
@@ -155,31 +235,6 @@ namespace iLynx.UI.Sfml.Controls
             return result;
         }
 
-        public Vector2f RenderPosition => new Vector2f(BoundingBox.Left, BoundingBox.Top);
-
-        public Vector2f RenderSize => new Vector2f(BoundingBox.Width, BoundingBox.Height);
-
-        public Vector2f Size
-        {
-            get => size;
-            set
-            {
-                if (value == size) return;
-                var old = size;
-                size = value;
-                OnPropertyChanged(old, size);
-                OnLayoutPropertyChanged();
-            }
-        }
-
-
-        /// <summary>
-        /// Called when the layout process has determined the internal bounds of this element
-        /// </summary>
-        /// <param name="finalRect"></param>
-        /// <returns></returns>
-        protected abstract FloatRect LayoutInternal(FloatRect finalRect);
-
         public Thickness Margin
         {
             get => margin;
@@ -193,72 +248,13 @@ namespace iLynx.UI.Sfml.Controls
             }
         }
 
-        protected virtual void OnLayoutPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            LayoutPropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         public event EventHandler<PropertyChangedEventArgs> LayoutPropertyChanged;
 
         public FloatRect BoundingBox { get; private set; }
-        public Vector2f ToLocalCoords(Vector2f coords)
-        {
-            return ((Parent as IInputElement)?.ToLocalCoords(coords) ?? coords) - RenderPosition;
-        }
-
-        public Vector2f ToGlobalCoords(Vector2f coords)
-        {
-            return ((Parent as IInputElement)?.ToGlobalCoords(coords) ?? coords) + RenderPosition;
-        }
 
         public void SetLogicalParent(IUIElement parent)
         {
             Parent = parent;
-        }
-
-        public virtual bool HitTest(Vector2f position, out IInputElement element)
-        {
-            element = null;
-            position = ToLocalCoords(position);
-            if (!new FloatRect(new Vector2f(), RenderSize).Contains(position.X, position.Y)) return false;
-            element = this;
-            return true;
-        }
-
-        public virtual bool Focusable => true;
-        public void OnMouseOver(MouseArgs args)
-        {
-            Console.WriteLine($"MouseOver: {this}, {args.Position}");
-        }
-
-        public void OnMouseButtonDown(MouseButtonArgs args)
-        {
-            Console.WriteLine($"MouseDown: {this}, {args.Button}, {args.Position}");
-        }
-
-        public void OnReceivedFocus()
-        {
-            Console.WriteLine($"GotFocus: {this}");
-        }
-
-        public void OnLostFocus()
-        {
-            Console.WriteLine($"LostFocus: {this}");
-        }
-
-        public void OnMouseButtonUp(MouseButtonArgs args)
-        {
-            Console.WriteLine($"MouseUp: {this}, {args.Button}, {args.Position}");
-        }
-
-        public void OnKeyDown(KeyArgs args)
-        {
-            Console.WriteLine($"KeyDown: {this}, {args.Key}, {args.Modifiers}");
-        }
-
-        public void OnKeyUp(KeyArgs args)
-        {
-            Console.WriteLine($"KeyUp: {this}, {args.Key}, {args.Modifiers}");
         }
 
         public IUIElement Parent { get; protected set; }
@@ -271,9 +267,64 @@ namespace iLynx.UI.Sfml.Controls
             rwl.ExitReadLock();
         }
 
-        protected abstract void DrawInternal(RenderTarget target, RenderStates states);
+        protected WriterLock AcquireWriteLock()
+        {
+            return new WriterLock(rwl);
+        }
 
-        public static Font DefaultFont => new Font("fonts/Mechanical.otf");
+        protected ReaderLock AcquireReadLock()
+        {
+            return new ReaderLock(rwl);
+        }
+
+
+        /// <summary>
+        ///     Called when the layout process has determined the internal bounds of this element
+        /// </summary>
+        /// <param name="finalRect"></param>
+        /// <returns></returns>
+        protected abstract FloatRect LayoutInternal(FloatRect finalRect);
+
+        protected virtual void OnLayoutPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            LayoutPropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected virtual void OnMouseOver(MouseEvent args)
+        {
+        }
+
+        protected virtual void OnMouseButtonDown(MouseDownEvent args)
+        {
+        }
+
+        protected virtual void OnGotFocus()
+        {
+            HasFocus = true;
+        }
+
+        protected virtual void OnLostFocus()
+        {
+            HasFocus = false;
+        }
+
+        protected virtual void OnMouseButtonUp(MouseUpEvent args)
+        {
+        }
+
+        protected virtual void OnKeyDown(KeyboardEvent args)
+        {
+        }
+
+        protected virtual void OnKeyUp(KeyboardEvent args)
+        {
+        }
+
+        protected virtual void OnTextEntered(TextInputEvent args)
+        {
+        }
+
+        protected abstract void DrawInternal(RenderTarget target, RenderStates states);
         //public static Font DefaultFont => new Font("fonts/OpenSans-Regular.ttf");
     }
 }

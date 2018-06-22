@@ -25,10 +25,34 @@
  *
  */
 #endregion
-namespace iLynx.UI.OpenGL.Shapes
+using System;
+
+namespace iLynx.Common.Threading
 {
-    public class Triangle : IRenderable
+    public class CallbackTicker : BackgroundTicker
     {
-        public IGeometry Geometry { get; } = new TriangleGeometry();
+        private Action callback;
+        public override void Start()
+        {
+            if (null == callback) throw new InvalidOperationException("The callback for this ticker has not been set");
+            base.Start();
+        }
+
+        public void Start(Action tickCallback)
+        {
+            callback = tickCallback;
+            Start();
+        }
+
+        public override void Stop()
+        {
+            callback = null;
+            base.Stop();
+        }
+
+        protected override void Tick()
+        {
+            callback();
+        }
     }
 }

@@ -25,10 +25,28 @@
  *
  */
 #endregion
-namespace iLynx.UI.OpenGL.Shapes
+using OpenTK.Graphics.OpenGL;
+
+namespace iLynx.UI.OpenGL.Shaders
 {
-    public class Triangle : IRenderable
+    public class ShaderProgram
     {
-        public IGeometry Geometry { get; } = new TriangleGeometry();
+        public ShaderProgram(int id)
+        {
+            Id = id;
+        }
+
+        public int Id { get; }
+
+        public void UseProgram()
+        {
+            if (IsInUse) return;
+            GL.UseProgram(Id);
+            IsInUse = true;
+        }
+
+        //public void 
+
+        public bool IsInUse { get; private set; }
     }
 }

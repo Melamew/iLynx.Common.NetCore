@@ -30,24 +30,24 @@ using SFML.System;
 
 namespace iLynx.UI.Sfml.Controls
 {
-    public class Label : UIElement
+    public class TextElement : UIElement
     {
         private readonly Text renderable = new Text(string.Empty, DefaultFont, 24);
 
-        public Label()
+        public TextElement()
             : this(string.Empty, Color.Black) { }
 
-        public Label(Color color)
+        public TextElement(Color color)
             : this(string.Empty, color) { }
 
-        public Label(string text, Color color)
+        public TextElement(string text, Color color)
         {
             Text = text ?? string.Empty;
             Color = color;
             Margin = 2f;
         }
 
-        public Label(string text, Font font, uint fontSize)
+        public TextElement(string text, Font font, uint fontSize)
             : this(text, Color.Black)
         {
             Text = text ?? string.Empty;
@@ -119,7 +119,7 @@ namespace iLynx.UI.Sfml.Controls
 
         public override string ToString()
         {
-            return $"Label: {renderable.DisplayedString}";
+            return $"TextElement: {renderable.DisplayedString}";
         }
 
         public override Vector2f Measure(Vector2f availableSpace)

@@ -30,6 +30,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using iLynx.Common;
+using iLynx.UI.Sfml.Input;
 using iLynx.UI.Sfml.Layout;
 using SFML.Graphics;
 using SFML.System;
@@ -127,7 +128,7 @@ namespace iLynx.UI.Sfml
             {
                 sw.Start();
                 if (PollEvent(out var e))
-                    EventManager.Dispatch(this, e);
+                    EventDispatcher.Dispatch(this, e);
                 Clear(background);
                 Draw(root);
                 sw.Stop();

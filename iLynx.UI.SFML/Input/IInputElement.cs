@@ -27,9 +27,9 @@
 #endregion
 using SFML.System;
 
-namespace iLynx.UI.Sfml
+namespace iLynx.UI.Sfml.Input
 {
-    public interface IInputElement
+    public interface IInputElement : IUIElement
     {
         /// <summary>
         /// Transforms the specified coordinates from global to local coordinates (coordinates relative to this element)
@@ -59,43 +59,13 @@ namespace iLynx.UI.Sfml
         bool Focusable { get; }
 
         /// <summary>
-        /// Called whenever the mouse cursor is moved inside the bounds of this element
+        /// Gets a value indicating whether or not this element has keyboard focus
         /// </summary>
-        /// <param name="args"></param>
-        void OnMouseOver(MouseArgs args);
+        bool HasFocus { get; }
 
         /// <summary>
-        /// Called whenever a mouse button is pressed while the mouse cursor is within this element
+        /// Gets a value indicating whether or not the mouse cursor is over this element
         /// </summary>
-        /// <param name="args"></param>
-        void OnMouseButtonDown(MouseButtonArgs args);
-
-        /// <summary>
-        /// Called whenever this element receives focus
-        /// </summary>
-        void OnReceivedFocus();
-
-        /// <summary>
-        /// Called whenever this element loses focus
-        /// </summary>
-        void OnLostFocus();
-
-        /// <summary>
-        /// Called whenever a mouse button that was pressed inside this element is released
-        /// </summary>
-        /// <param name="args"></param>
-        void OnMouseButtonUp(MouseButtonArgs args);
-
-        /// <summary>
-        /// Called whenever a key is pressed while this element is in focus
-        /// </summary>
-        /// <param name="args"></param>
-        void OnKeyDown(KeyArgs args);
-
-        /// <summary>
-        /// Called whenever a key is released while this element is in focus
-        /// </summary>
-        /// <param name="args"></param>
-        void OnKeyUp(KeyArgs args);
+        bool IsMouseOver { get; }
     }
 }

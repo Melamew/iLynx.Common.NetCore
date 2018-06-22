@@ -25,25 +25,15 @@
  *
  */
 #endregion
-using System.Threading;
+using SFML.System;
+using SFML.Window;
 
-namespace iLynx.UI.Sfml
+namespace iLynx.UI.Sfml.Input
 {
-    public abstract class BackgroundWorker
+    public class MouseDownEvent : MouseButtonInputEvent
     {
-        private Thread thread;
-        public virtual void Start()
+        public MouseDownEvent(Vector2f position, Mouse.Button button) : base(position, button)
         {
-            thread = new Thread(Run) { IsBackground = true };
-            thread.Start();
         }
-
-        public virtual void Stop()
-        {
-            thread.Join();
-            thread = null;
-        }
-
-        protected abstract void Run();
     }
 }

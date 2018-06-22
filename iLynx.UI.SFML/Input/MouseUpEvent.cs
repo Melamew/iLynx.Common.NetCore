@@ -25,10 +25,14 @@
  *
  */
 #endregion
-namespace iLynx.UI.OpenGL.Shapes
+using SFML.System;
+using SFML.Window;
+
+namespace iLynx.UI.Sfml.Input
 {
-    public class Triangle : IRenderable
-    {
-        public IGeometry Geometry { get; } = new TriangleGeometry();
+    public class MouseUpEvent : MouseButtonInputEvent{
+        public MouseUpEvent(Vector2f position, Mouse.Button button) : base(position, button)
+        {
+        }
     }
 }

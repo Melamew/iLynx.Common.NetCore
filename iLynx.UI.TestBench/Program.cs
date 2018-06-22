@@ -30,7 +30,6 @@
 
 using System;
 using System.Threading;
-using iLynx.Common;
 using iLynx.UI.Sfml;
 using iLynx.UI.Sfml.Animation;
 using iLynx.UI.Sfml.Controls;
@@ -42,67 +41,15 @@ using Window = iLynx.UI.Sfml.Window;
 
 namespace iLynx.UI.TestBench
 {
-    public class Foo : BindingSource
-    {
-        private string a;
-
-        public string A
-        {
-            get => a;
-            set
-            {
-                if (value == a) return;
-                var oldValue = a;
-                a = value;
-                OnPropertyChanged(oldValue, value);
-            }
-        }
-    }
-
-    public class Bar : BindingSource
-    {
-        private string b;
-
-        public string B
-        {
-            get => b;
-            set
-            {
-                if (value == b) return;
-                var oldValue = b;
-                b = value;
-                OnPropertyChanged(oldValue, value);
-            }
-        }
-    }
-
     public static class Program
     {
         private static Window window;
         private static Canvas canvas;
-        private static readonly Label BoundLabel = new Label(Color.Green);
-        private static IBinding<string> textBinding;
         private static ContentControl stretchedControl;
 
         private static void Main()
         {
             StartWindow();
-            canvas.AddChild(BoundLabel);
-            var foo = new Foo();
-            textBinding = new MultiBinding<string>().Bind(foo, nameof(Foo.A)).Bind(BoundLabel, nameof(Label.Text));
-            //InputHandler.TextEntered += (s) =>
-            //{
-            //    if (s == "\b" && foo.A.Length > 0)
-            //        foo.A = foo.A.Remove(foo.A.Length - 1);
-            //    else if (!char.IsControl(s, 0))
-            //        foo.A += s;
-            //};
-            Animator.AddAnimation(new CallbackAnimation(p =>
-            {
-                var offset = new Vector2f(0f, 50f);
-                var target = new Vector2f(canvas.RenderSize.X - BoundLabel.RenderSize.X, 0f);
-                canvas.SetRelativePosition(BoundLabel, offset + (float)p * target);
-            }, TimeSpan.FromSeconds(1d), LoopMode.Reverse, EasingFunctions.CubicInOut));
             var endMargin = stretchedControl.RenderSize.X / 2f - stretchedControl.Content.BoundingBox.Width / 2f;
             Animator.AddAnimation(new CallbackAnimation(p =>
                 {
@@ -114,7 +61,6 @@ namespace iLynx.UI.TestBench
         {
             var t = new Thread(() =>
             {
-                InputHandler.HookEvents();
                 window = new Window(new VideoMode(1920, 1080), "Test");
                 window.Show();
             });

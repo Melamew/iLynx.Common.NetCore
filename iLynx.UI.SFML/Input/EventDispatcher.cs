@@ -25,26 +25,25 @@
  *
  */
 #endregion
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using iLynx.Common.Threading;
 using SFML.Window;
 
-namespace iLynx.UI.Sfml
+namespace iLynx.UI.Sfml.Input
 {
-    public class EventManager : BackgroundWorker
+    public class EventDispatcher : BackgroundWorker
     {
         private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
         private readonly ConcurrentQueue<(Window Window, Event Event)> dispatchQueue = new ConcurrentQueue<(Window, Event)>();
-        private readonly Dictionary<EventType, List<Action<Window, Event>>> eventHandlers =
-            new Dictionary<EventType, List<Action<Window, Event>>>();
+        private readonly Dictionary<EventType, List<SfmlEventHandler>> eventHandlers =
+            new Dictionary<EventType, List<SfmlEventHandler>>();
         private volatile bool isRunning;
         private readonly AutoResetEvent autoResetEvent = new AutoResetEvent(false);
-        private static EventManager instance;
+        private static EventDispatcher instance;
 
-        private static EventManager Instance => instance ?? (instance = new EventManager());
+        private static EventDispatcher Instance => instance ?? (instance = new EventDispatcher());
 
         public override void Start()
         {
@@ -58,7 +57,7 @@ namespace iLynx.UI.Sfml
             base.Stop();
         }
 
-        static EventManager()
+        static EventDispatcher()
         {
             AddHandler(EventType.Closed, (w, e) => w.Close());
             StartEventPump();
@@ -74,12 +73,12 @@ namespace iLynx.UI.Sfml
             Instance.Stop();
         }
 
-        public static void AddHandler(EventType type, Action<Window, Event> handler)
+        public static void AddHandler(EventType type, SfmlEventHandler handler)
         {
             Instance.RegisterHandler(type, handler);
         }
 
-        public void RegisterHandler(EventType type, Action<Window, Event> handler)
+        public void RegisterHandler(EventType type, SfmlEventHandler handler)
         {
             using (rwl.AcquireWriteLock())
             {
@@ -87,18 +86,18 @@ namespace iLynx.UI.Sfml
                     list.Add(handler);
                 else if (null == list)
                 {
-                    list = new List<Action<Window, Event>> { handler };
+                    list = new List<SfmlEventHandler> { handler };
                     eventHandlers.Add(type, list);
                 }
             }
         }
 
-        public static void RemoveHandler(EventType type, Action<Window, Event> handler)
+        public static void RemoveHandler(EventType type, SfmlEventHandler handler)
         {
             Instance.UnregisterHandler(type, handler);
         }
 
-        public void UnregisterHandler(EventType type, Action<Window, Event> handler)
+        public void UnregisterHandler(EventType type, SfmlEventHandler handler)
         {
             using (rwl.AcquireWriteLock())
             {

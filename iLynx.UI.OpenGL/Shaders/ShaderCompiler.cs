@@ -30,26 +30,6 @@ using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.UI.OpenGL.Shaders
 {
-    public class ShaderProgram
-    {
-        public ShaderProgram(int id)
-        {
-            Id = id;
-        }
-
-        public int Id { get; }
-
-        public void UseProgram()
-        {
-            if (IsInUse) return;
-            GL.UseProgram(Id);
-            IsInUse = true;
-        }
-
-        //public void 
-
-        public bool IsInUse { get; private set; }
-    }
     public static class ShaderCompiler
     {
         public static int Compile(this IShader shader)

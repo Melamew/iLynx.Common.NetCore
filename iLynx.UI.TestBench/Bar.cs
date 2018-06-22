@@ -25,10 +25,24 @@
  *
  */
 #endregion
-namespace iLynx.UI.OpenGL.Shapes
+using iLynx.Common;
+
+namespace iLynx.UI.TestBench
 {
-    public class Triangle : IRenderable
+    public class Bar : BindingSource
     {
-        public IGeometry Geometry { get; } = new TriangleGeometry();
+        private string b;
+
+        public string B
+        {
+            get => b;
+            set
+            {
+                if (value == b) return;
+                var oldValue = b;
+                b = value;
+                OnPropertyChanged(oldValue, value);
+            }
+        }
     }
 }

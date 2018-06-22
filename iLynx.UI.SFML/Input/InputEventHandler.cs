@@ -25,16 +25,7 @@
  *
  */
 #endregion
-using System;
-
-namespace iLynx.UI.Sfml
+namespace iLynx.UI.Sfml.Input
 {
-    [Flags]
-    public enum ModifierKeys
-    {
-        Control = 0b0001,
-        Alt = 0b0010,
-        Shift = 0b0100,
-        System = 0b1000
-    }
+    public delegate void InputEventHandler<in TTarget, in TEventArgs>(TTarget target, TEventArgs args) where TTarget : IInputElement where TEventArgs : InputEvent;
 }

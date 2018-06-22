@@ -25,10 +25,17 @@
  *
  */
 #endregion
-namespace iLynx.UI.OpenGL.Shapes
+using System;
+
+namespace iLynx.UI.Sfml.Input
 {
-    public class Triangle : IRenderable
+    [Flags]
+    public enum ModifierKeys
     {
-        public IGeometry Geometry { get; } = new TriangleGeometry();
+        None = 0b0000,
+        Control = 0b0001,
+        Alt = 0b0010,
+        Shift = 0b0100,
+        System = 0b1000
     }
 }

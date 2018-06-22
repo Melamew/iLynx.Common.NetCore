@@ -25,10 +25,7 @@
  *
  */
 #endregion
-namespace iLynx.UI.OpenGL.Shapes
+namespace iLynx.UI.Sfml.Input
 {
-    public class Triangle : IRenderable
-    {
-        public IGeometry Geometry { get; } = new TriangleGeometry();
-    }
+    public class GotFocusEvent : InputEvent { }
 }

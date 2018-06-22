@@ -25,6 +25,7 @@
  *
  */
 #endregion
+using System.Collections.Generic;
 using System.Linq;
 
 namespace iLynx.Common
@@ -35,6 +36,30 @@ namespace iLynx.Common
         {
             return targets.Aggregate(new MultiBinding<T>(),
                 (binding, tuple) => (MultiBinding<T>)binding.Bind(tuple.target, tuple.propertyName));
+        }
+
+        public static void AddOrUpdateMany<TKey, TElement>(this IDictionary<TKey, ICollection<TElement>> target, TKey key, TElement value)
+        {
+            if (!target.TryGetValue(key, out var collection))
+            {
+                collection = new List<TElement>();
+                target.Add(key, collection);
+            }
+
+            collection.Remove(value);
+            collection.Add(value);
+        }
+
+        public static void AddOrUpdateMany<TKey, TElement>(this IDictionary<TKey, List<TElement>> target, TKey key, TElement value)
+        {
+            if (!target.TryGetValue(key, out var collection))
+            {
+                collection = new List<TElement>();
+                target.Add(key, collection);
+            }
+
+            collection.Remove(value);
+            collection.Add(value);
         }
     }
 }

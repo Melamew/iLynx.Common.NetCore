@@ -25,10 +25,25 @@
  *
  */
 #endregion
-namespace iLynx.UI.OpenGL.Shapes
+using System.Threading;
+
+namespace iLynx.Common.Threading
 {
-    public class Triangle : IRenderable
+    public abstract class BackgroundWorker
     {
-        public IGeometry Geometry { get; } = new TriangleGeometry();
+        private Thread thread;
+        public virtual void Start()
+        {
+            thread = new Thread(Run) { IsBackground = true };
+            thread.Start();
+        }
+
+        public virtual void Stop()
+        {
+            thread.Join();
+            thread = null;
+        }
+
+        protected abstract void Run();
     }
 }

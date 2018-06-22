@@ -30,6 +30,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using iLynx.UI.Sfml.Controls;
+using iLynx.UI.Sfml.Input;
 using SFML.Graphics;
 using SFML.System;
 
@@ -147,6 +148,8 @@ namespace iLynx.UI.Sfml.Layout
                     element = e;
                     return true;
                 }
+
+                element = this;
                 return true;
             }
             //return base.HitTest(position, out element) || children.Any(child => child.HitTest(position, out element));

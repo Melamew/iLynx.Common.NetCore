@@ -25,19 +25,16 @@
  *
  */
 #endregion
-using SFML.Window;
+using System.Runtime.CompilerServices;
 
-namespace iLynx.UI.Sfml
+namespace iLynx.Common
 {
-    public class KeyArgs
+    public class DetachedBindingSource : BindingSource
     {
-        public Keyboard.Key Key { get; }
-        public ModifierKeys Modifiers { get; }
-
-        public KeyArgs(Keyboard.Key key, ModifierKeys modifiers)
+        public void RaisePropertyChanged<TValue>(TValue oldValue, TValue newValue,
+            [CallerMemberName] string propertyName = null)
         {
-            Key = key;
-            Modifiers = modifiers;
+            OnPropertyChanged(oldValue, newValue, propertyName);
         }
     }
 }
