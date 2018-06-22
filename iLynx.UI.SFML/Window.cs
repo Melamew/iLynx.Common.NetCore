@@ -41,7 +41,7 @@ namespace iLynx.UI.Sfml
     {
         private readonly DetachedBindingSource bindingSource = new DetachedBindingSource();
         private Color background = Color.Transparent;
-        private Panel rootPanel;
+        private IUIElement root;
         private readonly StatisticsElement stats = new StatisticsElement { Padding = 16f, Margin = 16f };
         private TimeSpan frameTime;
         private readonly IBinding<TimeSpan> frameTimeBinding;
@@ -58,7 +58,7 @@ namespace iLynx.UI.Sfml
             // ReSharper disable once RedundantBaseQualifier
             base.SetFramerateLimit(120);
             stats.LayoutPropertyChanged += OnStatsLayoutPropertyChanged;
-            rootPanel = new Canvas { Background = background };
+            root = new Canvas { Background = background };
             frameTimeBinding = new MultiBinding<TimeSpan>().Bind(this, nameof(FrameTime))
                 .Bind(stats, nameof(StatisticsElement.FrameTime));
             layoutTimeBinding = new MultiBinding<TimeSpan>().Bind(this, nameof(LayoutTime))
@@ -83,16 +83,16 @@ namespace iLynx.UI.Sfml
             }
         }
 
-        public Panel RootPanel
+        public IUIElement RootElement
         {
-            get => rootPanel;
+            get => root;
             set
             {
-                if (value == rootPanel) return;
-                var old = rootPanel;
+                if (value == root) return;
+                var old = root;
                 old.LayoutPropertyChanged -= OnLayoutChanged;
-                rootPanel = value;
-                rootPanel.LayoutPropertyChanged += OnLayoutChanged;
+                root = value;
+                root.LayoutPropertyChanged += OnLayoutChanged;
                 bindingSource.RaisePropertyChanged(old, value);
                 Layout();
             }
@@ -129,7 +129,7 @@ namespace iLynx.UI.Sfml
                 if (PollEvent(out var e))
                     EventManager.Dispatch(this, e);
                 Clear(background);
-                Draw(rootPanel);
+                Draw(root);
                 sw.Stop();
                 FrameTime = sw.Elapsed;
                 sw.Reset();
@@ -161,7 +161,7 @@ namespace iLynx.UI.Sfml
         protected virtual void Layout()
         {
             var sw = Stopwatch.StartNew();
-            rootPanel.Layout(new FloatRect(0f, 0f, Size.X, Size.Y));
+            root.Layout(new FloatRect(0f, 0f, Size.X, Size.Y));
             sw.Stop();
             LayoutTime = sw.Elapsed;
         }

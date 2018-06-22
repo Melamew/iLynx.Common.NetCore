@@ -125,7 +125,7 @@ namespace iLynx.UI.TestBench
                 Orientation = Orientation.Horizontal,
                 Background = ColorUtils.FromRgbA(.1f, .1f, .1f, 1f)
             };
-            window.RootPanel = root;
+            window.RootElement = root;
             var stackPanel = new StackPanel
             {
                 Size = (Vector2f)window.Size * 0.5f,

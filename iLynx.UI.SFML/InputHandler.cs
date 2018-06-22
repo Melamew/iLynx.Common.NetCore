@@ -33,19 +33,43 @@ namespace iLynx.UI.Sfml
 {
     public static class InputHandler
     {
+        private static IInputElement focusElement;
         private static bool haveHooked = false;
+
         public static void HookEvents()
         {
             if (haveHooked) return;
             haveHooked = true;
             EventManager.AddHandler(EventType.MouseMoved, OnMouseMoved);
+            EventManager.AddHandler(EventType.MouseButtonPressed, OnMouseButtonDown);
+        }
+
+        public static bool InputHitTest(Vector2f position, Window w, out IInputElement element)
+        {
+            element = null;
+            if (!(w.RootElement is IInputElement inputElement) || !inputElement.HitTest(position, out var e))
+                return false;
+            element = e;
+            return true;
+        }
+
+        private static void OnMouseButtonDown(Window window, Event e)
+        {
+            var position = new Vector2f(e.MouseButton.X, e.MouseButton.Y);
+            if (!InputHitTest(position, window, out var element)) return;
+            if (element.Focusable && focusElement != element)
+            {
+                focusElement?.OnLostFocus();
+                (focusElement = element).OnReceivedFocus();
+            }
+            element.OnMouseButtonDown(new MouseButtonArgs(position, e.MouseButton.Button));
         }
 
         private static void OnMouseMoved(Window window, Event e)
         {
             var position = new Vector2f(e.MouseMove.X, e.MouseMove.Y);
-            if (window.RootPanel.HitTest(position, out var element))
-                Console.WriteLine($"MouseOver: {element}");
+            if (InputHitTest(position, window, out var element))
+                element.OnMouseOver(new MouseArgs(element.ToLocalCoords(position)));
         }
 
         //public static void AddMouseMoveHandler(IUIElement element, Action<Vector2f> callback)

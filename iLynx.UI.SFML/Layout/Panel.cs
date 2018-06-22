@@ -69,44 +69,45 @@ namespace iLynx.UI.Sfml.Layout
 
         public void AddChild(params IUIElement[] elements)
         {
-            children.AddRange(elements.Select(x =>
+            using (AcquireWriteLock())
             {
-                x.SetLogicalParent(this);
-                x.LayoutPropertyChanged += OnChildLayoutPropertyChanged;
-                return x;
-            }));
+                children.AddRange(elements.Select(x =>
+                {
+                    x.SetLogicalParent(this);
+                    x.LayoutPropertyChanged += OnChildLayoutPropertyChanged;
+                    return x;
+                }));
+            }
             OnLayoutPropertyChanged(nameof(Children));
         }
 
         protected virtual void OnChildLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (null == texture || requireNewTexture)
-                OnLayoutPropertyChanged(e.PropertyName);
-            else
-                Layout(BoundingBox + Margin);
+            OnLayoutPropertyChanged($"{nameof(Children)}.{e.PropertyName}");
         }
 
         public void RemoveChild(params IUIElement[] elements)
         {
-            foreach (var element in elements)
+            using (AcquireWriteLock())
             {
-                element.LayoutPropertyChanged -= OnChildLayoutPropertyChanged;
-                children.Remove(element);
-                element.SetLogicalParent(null);
+                foreach (var element in elements)
+                {
+                    element.LayoutPropertyChanged -= OnChildLayoutPropertyChanged;
+                    children.Remove(element);
+                    element.SetLogicalParent(null);
+                }
             }
             OnLayoutPropertyChanged(nameof(Children));
         }
 
         private (RenderTexture texture, Sprite sprite) GetRenderItems()
         {
-            if (requireNewTexture && textureDimensions.X > 0 && textureDimensions.Y > 0)
-            {
-                texture?.Dispose();
-                texture = null;
-                texture = new RenderTexture(textureDimensions.X, textureDimensions.Y);
-                sprite = new Sprite(texture.Texture);
-                requireNewTexture = false;
-            }
+            if (!requireNewTexture || textureDimensions.X <= 0 || textureDimensions.Y <= 0) return (texture, sprite);
+            texture?.Dispose();
+            texture = null;
+            texture = new RenderTexture(textureDimensions.X, textureDimensions.Y);
+            sprite = new Sprite(texture.Texture);
+            requireNewTexture = false;
             return (texture, sprite);
         }
 
@@ -134,19 +135,24 @@ namespace iLynx.UI.Sfml.Layout
             return finalRect;
         }
 
-        public override bool HitTest(Vector2f position, out IUIElement element)
+        public override bool HitTest(Vector2f position, out IInputElement element)
         {
             using (AcquireReadLock())
             {
                 var hit = base.HitTest(position, out element);
                 if (!hit) return false;
-                foreach (var child in children)
-                    if (child.HitTest(position, out element))
-                        return true;
+                foreach (var child in children.OfType<IInputElement>())
+                {
+                    if (!child.HitTest(position, out var e)) continue;
+                    element = e;
+                    return true;
+                }
                 return true;
             }
             //return base.HitTest(position, out element) || children.Any(child => child.HitTest(position, out element));
         }
+
+        public override bool Focusable => false;
 
         protected abstract void LayoutChildren(FloatRect target);
     }

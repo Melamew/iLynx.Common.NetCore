@@ -88,12 +88,12 @@ namespace iLynx.UI.Sfml.Controls
             return content?.Measure(dims - padding) + padding + content?.Margin ?? dims;
         }
 
-        public override bool HitTest(Vector2f position, out IUIElement element)
+        public override bool HitTest(Vector2f position, out IInputElement element)
         {
             var hit = base.HitTest(position, out element);
             if (!hit) return false;
-            if (null == content || !content.HitTest(position, out var child)) return true;
-            element = child;
+            if (content is IInputElement input && input.HitTest(position, out var child))
+                element = child;
             return true;
         }
 

@@ -65,20 +65,6 @@ namespace iLynx.UI.Sfml
         FloatRect BoundingBox { get; }
 
         /// <summary>
-        /// Transforms the specified coordinates from global to local coordinates (coordinates relative to this element)
-        /// </summary>
-        /// <param name="coords"></param>
-        /// <returns></returns>
-        Vector2f ToLocalCoords(Vector2f coords);
-
-        /// <summary>
-        /// Transforms the specified coordinates from local to global coordinates (coordinates relative to this element)
-        /// </summary>
-        /// <param name="coords"></param>
-        /// <returns></returns>
-        Vector2f ToGlobalCoords(Vector2f coords);
-
-        /// <summary>
         /// Gets the parent element (if any) of this element.
         /// If this element does not have a parent (IE. It is the root of a tree) this property will return null
         /// </summary>
@@ -90,13 +76,5 @@ namespace iLynx.UI.Sfml
         /// </summary>
         /// <param name="parent"></param>
         void SetLogicalParent(IUIElement parent);
-
-        /// <summary>
-        /// Perform a "hit test" to check if the specified <see cref="Vector2f"/> (Position) is within the bounds of this element.
-        /// </summary>
-        /// <param name="position">The position (in global coordinates) to check against this element</param>
-        /// <param name="element">The element that this position hit</param>
-        /// <returns>True if the position is within this element, otherwise false</returns>
-        bool HitTest(Vector2f position, out IUIElement element);
     }
 }

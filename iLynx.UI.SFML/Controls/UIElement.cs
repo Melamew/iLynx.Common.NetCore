@@ -38,7 +38,7 @@ using SFML.System;
 namespace iLynx.UI.Sfml.Controls
 {
     // ReSharper disable once InconsistentNaming
-    public abstract class UIElement : BindingSource, IUIElement
+    public abstract class UIElement : BindingSource, IUIElement, IInputElement
     {
         private Thickness margin = Thickness.Zero;
         protected Transform RenderTransform = Transform.Identity;
@@ -203,12 +203,12 @@ namespace iLynx.UI.Sfml.Controls
         public FloatRect BoundingBox { get; private set; }
         public Vector2f ToLocalCoords(Vector2f coords)
         {
-            return (Parent?.ToLocalCoords(coords) ?? coords) - RenderPosition;
+            return ((Parent as IInputElement)?.ToLocalCoords(coords) ?? coords) - RenderPosition;
         }
 
         public Vector2f ToGlobalCoords(Vector2f coords)
         {
-            return (Parent?.ToGlobalCoords(coords) ?? coords) + RenderPosition;
+            return ((Parent as IInputElement)?.ToGlobalCoords(coords) ?? coords) + RenderPosition;
         }
 
         public void SetLogicalParent(IUIElement parent)
@@ -216,11 +216,49 @@ namespace iLynx.UI.Sfml.Controls
             Parent = parent;
         }
 
-        public virtual bool HitTest(Vector2f position, out IUIElement element)
+        public virtual bool HitTest(Vector2f position, out IInputElement element)
         {
-            element = this;
+            element = null;
             position = ToLocalCoords(position);
-            return new FloatRect(new Vector2f(), RenderSize).Contains(position.X, position.Y);
+            if (!new FloatRect(new Vector2f(), RenderSize).Contains(position.X, position.Y)) return false;
+            element = this;
+            return true;
+        }
+
+        public virtual bool Focusable => true;
+        public void OnMouseOver(MouseArgs args)
+        {
+            Console.WriteLine($"MouseOver: {this}, {args.Position}");
+        }
+
+        public void OnMouseButtonDown(MouseButtonArgs args)
+        {
+            Console.WriteLine($"MouseDown: {this}, {args.Button}, {args.Position}");
+        }
+
+        public void OnReceivedFocus()
+        {
+            Console.WriteLine($"GotFocus: {this}");
+        }
+
+        public void OnLostFocus()
+        {
+            Console.WriteLine($"LostFocus: {this}");
+        }
+
+        public void OnMouseButtonUp(MouseButtonArgs args)
+        {
+            Console.WriteLine($"MouseUp: {this}, {args.Button}, {args.Position}");
+        }
+
+        public void OnKeyDown(KeyArgs args)
+        {
+            Console.WriteLine($"KeyDown: {this}, {args.Key}, {args.Modifiers}");
+        }
+
+        public void OnKeyUp(KeyArgs args)
+        {
+            Console.WriteLine($"KeyUp: {this}, {args.Key}, {args.Modifiers}");
         }
 
         public IUIElement Parent { get; protected set; }
