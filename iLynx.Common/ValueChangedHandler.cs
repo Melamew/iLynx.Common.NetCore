@@ -27,5 +27,6 @@
 #endregion
 namespace iLynx.Common
 {
-    public delegate void ValueChangedHandler<TValue>(object sender, ValueChangedEventArgs<TValue> e);
+    public delegate void ValueChangedHandler<TValue>(object sender, ValueChangedEventArgs<TValue> args);
+    public delegate void ValueChangedEventHandler<in TSender, TValue>(TSender sender, ValueChangedEventArgs<TValue> args);
 }

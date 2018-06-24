@@ -26,7 +26,6 @@
  */
 #endregion
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace iLynx.Common
@@ -45,12 +44,13 @@ namespace iLynx.Common
             return this;
         }
 
-        private void OnPropertyChanged(object source, ValueChangedEventArgs<TValue> e)
+        private void OnPropertyChanged(object source, ValueChangedEventArgs<TValue> args)
         {
             if (changing) return;
             changing = true;
             foreach (var target in targets.Where(x => x.Key != source))
-                target.Value.SetValue(e.NewValue);
+                target.Value.SetValue(args.NewValue);
+            OnValueChanged(args);
             changing = false;
         }
 
@@ -60,6 +60,13 @@ namespace iLynx.Common
                 target.RemovePropertyChangedHandler<TValue>(propertyWrapper.PropertyName, OnPropertyChanged);
             return this;
         }
+
+        protected virtual void OnValueChanged(ValueChangedEventArgs<TValue> args)
+        {
+            ValueChanged?.Invoke(this, args);
+        }
+
+        public event ValueChangedEventHandler<IBinding<TValue>, TValue> ValueChanged;
 
         public void SetValue(TValue value)
         {

@@ -35,5 +35,7 @@ namespace iLynx.Common
         IBinding<TValue> Bind<TTarget>(TTarget target, string propertyName) where TTarget : IBindingSource;
 
         IBinding<TValue> Unbind<TTarget>(TTarget target) where TTarget : IBindingSource;
+
+        event ValueChangedEventHandler<IBinding<TValue>, TValue> ValueChanged;
     }
 }
