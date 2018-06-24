@@ -25,13 +25,56 @@
  *
  */
 #endregion
+
+using System;
 using iLynx.UI.Sfml.Input;
 using SFML.Graphics;
+using SFML.System;
+using SFML.Window;
 
 namespace iLynx.UI.Sfml.Controls
 {
     public class TextBox : TextElement
     {
+        private uint caretIndex = 0;
+
+        protected override void OnMouseButtonDown(MouseDownEvent args)
+        {
+            base.OnMouseButtonDown(args);
+            switch (args.Button)
+            {
+                case Mouse.Button.Left:
+                    LeftMouseDown(args.Position);
+                    break;
+                case Mouse.Button.Right:
+                    RightMouseDown(args.Position);
+                    break;
+                default:
+                    return;
+            }
+
+            SetCaretIndex(args.Position);
+        }
+
+        private void SetCaretIndex(Vector2f position)
+        {
+            for (uint i = 0; i < Text.Length; ++i)
+            {
+                var charPos = FindCharacterPosition(i);
+
+            }
+        }
+
+        private void RightMouseDown(Vector2f position)
+        {
+
+        }
+
+        private void LeftMouseDown(Vector2f position)
+        {
+
+        }
+
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
             base.DrawInternal(target, states);
@@ -40,6 +83,7 @@ namespace iLynx.UI.Sfml.Controls
         protected override void OnTextEntered(TextInputEvent args)
         {
             base.OnTextEntered(args);
+            //Console.WriteLine($"{args.Text.Length}");
         }
     }
 }

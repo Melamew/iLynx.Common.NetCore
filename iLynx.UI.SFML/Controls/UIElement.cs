@@ -325,6 +325,5 @@ namespace iLynx.UI.Sfml.Controls
         }
 
         protected abstract void DrawInternal(RenderTarget target, RenderStates states);
-        //public static Font DefaultFont => new Font("fonts/OpenSans-Regular.ttf");
     }
 }

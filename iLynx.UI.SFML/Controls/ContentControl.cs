@@ -32,7 +32,7 @@ using SFML.System;
 
 namespace iLynx.UI.Sfml.Controls
 {
-    public class ContentControl : SfmlControlBase
+    public class ContentControl : Control
     {
         private IUIElement content = new TextElement { HorizontalAlignment = Alignment.Center, VerticalAlignment = Alignment.Center, Color = Color.Black };
         private Color foreground;

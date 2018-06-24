@@ -34,7 +34,7 @@ using SFML.Window;
 namespace iLynx.UI.Sfml.Controls
 {
     // ReSharper disable once InconsistentNaming
-    public abstract class SfmlControlBase : UIElement
+    public class Control : UIElement
     {
         private Color background = Color.White;
         private Shape shape;
@@ -54,40 +54,10 @@ namespace iLynx.UI.Sfml.Controls
             }
         }
 
-        protected SfmlControlBase(Alignment horizontalAlignment = Alignment.Start,
+        protected Control(Alignment horizontalAlignment = Alignment.Start,
             Alignment verticalAlignment = Alignment.Start)
             : base(horizontalAlignment, verticalAlignment)
         {
-            HookEvents();
-        }
-
-        private void HookEvents()
-        {
-            //InputHandler.MouseDown += InputHandler_MouseDown;
-            //InputHandler.MouseUp += InputHandler_MouseUp;
-            //InputHandler.MouseMove += InputHandler_MouseMove;
-        }
-
-        private void UnhookEvents()
-        {
-            //InputHandler.MouseDown -= InputHandler_MouseDown;
-            //InputHandler.MouseUp -= InputHandler_MouseUp;
-            //InputHandler.MouseMove -= InputHandler_MouseMove;
-        }
-
-        private void InputHandler_MouseMove(Vector2f position)
-        {
-            //throw new NotImplementedException();
-        }
-
-        private void InputHandler_MouseUp(Vector2f position, Mouse.Button button)
-        {
-            //throw new NotImplementedException();
-        }
-
-        private void InputHandler_MouseDown(Vector2f position, Mouse.Button button)
-        {
-            //throw new NotImplementedException();
         }
 
         public Color Background
@@ -109,13 +79,6 @@ namespace iLynx.UI.Sfml.Controls
             shape.FillColor = background;
             return finalRect;
         }
-
-        protected virtual void OnClick(MouseButtonEventArgs e)
-        {
-            Clicked?.Invoke(this, e);
-        }
-
-        public event EventHandler<MouseButtonEventArgs> Clicked;
 
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {

@@ -30,7 +30,7 @@ using SFML.System;
 
 namespace iLynx.UI.Sfml.Controls
 {
-    public class TextElement : UIElement
+    public class TextElement : Control
     {
         private readonly Text renderable = new Text(string.Empty, DefaultFont, 24);
 
@@ -45,6 +45,12 @@ namespace iLynx.UI.Sfml.Controls
             Text = text ?? string.Empty;
             Color = color;
             Margin = 2f;
+        }
+
+        protected Vector2f FindCharacterPosition(uint index)
+        {
+            //renderable.Font.GetGlyph(0, 0, false, 0).
+            return renderable?.FindCharacterPos(index) ?? new Vector2f();
         }
 
         public TextElement(string text, Font font, uint fontSize)
