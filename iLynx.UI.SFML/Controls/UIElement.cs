@@ -49,6 +49,8 @@ namespace iLynx.UI.Sfml.Controls
         private Alignment verticalAlignment;
         private bool hasFocus;
         private bool isMouseOver;
+        private bool isFocusable = true;
+        private bool isHitTestVisible = true;
 
         static UIElement()
         {
@@ -139,13 +141,25 @@ namespace iLynx.UI.Sfml.Controls
         public virtual bool HitTest(Vector2f position, out IInputElement element)
         {
             element = null;
+            if (!IsHitTestVisible) return false;
             position = ToLocalCoords(position);
             if (!new FloatRect(new Vector2f(), RenderSize).Contains(position.X, position.Y)) return false;
             element = this;
             return true;
         }
 
-        public virtual bool Focusable => true;
+        public bool IsFocusable
+        {
+            get => isFocusable;
+            set
+            {
+                if (value == isFocusable) return;
+                var old = isFocusable;
+                isFocusable = value;
+                OnPropertyChanged(old, isFocusable);
+            }
+        }
+
         public bool HasFocus
         {
             get => hasFocus;
@@ -165,6 +179,18 @@ namespace iLynx.UI.Sfml.Controls
                 if (value == isMouseOver) return;
                 var old = isMouseOver;
                 isMouseOver = value;
+                OnPropertyChanged(old, value);
+            }
+        }
+
+        public bool IsHitTestVisible
+        {
+            get => isHitTestVisible;
+            set
+            {
+                if (value == isHitTestVisible) return;
+                var old = isHitTestVisible;
+                isHitTestVisible = value;
                 OnPropertyChanged(old, value);
             }
         }

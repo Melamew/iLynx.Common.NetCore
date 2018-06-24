@@ -48,9 +48,10 @@ namespace iLynx.UI.Sfml.Layout
         private Vector2u textureDimensions;
         private volatile bool requireNewTexture = true;
 
-        protected Panel()
-            : base(Alignment.Stretch, Alignment.Stretch)
+        protected Panel(Alignment horizontalAlignment = Alignment.Stretch, Alignment verticalAlignment = Alignment.Stretch)
+            : base(horizontalAlignment, verticalAlignment)
         {
+            IsFocusable = false;
         }
 
         public Color Background
@@ -140,7 +141,7 @@ namespace iLynx.UI.Sfml.Layout
         public override bool HitTest(Vector2f position, out IInputElement element)
         {
             var hit = base.HitTest(position, out element);
-            if (!hit) return false;
+            if (!hit && IsHitTestVisible) return false;
             foreach (var child in children.OfType<IInputElement>())
             {
                 if (!child.HitTest(position, out var e)) continue;
@@ -149,10 +150,8 @@ namespace iLynx.UI.Sfml.Layout
             }
 
             element = this;
-            return true;
+            return IsHitTestVisible;
         }
-
-        public override bool Focusable => false;
 
         protected abstract void LayoutChildren(FloatRect target);
     }

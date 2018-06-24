@@ -71,10 +71,13 @@ namespace iLynx.UI.Sfml.Controls
                 if (value == text) return;
                 var old = text;
                 text = value;
+                OnTextChanged(old, value);
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
         }
+
+        protected virtual void OnTextChanged(string oldValue, string newValue) { }
 
         public Color Foreground
         {
@@ -130,8 +133,7 @@ namespace iLynx.UI.Sfml.Controls
         public override Vector2f Measure(Vector2f availableSpace)
         {
             var localBounds = renderable.GetLocalBounds();
-            return new Vector2f(localBounds.Width,
-                localBounds.Height);
+            return localBounds.Size();
         }
 
         protected override FloatRect LayoutInternal(FloatRect finalRect)

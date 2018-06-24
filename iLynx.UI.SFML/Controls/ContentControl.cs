@@ -93,10 +93,13 @@ namespace iLynx.UI.Sfml.Controls
         public override bool HitTest(Vector2f position, out IInputElement element)
         {
             var hit = base.HitTest(position, out element);
-            if (!hit) return false;
+            if (!hit && IsHitTestVisible) return false;
             if (content is IInputElement input && input.HitTest(position, out var child))
+            {
                 element = child;
-            return true;
+                return true;
+            }
+            return IsHitTestVisible;
         }
 
         protected override FloatRect LayoutInternal(FloatRect finalRect)
@@ -145,6 +148,11 @@ namespace iLynx.UI.Sfml.Controls
         private void Content_LayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             OnLayoutPropertyChanged($"{nameof(Content)}.{e.PropertyName}");
+        }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}, {Content}";
         }
     }
 }

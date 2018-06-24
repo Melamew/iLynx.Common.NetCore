@@ -113,7 +113,7 @@ namespace iLynx.UI.Sfml.Input
         {
             var position = new Vector2f(e.MouseButton.X, e.MouseButton.Y);
             if (!InputHitTest(position, window, out var element)) return;
-            if (element.Focusable && focusElement != element)
+            if (element.IsFocusable && focusElement != element)
                 RequestFocus(element);
             lastDownButton = e.MouseButton.Button;
             Raise(element, new MouseDownEvent(position, e.MouseButton.Button));
@@ -127,7 +127,7 @@ namespace iLynx.UI.Sfml.Input
         public static bool RequestFocus(IInputElement element)
         {
             if (null == element) throw new ArgumentNullException(nameof(element));
-            if (!element.Focusable) return false;
+            if (!element.IsFocusable) return false;
             Raise(focusElement, new LostFocusEvent());
             focusElement = element;
             Raise(focusElement, new GotFocusEvent());

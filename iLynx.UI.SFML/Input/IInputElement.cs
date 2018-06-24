@@ -56,7 +56,7 @@ namespace iLynx.UI.Sfml.Input
         /// <summary>
         /// Gets a value indicating whether or not this element is focusable
         /// </summary>
-        bool Focusable { get; }
+        bool IsFocusable { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether or not this element has keyboard focus
@@ -67,5 +67,10 @@ namespace iLynx.UI.Sfml.Input
         /// Gets a value indicating whether or not the mouse cursor is over this element
         /// </summary>
         bool IsMouseOver { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether or not this element is "visible" when hit testing.
+        /// </summary>
+        bool IsHitTestVisible { get; set; }
     }
 }

@@ -118,18 +118,18 @@ namespace iLynx.UI.TestBench
                     Background = new Color(32, 32, 32, 255),
                     Size = new Vector2f(800, 400),
                     Text = "Default Text",
-                },
-                new ContentControl
-                {
-                    Size = new Vector2f(120f, 10f),
-                    ContentString = "This content will not fit inside the control, yet it is not clipped.",
-                    Background = new Color(128, 64, 64, 255)
                 });
             canvas = new Canvas
             {
                 Background = ColorUtils.FromRgbA(.3f, .3f, .3f, 1f),
                 Margin = 16f
             };
+            canvas.AddChild(new ContentControl
+            {
+                Size = new Vector2f(120f, 10f),
+                ContentString = "This content will not fit inside the control, yet it is not clipped.",
+                Background = new Color(128, 64, 64, 255)
+            });
             root.AddChild(stackPanel, canvas);
         }
     }
