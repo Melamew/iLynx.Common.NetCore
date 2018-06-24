@@ -32,7 +32,11 @@ namespace iLynx.UI.Sfml.Controls
 {
     public class TextElement : Control
     {
-        private readonly Text renderable = new Text(string.Empty, DefaultFont, 24);
+        private readonly Text renderable = new Text();
+        private string text;
+        private Color foreground;
+        private uint fontSize = 24;
+        private Font font = DefaultFont;
 
         public TextElement()
             : this(string.Empty, Color.Black) { }
@@ -42,34 +46,31 @@ namespace iLynx.UI.Sfml.Controls
 
         public TextElement(string text, Color foreground)
         {
-            Text = text ?? string.Empty;
-            Foreground = foreground;
+            this.text = text;
+            this.foreground = foreground;
             Margin = 2f;
-        }
-
-        protected Vector2f FindCharacterPosition(uint index)
-        {
-            //renderable.Font.GetGlyph(0, 0, false, 0).
-            return renderable?.FindCharacterPos(index) ?? new Vector2f();
         }
 
         public TextElement(string text, Font font, uint fontSize)
             : this(text, Color.Black)
         {
-            Text = text ?? string.Empty;
-            Font = font;
-            FontSize = fontSize;
+            this.font = font;
+            this.fontSize = fontSize;
+        }
+
+        protected Vector2f FindCharacterPosition(uint index)
+        {
+            return renderable?.FindCharacterPos(index) ?? new Vector2f();
         }
 
         public string Text
         {
-            get => renderable.DisplayedString;
+            get => text;
             set
             {
-                if (value == renderable.DisplayedString) return;
-                var old = renderable.DisplayedString;
-                using (AcquireWriteLock())
-                    renderable.DisplayedString = value;
+                if (value == text) return;
+                var old = text;
+                text = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
@@ -77,26 +78,24 @@ namespace iLynx.UI.Sfml.Controls
 
         public Color Foreground
         {
-            get => renderable.FillColor;
+            get => foreground;
             set
             {
-                if (value == renderable.FillColor) return;
-                var old = renderable.FillColor;
-                using (AcquireWriteLock())
-                    renderable.FillColor = value;
+                if (value == foreground) return;
+                var old = foreground;
+                foreground = value;
                 OnPropertyChanged(old, value);
             }
         }
 
         public uint FontSize
         {
-            get => renderable.CharacterSize;
+            get => fontSize;
             set
             {
-                if (value == renderable.CharacterSize) return;
-                var old = renderable.CharacterSize;
-                using (AcquireWriteLock())
-                    renderable.CharacterSize = value;
+                if (value == fontSize) return;
+                var old = fontSize;
+                fontSize = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
@@ -104,13 +103,12 @@ namespace iLynx.UI.Sfml.Controls
 
         public Font Font
         {
-            get => renderable.Font;
+            get => font;
             set
             {
-                if (value == renderable.Font) return;
-                var old = renderable.Font;
-                using (AcquireWriteLock())
-                    renderable.Font = value;
+                if (value == font) return;
+                var old = font;
+                font = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
@@ -120,12 +118,13 @@ namespace iLynx.UI.Sfml.Controls
         {
             var textStates = states;
             textStates.Transform.Translate(-renderable.GetLocalBounds().Position());
+            renderable.FillColor = foreground;
             target.Draw(renderable, textStates);
         }
 
         public override string ToString()
         {
-            return $"TextElement: {renderable.DisplayedString}";
+            return $"{GetType().Name}: {renderable.DisplayedString}";
         }
 
         public override Vector2f Measure(Vector2f availableSpace)
@@ -137,6 +136,9 @@ namespace iLynx.UI.Sfml.Controls
 
         protected override FloatRect LayoutInternal(FloatRect finalRect)
         {
+            renderable.CharacterSize = fontSize;
+            renderable.DisplayedString = text;
+            renderable.Font = font;
             var localBounds = renderable.GetLocalBounds();
             return new FloatRect(
                 finalRect.Left,

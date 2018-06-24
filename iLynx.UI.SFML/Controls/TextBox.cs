@@ -83,7 +83,9 @@ namespace iLynx.UI.Sfml.Controls
         protected override void OnTextEntered(TextInputEvent args)
         {
             base.OnTextEntered(args);
-            //Console.WriteLine($"{args.Text.Length}");
+            var text = args.Text;
+            if (text.Length <= 0 || char.IsControl(text, 0)) return;
+            Text += text;
         }
     }
 }

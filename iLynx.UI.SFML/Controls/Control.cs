@@ -68,7 +68,6 @@ namespace iLynx.UI.Sfml.Controls
                 if (value == background) return;
                 var old = background;
                 background = value;
-                if (null != shape) shape.FillColor = value;
                 OnPropertyChanged(old, value);
             }
         }
@@ -76,13 +75,13 @@ namespace iLynx.UI.Sfml.Controls
         protected override FloatRect LayoutInternal(FloatRect finalRect)
         {
             shape = backgroundGenerator(finalRect.Size());
-            shape.FillColor = background;
             return finalRect;
         }
 
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
             if (null == shape) return;
+            shape.FillColor = background;
             target.Draw(shape, states);
         }
 

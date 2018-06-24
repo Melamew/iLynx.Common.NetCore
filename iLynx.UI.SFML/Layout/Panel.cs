@@ -25,6 +25,8 @@
  *
  */
 #endregion
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -70,33 +72,32 @@ namespace iLynx.UI.Sfml.Layout
 
         public void AddChild(params IUIElement[] elements)
         {
-            using (AcquireWriteLock())
+            children.AddRange(elements.Select(x =>
             {
-                children.AddRange(elements.Select(x =>
-                {
-                    x.SetLogicalParent(this);
-                    x.LayoutPropertyChanged += OnChildLayoutPropertyChanged;
-                    return x;
-                }));
-            }
+                x.SetLogicalParent(this);
+                x.LayoutPropertyChanged += OnChildLayoutPropertyChanged;
+                return x;
+            }));
             OnLayoutPropertyChanged(nameof(Children));
         }
 
         protected virtual void OnChildLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            OnLayoutPropertyChanged($"{nameof(Children)}.{e.PropertyName}");
+            var desiredSize = Measure((Vector2f)textureDimensions);
+            if (Math.Abs(desiredSize.X - textureDimensions.X) > 0.1f ||
+                Math.Abs(desiredSize.Y - textureDimensions.Y) > 0.1f)
+                OnLayoutPropertyChanged($"{nameof(Children)}.{e.PropertyName}");
+            else
+                Layout(BoundingBox + Margin);
         }
 
         public void RemoveChild(params IUIElement[] elements)
         {
-            using (AcquireWriteLock())
+            foreach (var element in elements)
             {
-                foreach (var element in elements)
-                {
-                    element.LayoutPropertyChanged -= OnChildLayoutPropertyChanged;
-                    children.Remove(element);
-                    element.SetLogicalParent(null);
-                }
+                element.LayoutPropertyChanged -= OnChildLayoutPropertyChanged;
+                children.Remove(element);
+                element.SetLogicalParent(null);
             }
             OnLayoutPropertyChanged(nameof(Children));
         }
@@ -138,21 +139,17 @@ namespace iLynx.UI.Sfml.Layout
 
         public override bool HitTest(Vector2f position, out IInputElement element)
         {
-            using (AcquireReadLock())
+            var hit = base.HitTest(position, out element);
+            if (!hit) return false;
+            foreach (var child in children.OfType<IInputElement>())
             {
-                var hit = base.HitTest(position, out element);
-                if (!hit) return false;
-                foreach (var child in children.OfType<IInputElement>())
-                {
-                    if (!child.HitTest(position, out var e)) continue;
-                    element = e;
-                    return true;
-                }
-
-                element = this;
+                if (!child.HitTest(position, out var e)) continue;
+                element = e;
                 return true;
             }
-            //return base.HitTest(position, out element) || children.Any(child => child.HitTest(position, out element));
+
+            element = this;
+            return true;
         }
 
         public override bool Focusable => false;

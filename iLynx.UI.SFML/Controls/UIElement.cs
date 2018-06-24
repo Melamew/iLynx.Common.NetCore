@@ -267,17 +267,6 @@ namespace iLynx.UI.Sfml.Controls
             rwl.ExitReadLock();
         }
 
-        protected WriterLock AcquireWriteLock()
-        {
-            return new WriterLock(rwl);
-        }
-
-        protected ReaderLock AcquireReadLock()
-        {
-            return new ReaderLock(rwl);
-        }
-
-
         /// <summary>
         ///     Called when the layout process has determined the internal bounds of this element
         /// </summary>
@@ -301,11 +290,13 @@ namespace iLynx.UI.Sfml.Controls
         protected virtual void OnGotFocus()
         {
             HasFocus = true;
+            Console.WriteLine($"Got Focus: {this}");
         }
 
         protected virtual void OnLostFocus()
         {
             HasFocus = false;
+            Console.WriteLine($"Lost Focus: {this}");
         }
 
         protected virtual void OnMouseButtonUp(MouseUpEvent args)

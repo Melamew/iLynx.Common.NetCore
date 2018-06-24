@@ -63,12 +63,9 @@ namespace iLynx.UI.Sfml.Layout
 
         public void SetRelativePosition(IUIElement element, Vector2f position)
         {
-            using (AcquireWriteLock())
-            {
-                if (Children.All(x => x != element))
-                    throw new InvalidOperationException("The specified element is not contained in this canvas");
-                positions.AddOrUpdate(element, position);
-            }
+            if (Children.All(x => x != element))
+                throw new InvalidOperationException("The specified element is not contained in this canvas");
+            positions.AddOrUpdate(element, position);
             OnChildLayoutPropertyChanged(element, new PropertyChangedEventArgs("Canvas.Position"));
         }
 
@@ -79,8 +76,7 @@ namespace iLynx.UI.Sfml.Layout
 
         public Vector2f GetRelativePosition(IUIElement element)
         {
-            using (AcquireReadLock())
-                return !positions.TryGetValue(element, out var value) ? new Vector2f() : value;
+            return !positions.TryGetValue(element, out var value) ? new Vector2f() : value;
         }
     }
 }
