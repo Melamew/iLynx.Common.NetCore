@@ -26,8 +26,6 @@
  */
 #endregion
 
-//using iLynx.UI.OpenGL;
-
 using System;
 using System.Threading;
 using iLynx.UI.Sfml;
@@ -46,6 +44,7 @@ namespace iLynx.UI.TestBench
         private static Window window;
         private static Canvas canvas;
         private static ContentControl stretchedControl;
+        private static TextBox textBox;
 
         private static void Main()
         {
@@ -80,12 +79,12 @@ namespace iLynx.UI.TestBench
             };
             var labelMargins = new Thickness(8f);
             stackPanel.AddChild(new ContentControl
-                {
+            {
                 ContentString = "Left Aligned",
                 Foreground = Color.Green,
                 Background = Color.Black,
                 Margin = labelMargins,
-                    Padding = 16f
+                Padding = 16f
             },
                 new ContentControl
                 {
@@ -110,6 +109,21 @@ namespace iLynx.UI.TestBench
                     HorizontalAlignment = Alignment.Stretch,
                     Foreground = Color.Green,
                     Background = Color.Black
+                },
+                textBox = new TextBox
+                {
+                    Font = UIElement.DefaultFont,
+                    FontSize = 20,
+                    Foreground = Color.White,
+                    Background = new Color(32, 32, 32, 255),
+                    Size = new Vector2f(800, 400),
+                    Text = "Default Text",
+                },
+                new ContentControl
+                {
+                    Size = new Vector2f(120f, 10f),
+                    ContentString = "This content will not fit inside the control, yet it is not clipped.",
+                    Background = new Color(128, 64, 64, 255)
                 });
             canvas = new Canvas
             {

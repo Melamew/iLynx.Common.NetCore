@@ -40,10 +40,10 @@ namespace iLynx.UI.Sfml.Controls
         public TextElement(Color color)
             : this(string.Empty, color) { }
 
-        public TextElement(string text, Color color)
+        public TextElement(string text, Color foreground)
         {
             Text = text ?? string.Empty;
-            Color = color;
+            Foreground = foreground;
             Margin = 2f;
         }
 
@@ -75,7 +75,7 @@ namespace iLynx.UI.Sfml.Controls
             }
         }
 
-        public Color Color
+        public Color Foreground
         {
             get => renderable.FillColor;
             set

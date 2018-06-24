@@ -34,7 +34,7 @@ namespace iLynx.UI.Sfml.Controls
 {
     public class ContentControl : Control
     {
-        private IUIElement content = new TextElement { HorizontalAlignment = Alignment.Center, VerticalAlignment = Alignment.Center, Color = Color.Black };
+        private IUIElement content = new TextElement { HorizontalAlignment = Alignment.Center, VerticalAlignment = Alignment.Center, Foreground = Color.Black };
         private Color foreground;
         private Thickness padding = 4f;
 
@@ -59,14 +59,14 @@ namespace iLynx.UI.Sfml.Controls
 
         public Color Foreground
         {
-            get => (content as TextElement)?.Color ?? foreground;
+            get => (content as TextElement)?.Foreground ?? foreground;
             set
             {
                 var old = foreground;
                 if (value == old) return;
                 foreground = value;
                 if (content is TextElement label)
-                    label.Color = foreground;
+                    label.Foreground = foreground;
                 OnPropertyChanged(old, value);
             }
         }
@@ -80,12 +80,13 @@ namespace iLynx.UI.Sfml.Controls
         public override Vector2f Measure(Vector2f availableSpace)
         {
             var dims = base.Measure(availableSpace);
-            // ReSharper disable CompareOfFloatsByEqualityOperator
-            if (0 == dims.X)
-                dims.X = availableSpace.X;
-            if (0 == dims.Y)
-                dims.Y = availableSpace.Y;
-            // ReSharper restore CompareOfFloatsByEqualityOperator
+            //// ReSharper disable CompareOfFloatsByEqualityOperator
+            //if (0 == dims.X)
+            //    dims.X = availableSpace.X;
+            //if (0 == dims.Y)
+            //    dims.Y = availableSpace.Y;
+            //// ReSharper restore CompareOfFloatsByEqualityOperator
+            if (dims.X > 0f || dims.Y > 0f) return dims;
             return content?.Measure(dims - padding) + padding + content?.Margin ?? dims;
         }
 
