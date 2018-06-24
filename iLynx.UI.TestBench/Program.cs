@@ -113,7 +113,7 @@ namespace iLynx.UI.TestBench
                 textBox = new TextBox
                 {
                     Font = UIElement.DefaultFont,
-                    FontSize = 20,
+                    FontSize = 24,
                     Foreground = Color.White,
                     Background = new Color(32, 32, 32, 255),
                     Size = new Vector2f(800, 400),

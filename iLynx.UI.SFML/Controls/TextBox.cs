@@ -41,27 +41,39 @@ namespace iLynx.UI.Sfml.Controls
         protected override void OnMouseButtonDown(MouseDownEvent args)
         {
             base.OnMouseButtonDown(args);
+            var relPos = ToLocalCoords(args.Position);
             switch (args.Button)
             {
                 case Mouse.Button.Left:
-                    LeftMouseDown(args.Position);
+                    LeftMouseDown(relPos);
                     break;
                 case Mouse.Button.Right:
-                    RightMouseDown(args.Position);
+                    RightMouseDown(relPos);
                     break;
                 default:
                     return;
             }
 
-            SetCaretIndex(args.Position);
+            SetCaretIndex(relPos);
+        }
+
+        protected override void OnTextChanged(string oldValue, string newValue)
+        {
+            base.OnTextChanged(oldValue, newValue);
+            caretIndex = (uint) newValue.Length;
         }
 
         private void SetCaretIndex(Vector2f position)
         {
             for (uint i = 0; i < Text.Length; ++i)
             {
-                var charPos = FindCharacterPosition(i);
-
+                var glyphSize = Font.GetGlyph(Text[(int) i], FontSize, false, 0f).Bounds.Size();
+                var charRect = new FloatRect(FindCharacterPosition(i), glyphSize);
+                if (charRect.Contains(position.X, position.Y))
+                {
+                    Console.WriteLine($"Index should be {i}");
+                    break;
+                }
             }
         }
 
@@ -73,6 +85,21 @@ namespace iLynx.UI.Sfml.Controls
         private void LeftMouseDown(Vector2f position)
         {
 
+        }
+
+        protected override void OnKeyDown(KeyboardEvent args)
+        {
+            base.OnKeyDown(args);
+            switch (args.Key)
+            {
+                case Keyboard.Key.BackSpace:
+                    Console.WriteLine("Backspace");
+                    break;
+                case Keyboard.Key.Return:
+                    Console.WriteLine("Return");
+                    Text += '\n';
+                    break;
+            }
         }
 
         protected override void DrawInternal(RenderTarget target, RenderStates states)
