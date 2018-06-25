@@ -36,8 +36,8 @@ namespace iLynx.UI.Sfml.Controls
 {
     public class TextBox : TextElement
     {
-        private uint caretIndex = 0;
-
+        private int caretIndex = 0;
+        private FloatRect charRect = new FloatRect();
         protected override void OnMouseButtonDown(MouseDownEvent args)
         {
             base.OnMouseButtonDown(args);
@@ -60,21 +60,38 @@ namespace iLynx.UI.Sfml.Controls
         protected override void OnTextChanged(string oldValue, string newValue)
         {
             base.OnTextChanged(oldValue, newValue);
-            caretIndex = (uint) newValue.Length;
+            caretIndex = newValue.Length;
         }
 
         private void SetCaretIndex(Vector2f position)
         {
-            for (uint i = 0; i < Text.Length; ++i)
+            var size = (float)FontSize;
+            var offset = new Vector2f(size / 4f, 0f);
+            for (var i = Text.Length - 1; i >= 0; --i)
             {
-                var glyphSize = Font.GetGlyph(Text[(int) i], FontSize, false, 0f).Bounds.Size();
-                var charRect = new FloatRect(FindCharacterPosition(i), glyphSize);
+                var glyphSize = new Vector2f(size, size);
+                var charPos = FindCharacterPosition((uint)i);
+                charRect = new FloatRect(charPos - offset, glyphSize);
                 if (charRect.Contains(position.X, position.Y))
                 {
-                    Console.WriteLine($"Index should be {i}");
+                    caretIndex = i;
+                    Console.WriteLine($"Index should be {i} ({Text[i]}), {charRect}");
                     break;
                 }
             }
+        }
+
+        protected override void DrawInternal(RenderTarget target, RenderStates states)
+        {
+            base.DrawInternal(target, states);
+            var caret = new RectangleShape(charRect.Size())
+            {
+                Position = charRect.Position() + RenderPosition,
+                OutlineThickness = 2f,
+                OutlineColor = Color.Red,
+                FillColor = Color.Transparent
+            };
+            target.Draw(caret);
         }
 
         private void RightMouseDown(Vector2f position)
@@ -100,11 +117,6 @@ namespace iLynx.UI.Sfml.Controls
                     Text += '\n';
                     break;
             }
-        }
-
-        protected override void DrawInternal(RenderTarget target, RenderStates states)
-        {
-            base.DrawInternal(target, states);
         }
 
         protected override void OnTextEntered(TextInputEvent args)
