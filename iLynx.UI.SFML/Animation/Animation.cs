@@ -44,14 +44,17 @@ namespace iLynx.UI.Sfml.Animation
 
         public void Tick(TimeSpan elapsed)
         {
+            if (IsFinished)
+                return;
             var elapsedMs = elapsed.TotalMilliseconds;
             var timeIndex = elapsedMs % duration;
             var end = (int)Math.Floor(elapsedMs / duration) % 2;
             switch (loopMode)
             {
                 case LoopMode.None when end == 1:
+                    Tick(1d);
                     IsFinished = true;
-                    break;
+                    return;
                 case LoopMode.Restart when end == 1:
                     end = 0;
                     break;
@@ -63,5 +66,9 @@ namespace iLynx.UI.Sfml.Animation
         protected abstract void Tick(double timeIndex);
 
         public bool IsFinished { get; private set; }
+        public void Cancel()
+        {
+            IsFinished = true;
+        }
     }
 }

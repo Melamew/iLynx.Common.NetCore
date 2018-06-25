@@ -34,5 +34,7 @@ namespace iLynx.UI.Sfml.Animation
         void Tick(TimeSpan elapsed);
         
         bool IsFinished { get; }
+
+        void Cancel();
     }
 }

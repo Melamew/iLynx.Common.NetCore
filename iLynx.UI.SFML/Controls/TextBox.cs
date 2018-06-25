@@ -27,6 +27,9 @@
 #endregion
 
 using System;
+using System.Threading;
+using iLynx.Common.Threading;
+using iLynx.UI.Sfml.Animation;
 using iLynx.UI.Sfml.Input;
 using SFML.Graphics;
 using SFML.System;
@@ -36,8 +39,12 @@ namespace iLynx.UI.Sfml.Controls
 {
     public class TextBox : TextElement
     {
-        private int caretIndex = 0;
-        private FloatRect charRect = new FloatRect();
+        private int caretIndex;
+        private readonly TimeSpan caretTransitionDuration = TimeSpan.FromMilliseconds(50d);
+        private readonly RectangleShape caret = new RectangleShape();
+        private readonly ReaderWriterLockSlim caretLock = new ReaderWriterLockSlim();
+        private IAnimation caretAnimation;
+
         protected override void OnMouseButtonDown(MouseDownEvent args)
         {
             base.OnMouseButtonDown(args);
@@ -65,33 +72,73 @@ namespace iLynx.UI.Sfml.Controls
 
         private void SetCaretIndex(Vector2f position)
         {
-            var size = (float)FontSize;
-            var offset = new Vector2f(size / 4f, 0f);
             for (var i = Text.Length - 1; i >= 0; --i)
             {
-                var glyphSize = new Vector2f(size, size);
-                var charPos = FindCharacterPosition((uint)i);
-                charRect = new FloatRect(charPos - offset, glyphSize);
-                if (charRect.Contains(position.X, position.Y))
-                {
+                if (char.IsControl(Text[i])) continue;
+                var rect = GetCharacterRectangleForIndex(i);
+                if (!rect.Contains(position.X, position.Y)) continue;
+                if (i == Text.Length - 1 && rect.Left + rect.Width / 2f < position.X)
+                    caretIndex = i + 1;
+                else
                     caretIndex = i;
-                    Console.WriteLine($"Index should be {i} ({Text[i]}), {charRect}");
-                    break;
-                }
+                break;
             }
+
+            BuildCaret();
+        }
+
+        protected virtual Vector2f CharacterSize => new Vector2f(FontSize, FontSize);
+
+        private FloatRect GetCharacterRectangleForIndex(int index)
+        {
+            var size = (float)FontSize;
+            var charPos = FindCharacterPosition((uint)index);
+            return new FloatRect(new Vector2f(charPos.X - size / 4f, charPos.Y), CharacterSize);
+        }
+
+        private void BuildCaret()
+        {
+            var index = caretIndex;
+            Vector2f position;
+            FloatRect rect;
+            var caretSize = CharacterSize;
+            caretSize.X *= 0.1f;
+            if (index >= Text.Length)
+            {
+                rect = GetCharacterRectangleForIndex(Text.Length - 1);
+                position = new Vector2f(rect.Left + rect.Width - caretSize.X * 2f, rect.Top);
+            }
+            else
+            {
+                rect = GetCharacterRectangleForIndex(index);
+                position = new Vector2f(rect.Left + caretSize.X * 2f, rect.Top);
+            }
+            using (caretLock.AcquireWriteLock())
+            {
+                caret.Size = caretSize;
+                caret.FillColor = Foreground;
+            }
+            SetCaretPosition(position);
+        }
+
+        protected virtual void SetCaretPosition(Vector2f position)
+        {
+            caretAnimation?.Cancel();
+            var oldPos = caret.Position - RenderPosition;
+            var delta = position - oldPos;
+            caretAnimation = Animator.Start(d =>
+            {
+                using (caretLock.AcquireWriteLock())
+                    caret.Position = oldPos + delta * (float)d + RenderPosition;
+            }, caretTransitionDuration, easingFunction: EasingFunctions.QuadraticOut);
         }
 
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
             base.DrawInternal(target, states);
-            var caret = new RectangleShape(charRect.Size())
-            {
-                Position = charRect.Position() + RenderPosition,
-                OutlineThickness = 2f,
-                OutlineColor = Color.Red,
-                FillColor = Color.Transparent
-            };
+            caretLock.EnterReadLock();
             target.Draw(caret);
+            caretLock.ExitReadLock();
         }
 
         private void RightMouseDown(Vector2f position)

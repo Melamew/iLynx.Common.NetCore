@@ -84,7 +84,7 @@ namespace iLynx.UI.Sfml.Animation
             }
         }
 
-        private static async void DoAnimations()
+        private static void DoAnimations()
         {
             KeyValuePair<IAnimation, DateTime>[] anims;
             try
@@ -96,8 +96,12 @@ namespace iLynx.UI.Sfml.Animation
             {
                 Rwl.ExitReadLock();
             }
-            foreach (var animation in anims.Where(x => !x.Key.IsFinished))
-                await Task.Run(() => animation.Key.Tick(DateTime.Now - animation.Value));
+
+            foreach (var animation in anims)
+            {
+                if (animation.Key.IsFinished) continue;
+                animation.Key.Tick(DateTime.Now - animation.Value);
+            }
             if (DateTime.Now - lastCleanup < CleanupInterval) return;
             try
             {
@@ -113,5 +117,10 @@ namespace iLynx.UI.Sfml.Animation
         }
 
         public static TimeSpan CleanupInterval { get; set; } = TimeSpan.FromMilliseconds(250d);
+
+        public static IAnimation Start(Action<double> callback, TimeSpan duration, LoopMode loopMode = LoopMode.None, Func<double, double> easingFunction = null)
+        {
+            return AddAnimation(new CallbackAnimation(callback, duration, loopMode, easingFunction));
+        }
     }
 }
