@@ -44,6 +44,8 @@ namespace iLynx.UI.Sfml.Controls
         private readonly RectangleShape caret = new RectangleShape();
         private readonly ReaderWriterLockSlim caretLock = new ReaderWriterLockSlim();
         private IAnimation caretAnimation;
+        private bool isModifying;
+        private const char NewLine = '\n';
 
         protected override void OnMouseButtonDown(MouseDownEvent args)
         {
@@ -67,7 +69,8 @@ namespace iLynx.UI.Sfml.Controls
         protected override void OnTextChanged(string oldValue, string newValue)
         {
             base.OnTextChanged(oldValue, newValue);
-            caretIndex = newValue.Length;
+            if (isModifying) return;
+            CaretIndex = newValue.Length;
         }
 
         private void SetCaretIndex(Vector2f position)
@@ -78,13 +81,11 @@ namespace iLynx.UI.Sfml.Controls
                 var rect = GetCharacterRectangleForIndex(i);
                 if (!rect.Contains(position.X, position.Y)) continue;
                 if (i == Text.Length - 1 && rect.Left + rect.Width / 2f < position.X)
-                    caretIndex = i + 1;
+                    CaretIndex = i + 1;
                 else
-                    caretIndex = i;
+                    CaretIndex = i;
                 break;
             }
-
-            BuildCaret();
         }
 
         protected virtual Vector2f CharacterSize => new Vector2f(FontSize, FontSize);
@@ -96,23 +97,13 @@ namespace iLynx.UI.Sfml.Controls
             return new FloatRect(new Vector2f(charPos.X - size / 4f, charPos.Y), CharacterSize);
         }
 
-        private void BuildCaret()
+        private void MoveCaretToCurrentIndex()
         {
             var index = caretIndex;
-            Vector2f position;
-            FloatRect rect;
             var caretSize = CharacterSize;
             caretSize.X *= 0.1f;
-            if (index >= Text.Length)
-            {
-                rect = GetCharacterRectangleForIndex(Text.Length - 1);
-                position = new Vector2f(rect.Left + rect.Width - caretSize.X * 2f, rect.Top);
-            }
-            else
-            {
-                rect = GetCharacterRectangleForIndex(index);
-                position = new Vector2f(rect.Left + caretSize.X * 2f, rect.Top);
-            }
+            var rect = GetCharacterRectangleForIndex(index);
+            var position = new Vector2f(rect.Left + caretSize.X * 2f, rect.Top);
             using (caretLock.AcquireWriteLock())
             {
                 caret.Size = caretSize;
@@ -157,13 +148,91 @@ namespace iLynx.UI.Sfml.Controls
             switch (args.Key)
             {
                 case Keyboard.Key.BackSpace:
-                    Console.WriteLine("Backspace");
+                    BackSpace();
                     break;
                 case Keyboard.Key.Return:
-                    Console.WriteLine("Return");
-                    Text += '\n';
+                    Return();
                     break;
+                case Keyboard.Key.Left:
+                    Left();
+                    break;
+                case Keyboard.Key.Right:
+                    Right();
+                    break;
+                case Keyboard.Key.Up:
+                    Up();
+                    break;
+                case Keyboard.Key.Down:
+                    Down();
+                    break;
+                case Keyboard.Key.End:
+                    End();
+                    break;
+                case Keyboard.Key.Home:
+                    Home();
+                    break;
+                default:
+                    return;
             }
+
+        }
+
+        private void Home()
+        {
+            CaretIndex = 0;
+        }
+
+        private void End()
+        {
+            CaretIndex = Text.Length;
+        }
+
+        private void Down()
+        {
+        }
+
+        private void Up()
+        {
+        }
+
+        protected int CaretIndex
+        {
+            get => caretIndex;
+            set
+            {
+                if (value == caretIndex) return;
+                caretIndex = value;
+                MoveCaretToCurrentIndex();
+            }
+        }
+
+        protected virtual void Right()
+        {
+            if (caretIndex == Text.Length) return;
+            ++CaretIndex;
+        }
+
+        protected virtual void Left()
+        {
+            if (caretIndex == 0) return;
+            --CaretIndex;
+        }
+
+        protected virtual void Return()
+        {
+            isModifying = true;
+            Text = Text.Insert(caretIndex, NewLine.ToString());
+            isModifying = false;
+            ++CaretIndex;
+        }
+
+        protected virtual void BackSpace()
+        {
+            if (caretIndex == 0) return;
+            isModifying = true;
+            Text = Text.Remove(caretIndex - 1, 1);
+            isModifying = false;
+            --CaretIndex;
         }
 
         protected override void OnTextEntered(TextInputEvent args)
@@ -171,7 +240,10 @@ namespace iLynx.UI.Sfml.Controls
             base.OnTextEntered(args);
             var text = args.Text;
             if (text.Length <= 0 || char.IsControl(text, 0)) return;
-            Text += text;
+            isModifying = true;
+            Text = Text.Insert(caretIndex, text);
+            isModifying = false;
+            ++CaretIndex;
         }
     }
 }
