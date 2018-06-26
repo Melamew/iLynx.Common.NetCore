@@ -45,7 +45,9 @@ namespace iLynx.UI.Sfml.Controls
         private readonly ReaderWriterLockSlim caretLock = new ReaderWriterLockSlim();
         private IAnimation caretAnimation;
         private bool isModifying;
-        private const char NewLine = '\n';
+        private bool acceptsNewLine;
+        private const string NewLine = "\n";
+        private const string Space = " ";
 
         protected override void OnMouseButtonDown(MouseDownEvent args)
         {
@@ -64,6 +66,25 @@ namespace iLynx.UI.Sfml.Controls
             }
 
             SetCaretIndex(relPos);
+        }
+
+        protected override void OnBoundingBoxChanged()
+        {
+            MoveCaretToCurrentIndex();
+        }
+
+        public bool AcceptsNewLine
+        {
+            get => acceptsNewLine;
+            set
+            {
+                if (value == acceptsNewLine) return;
+                var old = acceptsNewLine;
+                acceptsNewLine = value;
+                if (!value)
+                    Text = Text.Replace(NewLine, Space);
+                OnPropertyChanged(old, value);
+            }
         }
 
         protected override void OnTextChanged(string oldValue, string newValue)
@@ -127,6 +148,7 @@ namespace iLynx.UI.Sfml.Controls
         protected override void DrawInternal(RenderTarget target, RenderStates states)
         {
             base.DrawInternal(target, states);
+            if (!HasFocus) return;
             caretLock.EnterReadLock();
             target.Draw(caret);
             caretLock.ExitReadLock();
@@ -220,8 +242,9 @@ namespace iLynx.UI.Sfml.Controls
 
         protected virtual void Return()
         {
+            if (!acceptsNewLine) return;
             isModifying = true;
-            Text = Text.Insert(caretIndex, NewLine.ToString());
+            Text = Text.Insert(caretIndex, NewLine);
             isModifying = false;
             ++CaretIndex;
         }

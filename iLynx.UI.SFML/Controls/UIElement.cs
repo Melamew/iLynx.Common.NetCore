@@ -51,6 +51,7 @@ namespace iLynx.UI.Sfml.Controls
         private bool isMouseOver;
         private bool isFocusable = true;
         private bool isHitTestVisible = true;
+        private FloatRect boundingBox;
 
         static UIElement()
         {
@@ -276,7 +277,23 @@ namespace iLynx.UI.Sfml.Controls
 
         public event EventHandler<PropertyChangedEventArgs> LayoutPropertyChanged;
 
-        public FloatRect BoundingBox { get; private set; }
+        public FloatRect BoundingBox
+        {
+            get => boundingBox;
+            private set
+            {
+                if (value == boundingBox) return;
+                var old = boundingBox;
+                boundingBox = value;
+                OnPropertyChanged(old, value);
+                OnBoundingBoxChanged();
+            }
+        }
+
+        protected virtual void OnBoundingBoxChanged()
+        {
+
+        }
 
         public void SetLogicalParent(IUIElement parent)
         {

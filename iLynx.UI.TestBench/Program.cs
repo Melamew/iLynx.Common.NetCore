@@ -118,6 +118,7 @@ namespace iLynx.UI.TestBench
                     Background = new Color(32, 32, 32, 255),
                     Size = new Vector2f(800, 400),
                     Text = "Default Text",
+                    Margin = 8f
                 });
             canvas = new Canvas
             {
