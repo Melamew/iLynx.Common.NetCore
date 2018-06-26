@@ -36,7 +36,7 @@ namespace iLynx.UI.Sfml.Controls
     // ReSharper disable once InconsistentNaming
     public class Control : UIElement
     {
-        private Color background = Color.White;
+        private Color background = Color.Transparent;
         private Shape shape;
         private Func<Vector2f, Shape> backgroundGenerator = size => new RectangleShape(size);
 
@@ -72,13 +72,13 @@ namespace iLynx.UI.Sfml.Controls
             }
         }
 
-        protected override FloatRect LayoutInternal(FloatRect finalRect)
+        protected override FloatRect LayoutLocked(FloatRect finalRect)
         {
             shape = backgroundGenerator(finalRect.Size());
             return finalRect;
         }
 
-        protected override void DrawInternal(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
             if (null == shape) return;
             shape.FillColor = background;

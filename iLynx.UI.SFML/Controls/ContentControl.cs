@@ -71,9 +71,9 @@ namespace iLynx.UI.Sfml.Controls
             }
         }
 
-        protected override void DrawInternal(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
-            base.DrawInternal(target, states);
+            base.DrawLocked(target, states);
             content?.Draw(target, states);
         }
 
@@ -87,7 +87,7 @@ namespace iLynx.UI.Sfml.Controls
             //    dims.Y = availableSpace.Y;
             //// ReSharper restore CompareOfFloatsByEqualityOperator
             if (dims.X > 0f || dims.Y > 0f) return dims;
-            return content?.Measure(dims - padding) + padding + content?.Margin ?? dims;
+            return content?.Measure(availableSpace - padding) + padding + content?.Margin ?? dims;
         }
 
         public override bool HitTest(Vector2f position, out IInputElement element)
@@ -102,9 +102,9 @@ namespace iLynx.UI.Sfml.Controls
             return IsHitTestVisible;
         }
 
-        protected override FloatRect LayoutInternal(FloatRect finalRect)
+        protected override FloatRect LayoutLocked(FloatRect finalRect)
         {
-            finalRect = base.LayoutInternal(finalRect);
+            finalRect = base.LayoutLocked(finalRect);
             var contentRect = new FloatRect(0f, 0f, finalRect.Width, finalRect.Height) - padding;
             content?.Layout(contentRect);
             return finalRect;

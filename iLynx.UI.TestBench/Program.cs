@@ -114,11 +114,12 @@ namespace iLynx.UI.TestBench
                 {
                     Font = UIElement.DefaultFont,
                     FontSize = 48,
-                    Foreground = Color.White,
-                    Background = new Color(32, 32, 32, 255),
+                    Foreground = Color.Black,
+                    Background = Color.White,
                     Size = new Vector2f(800, 400),
                     Text = "Default Text",
-                    Margin = 8f
+                    Margin = 8f,
+                    AcceptsReturn = true
                 });
             canvas = new Canvas
             {

@@ -99,28 +99,30 @@ namespace iLynx.UI.Sfml.Animation
 
             foreach (var animation in anims)
             {
-                if (animation.Key.IsFinished) continue;
+                if (animation.Key.IsFinished)
+                {
+                    Rwl.EnterWriteLock();
+                    foreach (var finished in anims.Where(x => x.Key.IsFinished))
+                        Animations.Remove(finished.Key);
+                    Rwl.ExitWriteLock();
+                    continue;
+                }
                 animation.Key.Tick(DateTime.Now - animation.Value);
             }
-            if (DateTime.Now - lastCleanup < CleanupInterval) return;
-            try
-            {
-                lastCleanup = DateTime.Now;
-                Rwl.EnterWriteLock();
-                foreach (var finished in anims.Where(x => x.Key.IsFinished))
-                    Animations.Remove(finished.Key);
-            }
-            finally
-            {
-                Rwl.ExitWriteLock();
-            }
         }
-
-        public static TimeSpan CleanupInterval { get; set; } = TimeSpan.FromMilliseconds(250d);
 
         public static IAnimation Start(Action<double> callback, TimeSpan duration, LoopMode loopMode = LoopMode.None, Func<double, double> easingFunction = null)
         {
             return AddAnimation(new CallbackAnimation(callback, duration, loopMode, easingFunction));
+        }
+
+        public static void Stop(IAnimation animation)
+        {
+            if (null == animation) return;
+            animation.Cancel();
+            while (Animations.ContainsKey(animation))
+                Thread.CurrentThread.Join(1);
+            animation.Tick(animation.Duration);
         }
     }
 }

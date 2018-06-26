@@ -46,8 +46,6 @@ namespace iLynx.UI.Sfml.Controls
         private IAnimation caretAnimation;
         private bool isModifying;
         private bool acceptsNewLine;
-        private const string NewLine = "\n";
-        private const string Space = " ";
 
         protected override void OnMouseButtonDown(MouseDownEvent args)
         {
@@ -73,7 +71,7 @@ namespace iLynx.UI.Sfml.Controls
             MoveCaretToCurrentIndex();
         }
 
-        public bool AcceptsNewLine
+        public bool AcceptsReturn
         {
             get => acceptsNewLine;
             set
@@ -136,6 +134,7 @@ namespace iLynx.UI.Sfml.Controls
         protected virtual void SetCaretPosition(Vector2f position)
         {
             caretAnimation?.Cancel();
+            caretAnimation?.Tick(caretTransitionDuration);
             var oldPos = caret.Position - RenderPosition;
             var delta = position - oldPos;
             caretAnimation = Animator.Start(d =>
@@ -145,9 +144,9 @@ namespace iLynx.UI.Sfml.Controls
             }, caretTransitionDuration, easingFunction: EasingFunctions.QuadraticOut);
         }
 
-        protected override void DrawInternal(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
-            base.DrawInternal(target, states);
+            base.DrawLocked(target, states);
             if (!HasFocus) return;
             caretLock.EnterReadLock();
             target.Draw(caret);
@@ -193,10 +192,21 @@ namespace iLynx.UI.Sfml.Controls
                 case Keyboard.Key.Home:
                     Home();
                     break;
+                case Keyboard.Key.Delete:
+                    Delete();
+                    break;
                 default:
                     return;
             }
 
+        }
+
+        private void Delete()
+        {
+            if (Text.Length == caretIndex) return;
+            isModifying = true;
+            Text = Text.Remove(caretIndex, 1);
+            isModifying = false;
         }
 
         private void Home()

@@ -114,7 +114,7 @@ namespace iLynx.UI.Sfml.Layout
             return (texture, sprite);
         }
 
-        protected override void DrawInternal(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
             var renderItems = GetRenderItems();
             var t = renderItems.texture;
@@ -129,7 +129,7 @@ namespace iLynx.UI.Sfml.Layout
             target.Draw(s, states);
         }
 
-        protected override FloatRect LayoutInternal(FloatRect finalRect)
+        protected override FloatRect LayoutLocked(FloatRect finalRect)
         {
             var dimensions = (Vector2u)finalRect.Size();
             requireNewTexture = null == texture || textureDimensions != dimensions;

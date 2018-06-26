@@ -31,7 +31,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using iLynx.Common;
-using iLynx.Common.Threading;
 using iLynx.UI.Sfml.Input;
 using SFML.Graphics;
 using SFML.System;
@@ -41,10 +40,9 @@ namespace iLynx.UI.Sfml.Controls
     // ReSharper disable once InconsistentNaming
     public abstract class UIElement : BindingSource, IInputElement
     {
-        private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
+        protected readonly ReaderWriterLockSlim LayoutLock = new ReaderWriterLockSlim();
         private Alignment horizontalAlignment;
         private Thickness margin = Thickness.Zero;
-        protected Transform RenderTransform = Transform.Identity;
         private Vector2f size = new Vector2f(float.NaN, float.NaN);
         private Alignment verticalAlignment;
         private bool hasFocus;
@@ -128,7 +126,6 @@ namespace iLynx.UI.Sfml.Controls
         }
 
         public static Font DefaultFont => new Font("fonts/Mechanical.otf");
-
         public Vector2f ToLocalCoords(Vector2f coords)
         {
             return ((Parent as IInputElement)?.ToLocalCoords(coords) ?? coords) - RenderPosition;
@@ -201,7 +198,7 @@ namespace iLynx.UI.Sfml.Controls
             var sw = Stopwatch.StartNew();
             try
             {
-                rwl.EnterWriteLock();
+                LayoutLock.EnterWriteLock();
                 var va = verticalAlignment;
                 var ha = horizontalAlignment;
                 var computedSize = Measure(target.Size()) + margin;
@@ -235,12 +232,12 @@ namespace iLynx.UI.Sfml.Controls
                 }
 
                 final -= margin;
-                BoundingBox = LayoutInternal(final);
+                BoundingBox = LayoutLocked(final);
                 return BoundingBox; // The final layout size of this element is it's bounding box plus margins
             }
             finally
             {
-                rwl.ExitWriteLock();
+                LayoutLock.ExitWriteLock();
                 sw.Stop();
                 //Console.WriteLine($"Layout for {this} finished in {sw.Elapsed.TotalMilliseconds}ms");
             }
@@ -302,12 +299,12 @@ namespace iLynx.UI.Sfml.Controls
 
         public IUIElement Parent { get; protected set; }
 
-        public void Draw(RenderTarget target, RenderStates states)
+        public virtual void Draw(RenderTarget target, RenderStates states)
         {
-            rwl.EnterReadLock();
+            LayoutLock.EnterReadLock();
             states.Transform.Translate(RenderPosition);
-            DrawInternal(target, states);
-            rwl.ExitReadLock();
+            DrawLocked(target, states);
+            LayoutLock.ExitReadLock();
         }
 
         /// <summary>
@@ -315,7 +312,7 @@ namespace iLynx.UI.Sfml.Controls
         /// </summary>
         /// <param name="finalRect"></param>
         /// <returns></returns>
-        protected abstract FloatRect LayoutInternal(FloatRect finalRect);
+        protected abstract FloatRect LayoutLocked(FloatRect finalRect);
 
         protected virtual void OnLayoutPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -358,6 +355,6 @@ namespace iLynx.UI.Sfml.Controls
         {
         }
 
-        protected abstract void DrawInternal(RenderTarget target, RenderStates states);
+        protected abstract void DrawLocked(RenderTarget target, RenderStates states);
     }
 }

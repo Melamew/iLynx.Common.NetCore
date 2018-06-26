@@ -51,11 +51,6 @@ namespace iLynx.UI.Sfml.Layout
             }
         }
 
-        protected override void DrawInternal(RenderTarget target, RenderStates states)
-        {
-            base.DrawInternal(target, states);
-        }
-
         public void SetGlobalPosition(IUIElement element, Vector2f position)
         {
             SetRelativePosition(element, position - RenderPosition);

@@ -25,6 +25,8 @@
  *
  */
 #endregion
+
+using System.Linq;
 using SFML.Graphics;
 using SFML.System;
 
@@ -37,6 +39,9 @@ namespace iLynx.UI.Sfml.Controls
         private Color foreground;
         private uint fontSize = 24;
         private Font font = DefaultFont;
+        private int lineCount;
+        protected const string NewLine = "\n";
+        protected const string Space = " ";
 
         public TextElement()
             : this(string.Empty, Color.Black) { }
@@ -58,6 +63,18 @@ namespace iLynx.UI.Sfml.Controls
             this.fontSize = fontSize;
         }
 
+        public int LineCount
+        {
+            get => lineCount;
+            set
+            {
+                if (value == lineCount) return;
+                var old = value;
+                lineCount = value;
+                OnPropertyChanged(old, value);
+            }
+        }
+
         protected Vector2f FindCharacterPosition(uint index)
         {
             return renderable?.FindCharacterPos(index) ?? new Vector2f();
@@ -73,6 +90,7 @@ namespace iLynx.UI.Sfml.Controls
                 text = value;
                 OnTextChanged(old, value);
                 OnPropertyChanged(old, value);
+                LineCount = text.Count(c => c.ToString() == NewLine) + 1;
                 OnLayoutPropertyChanged();
             }
         }
@@ -117,8 +135,9 @@ namespace iLynx.UI.Sfml.Controls
             }
         }
 
-        protected override void DrawInternal(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
+            base.DrawLocked(target, states);
             var textStates = states;
             textStates.Transform.Translate(-renderable.GetLocalBounds().Position());
             renderable.FillColor = foreground;
@@ -132,21 +151,22 @@ namespace iLynx.UI.Sfml.Controls
 
         public override Vector2f Measure(Vector2f availableSpace)
         {
-            var localBounds = renderable.GetLocalBounds();
-            return localBounds.Size();
-        }
-
-        protected override FloatRect LayoutInternal(FloatRect finalRect)
-        {
             renderable.CharacterSize = fontSize;
             renderable.DisplayedString = text;
             renderable.Font = font;
             var localBounds = renderable.GetLocalBounds();
-            return new FloatRect(
+            return new Vector2f(localBounds.Width, LineCount * FontSize);
+        }
+
+        protected override FloatRect LayoutLocked(FloatRect finalRect)
+        {
+            var localBounds = renderable.GetLocalBounds();
+            var result = new FloatRect(
                 finalRect.Left,
                 finalRect.Top,
                 localBounds.Width,
-                localBounds.Height);
+                LineCount * FontSize);
+            return base.LayoutLocked(result);
         }
     }
 }

@@ -32,9 +32,11 @@ namespace iLynx.UI.Sfml.Animation
     public interface IAnimation
     {
         void Tick(TimeSpan elapsed);
-        
+
         bool IsFinished { get; }
 
         void Cancel();
+
+        TimeSpan Duration { get; }
     }
 }

@@ -62,6 +62,8 @@ namespace iLynx.UI.Sfml.Animation
             timeIndex = Math.Abs(end - timeIndex / duration);
             Tick(easingFunction(timeIndex));
         }
+        
+        public TimeSpan Duration => TimeSpan.FromMilliseconds(duration);
 
         protected abstract void Tick(double timeIndex);
 
