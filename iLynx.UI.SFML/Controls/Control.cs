@@ -26,32 +26,37 @@
  */
 #endregion
 using System;
-using iLynx.UI.Sfml.Rendering;
+using iLynx.UI.Sfml.Input;
 using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 
 namespace iLynx.UI.Sfml.Controls
 {
     // ReSharper disable once InconsistentNaming
-    public class Control : UIElement
+    public abstract class Control : UIElement
     {
         private Color background = Color.Transparent;
+        private Func<Vector2f, Shape> backgroundShapeGenerator = size => new RectangleShape(size);
         private Shape shape;
-        private Func<Vector2f, Shape> backgroundGenerator = size => new RectangleShape(size);
+        private Vector2f size;
 
-        public Func<Vector2f, Shape> BackgroundGenerator
+        public Func<Vector2f, Shape> BackgroundShapeGenerator
         {
-            get => backgroundGenerator;
+            get => backgroundShapeGenerator;
             set
             {
-                if (value == backgroundGenerator) return;
+                if (value == backgroundShapeGenerator) return;
                 if (null == value) return;
-                var old = backgroundGenerator;
-                backgroundGenerator = value;
+                var old = backgroundShapeGenerator;
+                backgroundShapeGenerator = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
+        }
+
+        protected override void OnParentChanged()
+        {
+            base.OnParentChanged();
         }
 
         protected Control(Alignment horizontalAlignment = Alignment.Start,
@@ -74,20 +79,21 @@ namespace iLynx.UI.Sfml.Controls
 
         protected override FloatRect LayoutLocked(FloatRect finalRect)
         {
-            shape = backgroundGenerator(finalRect.Size());
+            if (finalRect.Size() == size) return finalRect;
+            shape = backgroundShapeGenerator(size);
+            size = finalRect.Size();
             return finalRect;
         }
 
         protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
-            if (null == shape) return;
             shape.FillColor = background;
             target.Draw(shape, states);
         }
 
-        public void Dispose()
+        public override bool HitTest(Vector2f position, out IInputElement element)
         {
-            shape?.Dispose();
+            return base.HitTest(position, out element);
         }
     }
 }

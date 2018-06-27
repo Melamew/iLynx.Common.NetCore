@@ -36,21 +36,21 @@ namespace iLynx.Common
         private readonly Dictionary<string, List<dynamic>> subscribers =
             new Dictionary<string, List<dynamic>>();
 
-        public void AddPropertyChangedHandler<TValue>(string valueName, ValueChangedHandler<TValue> handler)
+        public void AddPropertyChangedHandler<TValue>(string valueName, ValueChangedCallback<TValue> callback)
         {
             if (!subscribers.TryGetValue(valueName, out var list))
             {
                 list = new List<dynamic>();
                 subscribers.Add(valueName, list);
             }
-            if (list.Contains(handler)) return;
-            list.Add(handler);
+            if (list.Contains(callback)) return;
+            list.Add(callback);
         }
 
-        public void RemovePropertyChangedHandler<TValue>(string valueName, ValueChangedHandler<TValue> handler)
+        public void RemovePropertyChangedHandler<TValue>(string valueName, ValueChangedCallback<TValue> callback)
         {
             if (subscribers.TryGetValue(valueName, out var list))
-                list.Remove(handler);
+                list.Remove(callback);
             if (list?.Count == 0)
                 subscribers.Remove(valueName);
         }

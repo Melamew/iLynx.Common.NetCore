@@ -94,7 +94,7 @@ namespace iLynx.UI.Sfml.Controls
         {
             var hit = base.HitTest(position, out element);
             if (!hit && IsHitTestVisible) return false;
-            if (content is IInputElement input && input.HitTest(position, out var child))
+            if (content is IUIElement input && input.HitTest(position, out var child))
             {
                 element = child;
                 return true;

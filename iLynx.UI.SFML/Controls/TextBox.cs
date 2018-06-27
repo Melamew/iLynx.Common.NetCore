@@ -47,7 +47,7 @@ namespace iLynx.UI.Sfml.Controls
         private bool isModifying;
         private bool acceptsNewLine;
 
-        protected override void OnMouseButtonDown(MouseDownEvent args)
+        protected override void OnMouseButtonDown(MouseDownEventArgs args)
         {
             base.OnMouseButtonDown(args);
             var relPos = ToLocalCoords(args.Position);
@@ -66,8 +66,9 @@ namespace iLynx.UI.Sfml.Controls
             SetCaretIndex(relPos);
         }
 
-        protected override void OnBoundingBoxChanged()
+        protected override void OnBoundingBoxChanged(FloatRect oldBox, FloatRect newBox)
         {
+            base.OnBoundingBoxChanged(oldBox, newBox);
             MoveCaretToCurrentIndex();
         }
 
@@ -163,7 +164,7 @@ namespace iLynx.UI.Sfml.Controls
 
         }
 
-        protected override void OnKeyDown(KeyboardEvent args)
+        protected override void OnKeyDown(KeyboardEventArgs args)
         {
             base.OnKeyDown(args);
             switch (args.Key)
@@ -268,7 +269,7 @@ namespace iLynx.UI.Sfml.Controls
             --CaretIndex;
         }
 
-        protected override void OnTextEntered(TextInputEvent args)
+        protected override void OnTextEntered(TextInputEventArgs args)
         {
             base.OnTextEntered(args);
             var text = args.Text;

@@ -111,14 +111,14 @@ namespace iLynx.UI.Sfml
             }
         }
 
-        public void AddPropertyChangedHandler<TValue>(string valueName, ValueChangedHandler<TValue> handler)
+        public void AddPropertyChangedHandler<TValue>(string valueName, ValueChangedCallback<TValue> callback)
         {
-            bindingSource.AddPropertyChangedHandler(valueName, handler);
+            bindingSource.AddPropertyChangedHandler(valueName, callback);
         }
 
-        public void RemovePropertyChangedHandler<TValue>(string valueName, ValueChangedHandler<TValue> handler)
+        public void RemovePropertyChangedHandler<TValue>(string valueName, ValueChangedCallback<TValue> callback)
         {
-            bindingSource.RemovePropertyChangedHandler(valueName, handler);
+            bindingSource.RemovePropertyChangedHandler(valueName, callback);
         }
 
         public void Show()

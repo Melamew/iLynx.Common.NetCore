@@ -38,7 +38,7 @@ using SFML.System;
 namespace iLynx.UI.Sfml.Controls
 {
     // ReSharper disable once InconsistentNaming
-    public abstract class UIElement : BindingSource, IInputElement
+    public abstract class UIElement : BindingSource, IUIElement
     {
         protected readonly ReaderWriterLockSlim LayoutLock = new ReaderWriterLockSlim();
         private Alignment horizontalAlignment;
@@ -50,27 +50,29 @@ namespace iLynx.UI.Sfml.Controls
         private bool isFocusable = true;
         private bool isHitTestVisible = true;
         private FloatRect boundingBox;
+        private Vector2f renderSize;
+        private Vector2f renderPosition;
 
         static UIElement()
         {
-            InputHandler.Register<UIElement, MouseEvent>((e, args) => e?.OnMouseOver(args));
-            InputHandler.Register<UIElement, MouseDownEvent>((e, args) => e?.OnMouseButtonDown(args));
-            InputHandler.Register<UIElement, MouseUpEvent>((e, args) => e?.OnMouseButtonUp(args));
-            InputHandler.Register<UIElement, GotFocusEvent>((e, args) => e?.OnGotFocus());
-            InputHandler.Register<UIElement, LostFocusEvent>((e, args) => e?.OnLostFocus());
-            InputHandler.Register<UIElement, KeyDownEvent>((e, args) => e?.OnKeyDown(args));
-            InputHandler.Register<UIElement, KeyUpEvent>((e, args) => e?.OnKeyUp(args));
-            InputHandler.Register<UIElement, TextInputEvent>((e, args) => e?.OnTextEntered(args));
-            InputHandler.Register<UIElement, MouseEnterEvent>((e, args) => e?.OnMouseEntered(args));
-            InputHandler.Register<UIElement, MouseLeaveEvent>((e, args) => e?.OnMouseLeft(args));
+            InputHandler.Register<UIElement, MouseEventArgs>((e, args) => e?.OnMouseOver(args));
+            InputHandler.Register<UIElement, MouseDownEventArgs>((e, args) => e?.OnMouseButtonDown(args));
+            InputHandler.Register<UIElement, MouseUpEventArgs>((e, args) => e?.OnMouseButtonUp(args));
+            InputHandler.Register<UIElement, GotFocusEventArgs>((e, args) => e?.OnGotFocus());
+            InputHandler.Register<UIElement, LostFocusEventArgs>((e, args) => e?.OnLostFocus());
+            InputHandler.Register<UIElement, KeyDownEventArgs>((e, args) => e?.OnKeyDown(args));
+            InputHandler.Register<UIElement, KeyUpEventArgs>((e, args) => e?.OnKeyUp(args));
+            InputHandler.Register<UIElement, TextInputEventArgs>((e, args) => e?.OnTextEntered(args));
+            InputHandler.Register<UIElement, MouseEnterEventArgs>((e, args) => e?.OnMouseEntered(args));
+            InputHandler.Register<UIElement, MouseLeaveEventArgs>((e, args) => e?.OnMouseLeft(args));
         }
 
-        protected virtual void OnMouseLeft(MouseLeaveEvent args)
+        protected virtual void OnMouseLeft(MouseLeaveEventArgs args)
         {
             Console.WriteLine($"Mouse Left: {this} at {args.Position}");
         }
 
-        protected virtual void OnMouseEntered(MouseEnterEvent args)
+        protected virtual void OnMouseEntered(MouseEnterEventArgs args)
         {
             Console.WriteLine($"Mouse Entered: {this} at {args.Position}");
         }
@@ -108,9 +110,45 @@ namespace iLynx.UI.Sfml.Controls
             }
         }
 
-        public Vector2f RenderPosition => new Vector2f(BoundingBox.Left, BoundingBox.Top);
+        public Vector2f RenderPosition
+        {
+            get => renderPosition;
+            private set
+            {
+                if (value == renderPosition) return;
+                var old = renderPosition;
+                renderPosition = value;
+                OnPropertyChanged(old, value);
+                OnRenderPositionChanged(old, value);
+            }
+        }
 
-        public Vector2f RenderSize => new Vector2f(BoundingBox.Width, BoundingBox.Height);
+        protected virtual void OnRenderPositionChanged(Vector2f old, Vector2f value)
+        {
+            RenderPositionChanged?.Invoke(this, new ValueChangedEventArgs<Vector2f>(old, value));
+        }
+
+        public Vector2f RenderSize
+        {
+            get => renderSize;
+            private set
+            {
+                if (value == renderSize) return;
+                var old = renderSize;
+                renderSize = value;
+                OnPropertyChanged(old, value);
+                OnRenderSizeChanged(old, value);
+            }
+        }
+
+        protected virtual void OnRenderSizeChanged(Vector2f old, Vector2f value)
+        {
+            RenderSizeChanged?.Invoke(this, new ValueChangedEventArgs<Vector2f>(old, value));
+        }
+
+        public event ValueChangedEventHandler<IRenderElement, FloatRect> BoundingBoxChanged;
+        public event ValueChangedEventHandler<IRenderElement, Vector2f> RenderSizeChanged;
+        public event ValueChangedEventHandler<IRenderElement, Vector2f> RenderPositionChanged;
 
         public Vector2f Size
         {
@@ -128,12 +166,12 @@ namespace iLynx.UI.Sfml.Controls
         public static Font DefaultFont => new Font("fonts/Mechanical.otf");
         public Vector2f ToLocalCoords(Vector2f coords)
         {
-            return ((Parent as IInputElement)?.ToLocalCoords(coords) ?? coords) - RenderPosition;
+            return ((Parent as IUIElement)?.ToLocalCoords(coords) ?? coords) - RenderPosition;
         }
 
         public Vector2f ToGlobalCoords(Vector2f coords)
         {
-            return ((Parent as IInputElement)?.ToGlobalCoords(coords) ?? coords) + RenderPosition;
+            return ((Parent as IUIElement)?.ToGlobalCoords(coords) ?? coords) + RenderPosition;
         }
 
         public virtual bool HitTest(Vector2f position, out IInputElement element)
@@ -283,21 +321,26 @@ namespace iLynx.UI.Sfml.Controls
                 var old = boundingBox;
                 boundingBox = value;
                 OnPropertyChanged(old, value);
-                OnBoundingBoxChanged();
+                OnBoundingBoxChanged(old, value);
+                RenderSize = value.Size();
+                RenderPosition = value.Position();
             }
         }
 
-        protected virtual void OnBoundingBoxChanged()
+        protected virtual void OnBoundingBoxChanged(FloatRect oldBox, FloatRect newBox)
         {
-
+            BoundingBoxChanged?.Invoke(this, new ValueChangedEventArgs<FloatRect>(oldBox, newBox));
         }
 
-        public void SetLogicalParent(IUIElement parent)
+        public void SetLogicalParent(IRenderElement parent)
         {
             Parent = parent;
+            OnParentChanged();
         }
 
-        public IUIElement Parent { get; protected set; }
+        protected virtual void OnParentChanged() { }
+
+        public IRenderElement Parent { get; private set; }
 
         public virtual void Draw(RenderTarget target, RenderStates states)
         {
@@ -319,11 +362,11 @@ namespace iLynx.UI.Sfml.Controls
             LayoutPropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected virtual void OnMouseOver(MouseEvent args)
+        protected virtual void OnMouseOver(MouseEventArgs args)
         {
         }
 
-        protected virtual void OnMouseButtonDown(MouseDownEvent args)
+        protected virtual void OnMouseButtonDown(MouseDownEventArgs args)
         {
         }
 
@@ -339,19 +382,19 @@ namespace iLynx.UI.Sfml.Controls
             Console.WriteLine($"Lost Focus: {this}");
         }
 
-        protected virtual void OnMouseButtonUp(MouseUpEvent args)
+        protected virtual void OnMouseButtonUp(MouseUpEventArgs args)
         {
         }
 
-        protected virtual void OnKeyDown(KeyboardEvent args)
+        protected virtual void OnKeyDown(KeyboardEventArgs args)
         {
         }
 
-        protected virtual void OnKeyUp(KeyboardEvent args)
+        protected virtual void OnKeyUp(KeyboardEventArgs args)
         {
         }
 
-        protected virtual void OnTextEntered(TextInputEvent args)
+        protected virtual void OnTextEntered(TextInputEventArgs args)
         {
         }
 

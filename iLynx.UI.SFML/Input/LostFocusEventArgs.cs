@@ -27,5 +27,5 @@
 #endregion
 namespace iLynx.UI.Sfml.Input
 {
-    public abstract class InputEvent { }
+    public class LostFocusEventArgs : InputEventArgs { }
 }

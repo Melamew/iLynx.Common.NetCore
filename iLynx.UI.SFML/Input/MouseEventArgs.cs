@@ -29,10 +29,13 @@ using SFML.System;
 
 namespace iLynx.UI.Sfml.Input
 {
-    public class MouseLeaveEvent : MouseEvent
+    public class MouseEventArgs : InputEventArgs
     {
-        public MouseLeaveEvent(Vector2f position) : base(position)
+        public MouseEventArgs(Vector2f position)
         {
+            Position = position;
         }
+
+        public Vector2f Position { get; }
     }
 }

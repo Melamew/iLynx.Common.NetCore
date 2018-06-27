@@ -25,8 +25,7 @@
  *
  */
 #endregion
-namespace iLynx.Common
+namespace iLynx.UI.Sfml.Input
 {
-    public delegate void ValueChangedHandler<TValue>(object sender, ValueChangedEventArgs<TValue> args);
-    public delegate void ValueChangedEventHandler<in TSender, TValue>(TSender sender, ValueChangedEventArgs<TValue> args);
+    public delegate void InputCallback<in TSource, in TEventArgs>(TSource source, TEventArgs args) where TSource : IInputElement where TEventArgs : InputEventArgs;
 }

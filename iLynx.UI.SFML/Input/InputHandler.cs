@@ -35,7 +35,7 @@ namespace iLynx.UI.Sfml.Input
 {
     public static class InputHandler
     {
-        private delegate void InputEventMapper(IInputElement sender, InputEvent e);
+        private delegate void InputEventMapper(IInputElement sender, InputEventArgs e);
         private static IInputElement focusElement;
         private static Mouse.Button lastDownButton = Mouse.Button.ButtonCount;
         private static readonly Stack<IInputElement> MouseOverStack = new Stack<IInputElement>();
@@ -58,7 +58,7 @@ namespace iLynx.UI.Sfml.Input
         private static void OnMouseLeft(Window source, Event e)
         {
             while (MouseOverStack.TryPop(out var element))
-                Raise(element, new MouseLeaveEvent((Vector2f)Mouse.GetPosition(source)));
+                Raise(element, new MouseLeaveEventArgs((Vector2f)Mouse.GetPosition(source)));
         }
 
         private static void OnTextEntered(Window source, Event e)
@@ -66,14 +66,14 @@ namespace iLynx.UI.Sfml.Input
             var f = focusElement;
             if (null == f) return;
             var utf32 = unchecked((int)e.Text.Unicode);
-            Raise(f, new TextInputEvent(char.ConvertFromUtf32(utf32)));
+            Raise(f, new TextInputEventArgs(char.ConvertFromUtf32(utf32)));
         }
 
         private static void OnMouseScroll(Window source, Event e)
         {
             var position = new Vector2f(e.MouseWheelScroll.X, e.MouseWheelScroll.Y);
             if (InputHitTest(position, source, out var element))
-                Raise(element, new MouseScrollEvent(position, e.MouseWheelScroll.Delta, e.MouseWheelScroll.Wheel));
+                Raise(element, new MouseScrollEventArgs(position, e.MouseWheelScroll.Delta, e.MouseWheelScroll.Wheel));
         }
 
         private static ModifierKeys GetModifiers(KeyEvent e)
@@ -90,14 +90,14 @@ namespace iLynx.UI.Sfml.Input
         {
             var f = focusElement;
             if (null != f)
-                Raise(f, new KeyUpEvent(e.Key.Code, GetModifiers(e.Key)));
+                Raise(f, new KeyUpEventArgs(e.Key.Code, GetModifiers(e.Key)));
         }
 
         private static void OnKeyDown(Window source, Event e)
         {
             var f = focusElement;
             if (null != f)
-                Raise(f, new KeyDownEvent(e.Key.Code, GetModifiers(e.Key)));
+                Raise(f, new KeyDownEventArgs(e.Key.Code, GetModifiers(e.Key)));
         }
 
         private static void OnMouseButtonUp(Window source, Event e)
@@ -105,8 +105,8 @@ namespace iLynx.UI.Sfml.Input
             var position = new Vector2f(e.MouseButton.X, e.MouseButton.Y);
             if (!InputHitTest(position, source, out var element)) return;
             if (focusElement == element && e.MouseButton.Button == lastDownButton)
-                Raise(element, new MouseButtonInputEvent(position, e.MouseButton.Button));
-            Raise(element, new MouseUpEvent(position, e.MouseButton.Button));
+                Raise(element, new MouseButtonInputEventArgs(position, e.MouseButton.Button));
+            Raise(element, new MouseUpEventArgs(position, e.MouseButton.Button));
         }
 
         private static void OnMouseButtonDown(Window window, Event e)
@@ -116,10 +116,10 @@ namespace iLynx.UI.Sfml.Input
             if (element.IsFocusable && focusElement != element)
                 RequestFocus(element);
             lastDownButton = e.MouseButton.Button;
-            Raise(element, new MouseDownEvent(position, e.MouseButton.Button));
+            Raise(element, new MouseDownEventArgs(position, e.MouseButton.Button));
         }
 
-        public static void Register<TElement, TArgs>(InputEventHandler<TElement, TArgs> handler) where TElement : IInputElement where TArgs : InputEvent
+        public static void Register<TElement, TArgs>(InputCallback<TElement, TArgs> handler) where TElement : IInputElement where TArgs : InputEventArgs
         {
             InputMappers.AddOrUpdateMany(typeof(TArgs), (element, args) => handler((TElement)element, (TArgs)args));
         }
@@ -128,13 +128,13 @@ namespace iLynx.UI.Sfml.Input
         {
             if (null == element) throw new ArgumentNullException(nameof(element));
             if (!element.IsFocusable) return false;
-            Raise(focusElement, new LostFocusEvent());
+            Raise(focusElement, new LostFocusEventArgs());
             focusElement = element;
-            Raise(focusElement, new GotFocusEvent());
+            Raise(focusElement, new GotFocusEventArgs());
             return true;
         }
 
-        private static void Raise(IInputElement target, InputEvent e)
+        private static void Raise(IInputElement target, InputEventArgs e)
         {
             if (InputMappers.TryGetValue(e.GetType(), out var mappers))
                 mappers.ForEach(mapper => mapper?.Invoke(target, e));
@@ -154,25 +154,25 @@ namespace iLynx.UI.Sfml.Input
             var position = new Vector2f(e.MouseMove.X, e.MouseMove.Y);
             if (!InputHitTest(position, window, out var element)) return;
             var localPosition = element.ToLocalCoords(position);
-            Raise(element, new MouseEvent(localPosition));
+            Raise(element, new MouseEventArgs(localPosition));
             if (MouseOverStack.Count == 0)
             {
                 MouseOverStack.Push(element);
-                Raise(element, new MouseEnterEvent(localPosition));
+                Raise(element, new MouseEnterEventArgs(localPosition));
                 return;
             }
 
             while (MouseOverStack.TryPop(out var parent))
             {
                 if (!element.IsChildOf(parent) && element != parent)
-                    Raise(parent, new MouseLeaveEvent(parent.ToLocalCoords(position)));
+                    Raise(parent, new MouseLeaveEventArgs(parent.ToLocalCoords(position)));
                 else
                 {
                     MouseOverStack.Push(parent);
                     if (element != parent)
                     {
                         MouseOverStack.Push(element);
-                        Raise(element, new MouseEnterEvent(localPosition));
+                        Raise(element, new MouseEnterEventArgs(localPosition));
                     }
 
                     break;
@@ -180,7 +180,7 @@ namespace iLynx.UI.Sfml.Input
             }
         }
 
-        private static bool IsChildOf(this IUIElement potentialChild, IUIElement potentialParent)
+        private static bool IsChildOf(this IRenderElement potentialChild, IRenderElement potentialParent)
         {
             while (null != potentialChild)
             {

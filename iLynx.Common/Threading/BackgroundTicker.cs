@@ -62,7 +62,7 @@ namespace iLynx.Common.Threading
                 if (TimeSpan.Zero > interval)
                 {
                     Console.WriteLine(
-                        $"{nameof(CallbackTicker)} tick took longer than desired {frameInterval}, clamping to zero. Delta: {interval}");
+                        $"{GetType().Name} tick took longer than desired {frameInterval}, clamping to zero. Delta: {interval}");
                     interval = TimeSpan.Zero;
                 }
                 Thread.CurrentThread.Join(interval);

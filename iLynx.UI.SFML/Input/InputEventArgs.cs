@@ -25,18 +25,7 @@
  *
  */
 #endregion
-using SFML.System;
-using SFML.Window;
-
 namespace iLynx.UI.Sfml.Input
 {
-    public class MouseButtonInputEvent : MouseEvent
-    {
-        public Mouse.Button Button { get; }
-
-        public MouseButtonInputEvent(Vector2f position, Mouse.Button button) : base(position)
-        {
-            Button = button;
-        }
-    }
+    public abstract class InputEventArgs { }
 }

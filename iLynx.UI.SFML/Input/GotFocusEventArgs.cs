@@ -25,14 +25,7 @@
  *
  */
 #endregion
-using SFML.Window;
-
 namespace iLynx.UI.Sfml.Input
 {
-    public class KeyDownEvent : KeyboardEvent
-    {
-        public KeyDownEvent(Keyboard.Key key, ModifierKeys modifiers) : base(key, modifiers)
-        {
-        }
-    }
+    public class GotFocusEventArgs : InputEventArgs { }
 }

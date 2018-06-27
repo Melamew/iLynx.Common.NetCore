@@ -29,7 +29,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using iLynx.Common.Threading;
 
 namespace iLynx.UI.Sfml.Animation
@@ -38,7 +37,6 @@ namespace iLynx.UI.Sfml.Animation
     {
         private static readonly Dictionary<IAnimation, DateTime> Animations = new Dictionary<IAnimation, DateTime>();
         private static readonly ReaderWriterLockSlim Rwl = new ReaderWriterLockSlim();
-        private static DateTime lastCleanup = DateTime.Now;
         private static readonly CallbackTicker Ticker = new CallbackTicker();
 
         static Animator()
@@ -48,7 +46,6 @@ namespace iLynx.UI.Sfml.Animation
 
         public static void StartAnimationThread()
         {
-            lastCleanup = DateTime.Now;
             Ticker.Start(DoAnimations);
         }
 
@@ -102,8 +99,7 @@ namespace iLynx.UI.Sfml.Animation
                 if (animation.Key.IsFinished)
                 {
                     Rwl.EnterWriteLock();
-                    foreach (var finished in anims.Where(x => x.Key.IsFinished))
-                        Animations.Remove(finished.Key);
+                    Animations.Remove(animation.Key);
                     Rwl.ExitWriteLock();
                     continue;
                 }

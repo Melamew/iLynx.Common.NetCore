@@ -25,7 +25,7 @@
  *
  */
 #endregion
-namespace iLynx.UI.Sfml.Input
+namespace iLynx.Common
 {
-    public class GotFocusEvent : InputEvent { }
+    public delegate void ValueChangedCallback<TValue>(object sender, ValueChangedEventArgs<TValue> args);
 }

@@ -25,7 +25,14 @@
  *
  */
 #endregion
+using SFML.System;
+using SFML.Window;
+
 namespace iLynx.UI.Sfml.Input
 {
-    public class LostFocusEvent : InputEvent { }
+    public class MouseUpEventArgs : MouseButtonInputEventArgs{
+        public MouseUpEventArgs(Vector2f position, Mouse.Button button) : base(position, button)
+        {
+        }
+    }
 }

@@ -25,7 +25,21 @@
  *
  */
 #endregion
+using SFML.System;
+using SFML.Window;
+
 namespace iLynx.UI.Sfml.Input
 {
-    public delegate void InputEventHandler<in TTarget, in TEventArgs>(TTarget target, TEventArgs args) where TTarget : IInputElement where TEventArgs : InputEvent;
+    public class MouseScrollEventArgs : MouseEventArgs
+    {
+        public float Delta { get; }
+
+        public Mouse.Wheel Wheel { get; }
+
+        public MouseScrollEventArgs(Vector2f position, float delta, Mouse.Wheel wheel) : base(position)
+        {
+            Delta = delta;
+            Wheel = wheel;
+        }
+    }
 }

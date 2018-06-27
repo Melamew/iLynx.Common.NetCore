@@ -25,17 +25,15 @@
  *
  */
 #endregion
-using SFML.System;
-
 namespace iLynx.UI.Sfml.Input
 {
-    public class MouseEvent : InputEvent
+    public class TextInputEventArgs : InputEventArgs
     {
-        public MouseEvent(Vector2f position)
-        {
-            Position = position;
-        }
+        public string Text { get; }
 
-        public Vector2f Position { get; }
+        public TextInputEventArgs(string text)
+        {
+            Text = text;
+        }
     }
 }

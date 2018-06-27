@@ -85,6 +85,6 @@ namespace iLynx.Common
 
         public event ValueChangingHandler<TValue> ValueChanging;
 
-        public event ValueChangedHandler<TValue> ValueChanged;
+        public event ValueChangedCallback<TValue> ValueChanged;
     }
 }

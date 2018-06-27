@@ -26,13 +26,12 @@
  */
 #endregion
 using SFML.System;
-using SFML.Window;
 
 namespace iLynx.UI.Sfml.Input
 {
-    public class MouseDownEvent : MouseButtonInputEvent
+    public class MouseLeaveEventArgs : MouseEventArgs
     {
-        public MouseDownEvent(Vector2f position, Mouse.Button button) : base(position, button)
+        public MouseLeaveEventArgs(Vector2f position) : base(position)
         {
         }
     }

@@ -30,8 +30,9 @@ using SFML.Window;
 
 namespace iLynx.UI.Sfml.Input
 {
-    public class MouseUpEvent : MouseButtonInputEvent{
-        public MouseUpEvent(Vector2f position, Mouse.Button button) : base(position, button)
+    public class MouseDownEventArgs : MouseButtonInputEventArgs
+    {
+        public MouseDownEventArgs(Vector2f position, Mouse.Button button) : base(position, button)
         {
         }
     }

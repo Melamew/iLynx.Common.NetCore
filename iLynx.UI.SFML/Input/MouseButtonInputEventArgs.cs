@@ -30,16 +30,13 @@ using SFML.Window;
 
 namespace iLynx.UI.Sfml.Input
 {
-    public class MouseScrollEvent : MouseEvent
+    public class MouseButtonInputEventArgs : MouseEventArgs
     {
-        public float Delta { get; }
+        public Mouse.Button Button { get; }
 
-        public Mouse.Wheel Wheel { get; }
-
-        public MouseScrollEvent(Vector2f position, float delta, Mouse.Wheel wheel) : base(position)
+        public MouseButtonInputEventArgs(Vector2f position, Mouse.Button button) : base(position)
         {
-            Delta = delta;
-            Wheel = wheel;
+            Button = button;
         }
     }
 }

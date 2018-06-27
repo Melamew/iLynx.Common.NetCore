@@ -29,9 +29,9 @@ using SFML.Window;
 
 namespace iLynx.UI.Sfml.Input
 {
-    public class KeyUpEvent : KeyboardEvent
+    public class KeyDownEventArgs : KeyboardEventArgs
     {
-        public KeyUpEvent(Keyboard.Key key, ModifierKeys modifiers) : base(key, modifiers)
+        public KeyDownEventArgs(Keyboard.Key key, ModifierKeys modifiers) : base(key, modifiers)
         {
         }
     }

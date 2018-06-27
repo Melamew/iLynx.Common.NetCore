@@ -35,6 +35,7 @@ using iLynx.UI.Sfml.Controls;
 using iLynx.UI.Sfml.Input;
 using SFML.Graphics;
 using SFML.System;
+using SFML.Window;
 
 namespace iLynx.UI.Sfml.Layout
 {
@@ -43,7 +44,7 @@ namespace iLynx.UI.Sfml.Layout
         private readonly List<IUIElement> children = new List<IUIElement>();
         public IEnumerable<IUIElement> Children => children;
         private Color background = Color.Transparent;
-        private RenderTexture texture;
+        private RenderTexture texture;// = new RenderTexture(VideoMode.DesktopMode.Width, VideoMode.DesktopMode.Height);
         private Sprite sprite;
         private Vector2u textureDimensions;
         private volatile bool requireNewTexture = true;
@@ -87,7 +88,7 @@ namespace iLynx.UI.Sfml.Layout
             var desiredSize = Measure((Vector2f)textureDimensions);
             if (Math.Abs(desiredSize.X - textureDimensions.X) > 0.1f ||
                 Math.Abs(desiredSize.Y - textureDimensions.Y) > 0.1f)
-                OnLayoutPropertyChanged($"{nameof(Children)}.{e.PropertyName}");
+                OnLayoutPropertyChanged($"{sender}.{e.PropertyName}");
             else
                 Layout(BoundingBox + Margin);
         }
@@ -142,7 +143,7 @@ namespace iLynx.UI.Sfml.Layout
         {
             var hit = base.HitTest(position, out element);
             if (!hit && IsHitTestVisible) return false;
-            foreach (var child in children.OfType<IInputElement>())
+            foreach (var child in children)
             {
                 if (!child.HitTest(position, out var e)) continue;
                 element = e;

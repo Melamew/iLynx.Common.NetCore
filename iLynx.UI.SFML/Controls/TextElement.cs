@@ -42,6 +42,7 @@ namespace iLynx.UI.Sfml.Controls
         private int lineCount;
         protected const string NewLine = "\n";
         protected const string Space = " ";
+        private Thickness padding = 80f;
 
         public TextElement()
             : this(string.Empty, Color.Black) { }
@@ -72,6 +73,19 @@ namespace iLynx.UI.Sfml.Controls
                 var old = value;
                 lineCount = value;
                 OnPropertyChanged(old, value);
+            }
+        }
+
+        public Thickness Padding
+        {
+            get => padding;
+            set
+            {
+                if (value == padding) return;
+                var old = padding;
+                padding = value;
+                OnPropertyChanged(old, value);
+                OnLayoutPropertyChanged();
             }
         }
 
@@ -161,11 +175,12 @@ namespace iLynx.UI.Sfml.Controls
         protected override FloatRect LayoutLocked(FloatRect finalRect)
         {
             var localBounds = renderable.GetLocalBounds();
+            var height = LineCount * FontSize;
             var result = new FloatRect(
                 finalRect.Left,
                 finalRect.Top,
-                localBounds.Width,
-                LineCount * FontSize);
+                localBounds.Width < finalRect.Width ? localBounds.Width : finalRect.Width,
+                height < finalRect.Height ? height : finalRect.Height);
             return base.LayoutLocked(result);
         }
     }

@@ -25,15 +25,14 @@
  *
  */
 #endregion
+using SFML.Window;
+
 namespace iLynx.UI.Sfml.Input
 {
-    public class TextInputEvent : InputEvent
+    public class KeyUpEventArgs : KeyboardEventArgs
     {
-        public string Text { get; }
-
-        public TextInputEvent(string text)
+        public KeyUpEventArgs(Keyboard.Key key, ModifierKeys modifiers) : base(key, modifiers)
         {
-            Text = text;
         }
     }
 }

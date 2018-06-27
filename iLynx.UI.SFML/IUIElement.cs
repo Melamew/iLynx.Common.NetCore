@@ -33,7 +33,7 @@ using SFML.System;
 namespace iLynx.UI.Sfml
 {
     // ReSharper disable once InconsistentNaming
-    public interface IUIElement : Drawable
+    public interface IUIElement : IInputElement
     {
         /// <summary>
         /// Lays out this element within the specified <see cref="FloatRect"/>
@@ -58,23 +58,5 @@ namespace iLynx.UI.Sfml
         /// (ie: <see cref="Margin"/>)
         /// </summary>
         event EventHandler<PropertyChangedEventArgs> LayoutPropertyChanged;
-
-        /// <summary>
-        /// Gets the bounding box of this element
-        /// </summary>
-        FloatRect BoundingBox { get; }
-
-        /// <summary>
-        /// Gets the parent element (if any) of this element.
-        /// If this element does not have a parent (IE. It is the root of a tree) this property will return null
-        /// </summary>
-        IUIElement Parent { get; }
-
-        /// <summary>
-        /// Called when this element is added to or removed from a content control, panel or other elements with children
-        /// WARNING: Do not call this method unless the parent of this element has ACTUALLY changed.
-        /// </summary>
-        /// <param name="parent"></param>
-        void SetLogicalParent(IUIElement parent);
     }
 }

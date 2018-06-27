@@ -29,12 +29,12 @@ using SFML.Window;
 
 namespace iLynx.UI.Sfml.Input
 {
-    public abstract class KeyboardEvent : InputEvent
+    public abstract class KeyboardEventArgs : InputEventArgs
     {
         public Keyboard.Key Key { get; }
         public ModifierKeys Modifiers { get; }
 
-        protected KeyboardEvent(Keyboard.Key key, ModifierKeys modifiers)
+        protected KeyboardEventArgs(Keyboard.Key key, ModifierKeys modifiers)
         {
             Key = key;
             Modifiers = modifiers;

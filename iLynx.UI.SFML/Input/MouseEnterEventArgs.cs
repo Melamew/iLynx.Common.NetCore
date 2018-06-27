@@ -29,9 +29,9 @@ using SFML.System;
 
 namespace iLynx.UI.Sfml.Input
 {
-    public class MouseEnterEvent : MouseEvent
+    public class MouseEnterEventArgs : MouseEventArgs
     {
-        public MouseEnterEvent(Vector2f position) : base(position)
+        public MouseEnterEventArgs(Vector2f position) : base(position)
         {
         }
     }
