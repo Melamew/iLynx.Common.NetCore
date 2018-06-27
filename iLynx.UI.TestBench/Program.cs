@@ -27,14 +27,14 @@
 #endregion
 using System;
 using System.Threading;
-using iLynx.UI.Sfml;
-using iLynx.UI.Sfml.Animation;
-using iLynx.UI.Sfml.Controls;
-using iLynx.UI.Sfml.Layout;
+using iLynx.UI.OpenGL;
+using iLynx.UI.OpenGL.Animation;
+using iLynx.UI.OpenGL.Controls;
+using iLynx.UI.OpenGL.Layout;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
-using Window = iLynx.UI.Sfml.Window;
+using Window = iLynx.UI.OpenGL.Window;
 
 namespace iLynx.UI.TestBench
 {
