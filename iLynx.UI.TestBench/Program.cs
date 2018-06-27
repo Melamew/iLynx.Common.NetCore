@@ -25,7 +25,6 @@
  *
  */
 #endregion
-
 using System;
 using System.Threading;
 using iLynx.UI.Sfml;

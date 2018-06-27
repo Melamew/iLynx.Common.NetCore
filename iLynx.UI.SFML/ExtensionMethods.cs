@@ -28,8 +28,6 @@
 using System;
 using System.Collections.Generic;
 using iLynx.Common.Maths;
-using iLynx.UI.Sfml.Animation;
-using iLynx.UI.Sfml.Layout;
 using SFML.Graphics;
 using SFML.System;
 
