@@ -166,12 +166,12 @@ namespace iLynx.UI.Sfml.Controls
         public static Font DefaultFont => new Font("fonts/Mechanical.otf");
         public Vector2f ToLocalCoords(Vector2f coords)
         {
-            return ((Parent as IUIElement)?.ToLocalCoords(coords) ?? coords) - RenderPosition;
+            return (Parent?.ToLocalCoords(coords) ?? coords) - RenderPosition;
         }
 
         public Vector2f ToGlobalCoords(Vector2f coords)
         {
-            return ((Parent as IUIElement)?.ToGlobalCoords(coords) ?? coords) + RenderPosition;
+            return (Parent?.ToGlobalCoords(coords) ?? coords) + RenderPosition;
         }
 
         public virtual bool HitTest(Vector2f position, out IInputElement element)
