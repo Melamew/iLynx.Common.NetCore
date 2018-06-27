@@ -27,8 +27,7 @@
 #endregion
 
 using System;
-using SFML.Graphics;
-using SFML.System;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL
 {
@@ -72,8 +71,11 @@ namespace iLynx.UI.OpenGL
         public Thickness(float horizontal, float vertical)
             : this(horizontal, vertical, horizontal, vertical) { }
 
-        public Thickness(Vector2f dimensions)
+        public Thickness(Vector2 dimensions)
             : this(dimensions.X, dimensions.Y) { }
+
+        public Thickness(SizeF size)
+            : this(size.Width, size.Height) { }
 
         public override int GetHashCode()
         {
@@ -100,14 +102,14 @@ namespace iLynx.UI.OpenGL
         }
 
         /// <summary>
-        /// Applies the righthand <see cref="Thickness"/> as a margin to the lefthand <see cref="FloatRect"/> such that the resulting <see cref="FloatRect"/> is the /outer/ space
+        /// Applies the righthand <see cref="Thickness"/> as a margin to the lefthand <see cref="RectangleF"/> such that the resulting <see cref="RectangleF"/> is the /outer/ space
         /// </summary>
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public static FloatRect operator +(FloatRect left, Thickness right)
+        public static RectangleF operator +(RectangleF left, Thickness right)
         {
-            return new FloatRect(
+            return new RectangleF(
                 left.Left - right.Left,
                 left.Top - right.Top,
                 left.Width + right.Horizontal,
@@ -116,14 +118,14 @@ namespace iLynx.UI.OpenGL
         }
 
         /// <summary>
-        /// Applies the righthand <see cref="Thickness"/> as a padding to the lefthand <see cref="FloatRect"/> such that the resulting <see cref="FloatRect"/> is the /internal/ space
+        /// Applies the righthand <see cref="Thickness"/> as a padding to the lefthand <see cref="RectangleF"/> such that the resulting <see cref="RectangleF"/> is the /internal/ space
         /// </summary>
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public static FloatRect operator -(FloatRect left, Thickness right)
+        public static RectangleF operator -(RectangleF left, Thickness right)
         {
-            return new FloatRect(
+            return new RectangleF(
                 left.Left + right.Left,
                 left.Top + right.Top,
                 left.Width - right.Horizontal,
@@ -131,14 +133,24 @@ namespace iLynx.UI.OpenGL
                 );
         }
 
-        public static Vector2f operator +(Vector2f left, Thickness right)
+        public static Vector2 operator +(Vector2 left, Thickness right)
         {
-            return new Vector2f(left.X + right.Horizontal, left.Y + right.Vertical);
+            return new Vector2(left.X + right.Horizontal, left.Y + right.Vertical);
         }
 
-        public static Vector2f operator -(Vector2f left, Thickness right)
+        public static Vector2 operator -(Vector2 left, Thickness right)
         {
-            return new Vector2f(left.X - right.Horizontal, left.Y - right.Vertical);
+            return new Vector2(left.X - right.Horizontal, left.Y - right.Vertical);
+        }
+
+        public static SizeF operator +(SizeF left, Thickness right)
+        {
+            return new SizeF(left.Width + right.Horizontal, left.Height + right.Vertical);
+        }
+
+        public static SizeF operator -(SizeF left, Thickness right)
+        {
+            return new SizeF(left.Width - right.Horizontal, left.Height - right.Vertical);
         }
 
         public static implicit operator Thickness(float value)

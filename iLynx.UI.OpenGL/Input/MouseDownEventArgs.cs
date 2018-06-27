@@ -26,14 +26,14 @@
  */
 #endregion
 
-using SFML.System;
-using SFML.Window;
+using OpenTK;
+using OpenTK.Input;
 
 namespace iLynx.UI.OpenGL.Input
 {
     public class MouseDownEventArgs : MouseButtonInputEventArgs
     {
-        public MouseDownEventArgs(Vector2f position, Mouse.Button button) : base(position, button)
+        public MouseDownEventArgs(PointF position, MouseButton button) : base(position, button)
         {
         }
     }

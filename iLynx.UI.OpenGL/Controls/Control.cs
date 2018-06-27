@@ -27,8 +27,8 @@
 #endregion
 
 using System;
-using SFML.Graphics;
-using SFML.System;
+using iLynx.UI.OpenGL.Rendering;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls
 {
@@ -36,11 +36,11 @@ namespace iLynx.UI.OpenGL.Controls
     public abstract class Control : UIElement
     {
         private Color background = Color.Transparent;
-        private Func<Vector2f, Shape> backgroundShapeGenerator = size => new RectangleShape(size);
-        private Shape shape;
-        private Vector2f size;
+        private Func<SizeF, Geometry> backgroundShapeGenerator = size => new RectangleGeometry(size, Color.Transparent);
+        private Geometry shape;
+        private SizeF size;
 
-        public Func<Vector2f, Shape> BackgroundShapeGenerator
+        public Func<SizeF, Geometry> BackgroundShapeGenerator
         {
             get => backgroundShapeGenerator;
             set
@@ -77,21 +77,21 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected override FloatRect LayoutLocked(FloatRect finalRect)
+        protected override RectangleF LayoutLocked(RectangleF finalRect)
         {
-            if (finalRect.Size() == size) return finalRect;
+            if (finalRect.Size == size) return finalRect;
             shape = backgroundShapeGenerator(size);
-            size = finalRect.Size();
+            size = finalRect.Size;
             return finalRect;
         }
 
-        protected override void DrawLocked(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(IRenderTarget target)
         {
             shape.FillColor = background;
-            target.Draw(shape, states);
+            target.Draw(shape);
         }
 
-        public override bool HitTest(Vector2f position, out IInputElement element)
+        public override bool HitTest(PointF position, out IInputElement element)
         {
             return base.HitTest(position, out element);
         }

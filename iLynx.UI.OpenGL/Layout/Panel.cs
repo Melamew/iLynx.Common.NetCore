@@ -32,8 +32,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using iLynx.UI.OpenGL.Controls;
-using SFML.Graphics;
-using SFML.System;
+using iLynx.UI.OpenGL.Rendering;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.UI.OpenGL.Layout
 {
@@ -42,9 +43,6 @@ namespace iLynx.UI.OpenGL.Layout
         private readonly List<IUIElement> children = new List<IUIElement>();
         public IEnumerable<IUIElement> Children => children;
         private Color background = Color.Transparent;
-        private RenderTexture texture;// = new RenderTexture(VideoMode.DesktopMode.Width, VideoMode.DesktopMode.Height);
-        private Sprite sprite;
-        private Vector2u textureDimensions;
         private volatile bool requireNewTexture = true;
 
         protected Panel(Alignment horizontalAlignment = Alignment.Stretch, Alignment verticalAlignment = Alignment.Stretch)
@@ -83,9 +81,8 @@ namespace iLynx.UI.OpenGL.Layout
 
         protected virtual void OnChildLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var desiredSize = Measure((Vector2f)textureDimensions);
-            if (Math.Abs(desiredSize.X - textureDimensions.X) > 0.1f ||
-                Math.Abs(desiredSize.Y - textureDimensions.Y) > 0.1f)
+            var desiredSize = Measure(RenderSize);
+            if (desiredSize != RenderSize)
                 OnLayoutPropertyChanged($"{sender}.{e.PropertyName}");
             else
                 Layout(BoundingBox + Margin);
@@ -102,42 +99,43 @@ namespace iLynx.UI.OpenGL.Layout
             OnLayoutPropertyChanged(nameof(Children));
         }
 
-        private (RenderTexture texture, Sprite sprite) GetRenderItems()
+        //private (RenderTexture texture, Sprite sprite) GetRenderItems()
+        //{
+        //    if (!requireNewTexture || textureDimensions.X <= 0 || textureDimensions.Y <= 0) return (texture, sprite);
+        //    texture?.Dispose();
+        //    texture = null;
+        //    texture = new RenderTexture(textureDimensions.X, textureDimensions.Y);
+        //    sprite = new Sprite(texture.Texture);
+        //    requireNewTexture = false;
+        //    return (texture, sprite);
+        //}
+
+        protected override void DrawLocked(IRenderTarget target)
         {
-            if (!requireNewTexture || textureDimensions.X <= 0 || textureDimensions.Y <= 0) return (texture, sprite);
-            texture?.Dispose();
-            texture = null;
-            texture = new RenderTexture(textureDimensions.X, textureDimensions.Y);
-            sprite = new Sprite(texture.Texture);
-            requireNewTexture = false;
-            return (texture, sprite);
+            //var renderItems = GetRenderItems();
+            //var t = renderItems.texture;
+            //if (null == t) return;
+            //var s = renderItems.sprite;
+            //var c = children.ToArray();
+            //t.Clear(background);
+            //var childStates = new RenderStates(states) { Transform = Transform.Identity };
+            //foreach (var child in c)
+            //    child.Draw(t, childStates);
+            //t.Display();
+            //target.Draw(s, states);
         }
 
-        protected override void DrawLocked(RenderTarget target, RenderStates states)
+        protected override RectangleF LayoutLocked(RectangleF finalRect)
         {
-            var renderItems = GetRenderItems();
-            var t = renderItems.texture;
-            if (null == t) return;
-            var s = renderItems.sprite;
-            var c = children.ToArray();
-            t.Clear(background);
-            var childStates = new RenderStates(states) { Transform = Transform.Identity };
-            foreach (var child in c)
-                child.Draw(t, childStates);
-            t.Display();
-            target.Draw(s, states);
-        }
-
-        protected override FloatRect LayoutLocked(FloatRect finalRect)
-        {
-            var dimensions = (Vector2u)finalRect.Size();
-            requireNewTexture = null == texture || textureDimensions != dimensions;
-            textureDimensions = dimensions;
-            LayoutChildren(new FloatRect(0f, 0f, dimensions.X, dimensions.Y));
             return finalRect;
+            //var dimensions = (Vector2u)finalRect.Size();
+            //requireNewTexture = null == texture || textureDimensions != dimensions;
+            //textureDimensions = dimensions;
+            //LayoutChildren(new RectangleF(0f, 0f, dimensions.X, dimensions.Y));
+            //return finalRect;
         }
 
-        public override bool HitTest(Vector2f position, out IInputElement element)
+        public override bool HitTest(PointF position, out IInputElement element)
         {
             var hit = base.HitTest(position, out element);
             if (!hit && IsHitTestVisible) return false;
@@ -152,6 +150,19 @@ namespace iLynx.UI.OpenGL.Layout
             return IsHitTestVisible;
         }
 
-        protected abstract void LayoutChildren(FloatRect target);
+        protected abstract void LayoutChildren(RectangleF target);
+    }
+
+    public class RenderTexture : IRenderTarget
+    {
+        public void Draw(VertexBuffer buffer, PrimitiveType primitiveType)
+        {
+            
+        }
+
+        public void Draw(Geometry geometry)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

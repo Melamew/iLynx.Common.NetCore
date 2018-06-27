@@ -28,8 +28,7 @@
 
 using System;
 using System.ComponentModel;
-using SFML.Graphics;
-using SFML.System;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL
 {
@@ -37,17 +36,17 @@ namespace iLynx.UI.OpenGL
     public interface IUIElement : IInputElement
     {
         /// <summary>
-        /// Lays out this element within the specified <see cref="FloatRect"/>
+        /// Lays out this element within the specified <see cref="RectangleF"/>
         /// </summary>
         /// <param name="target"></param>
-        FloatRect Layout(FloatRect target);
+        RectangleF Layout(RectangleF target);
 
         /// <summary>
         /// Given the available space (<paramref name="available"/>), returns the space taken up by this element.
         /// </summary>
         /// <param name="available"></param>
         /// <returns></returns>
-        Vector2f Measure(Vector2f available);
+        SizeF Measure(SizeF available);
 
         /// <summary>
         /// Gets or Sets the margin of this element

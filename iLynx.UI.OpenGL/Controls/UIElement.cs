@@ -33,8 +33,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using iLynx.Common;
 using iLynx.UI.OpenGL.Input;
-using SFML.Graphics;
-using SFML.System;
+using iLynx.UI.OpenGL.Rendering;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls
 {
@@ -44,15 +44,15 @@ namespace iLynx.UI.OpenGL.Controls
         protected readonly ReaderWriterLockSlim LayoutLock = new ReaderWriterLockSlim();
         private Alignment horizontalAlignment;
         private Thickness margin = Thickness.Zero;
-        private Vector2f size = new Vector2f(float.NaN, float.NaN);
+        private SizeF size = new SizeF(float.NaN, float.NaN);
         private Alignment verticalAlignment;
         private bool hasFocus;
         private bool isMouseOver;
         private bool isFocusable = true;
         private bool isHitTestVisible = true;
-        private FloatRect boundingBox;
-        private Vector2f renderSize;
-        private Vector2f renderPosition;
+        private RectangleF boundingBox;
+        private SizeF renderSize;
+        private Vector2 renderPosition;
 
         static UIElement()
         {
@@ -111,7 +111,7 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        public Vector2f RenderPosition
+        public Vector2 RenderPosition
         {
             get => renderPosition;
             private set
@@ -124,12 +124,12 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected virtual void OnRenderPositionChanged(Vector2f old, Vector2f value)
+        protected virtual void OnRenderPositionChanged(Vector2 old, Vector2 value)
         {
-            RenderPositionChanged?.Invoke(this, new ValueChangedEventArgs<Vector2f>(old, value));
+            RenderPositionChanged?.Invoke(this, new ValueChangedEventArgs<Vector2>(old, value));
         }
 
-        public Vector2f RenderSize
+        public SizeF RenderSize
         {
             get => renderSize;
             private set
@@ -142,16 +142,16 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected virtual void OnRenderSizeChanged(Vector2f old, Vector2f value)
+        protected virtual void OnRenderSizeChanged(SizeF old, SizeF value)
         {
-            RenderSizeChanged?.Invoke(this, new ValueChangedEventArgs<Vector2f>(old, value));
+            RenderSizeChanged?.Invoke(this, new ValueChangedEventArgs<SizeF>(old, value));
         }
 
-        public event ValueChangedEventHandler<IRenderElement, FloatRect> BoundingBoxChanged;
-        public event ValueChangedEventHandler<IRenderElement, Vector2f> RenderSizeChanged;
-        public event ValueChangedEventHandler<IRenderElement, Vector2f> RenderPositionChanged;
+        public event ValueChangedEventHandler<IRenderElement, RectangleF> BoundingBoxChanged;
+        public event ValueChangedEventHandler<IRenderElement, SizeF> RenderSizeChanged;
+        public event ValueChangedEventHandler<IRenderElement, Vector2> RenderPositionChanged;
 
-        public Vector2f Size
+        public SizeF Size
         {
             get => size;
             set
@@ -165,22 +165,22 @@ namespace iLynx.UI.OpenGL.Controls
         }
 
         public static Font DefaultFont => new Font("fonts/Mechanical.otf");
-        public Vector2f ToLocalCoords(Vector2f coords)
+        public Vector2 ToLocalCoords(Vector2 coords)
         {
             return (Parent?.ToLocalCoords(coords) ?? coords) - RenderPosition;
         }
 
-        public Vector2f ToGlobalCoords(Vector2f coords)
+        public Vector2 ToGlobalCoords(Vector2 coords)
         {
             return (Parent?.ToGlobalCoords(coords) ?? coords) + RenderPosition;
         }
 
-        public virtual bool HitTest(Vector2f position, out IInputElement element)
+        public virtual bool HitTest(PointF position, out IInputElement element)
         {
             element = null;
             if (!IsHitTestVisible) return false;
-            position = ToLocalCoords(position);
-            if (!new FloatRect(new Vector2f(), RenderSize).Contains(position.X, position.Y)) return false;
+            var p = ToLocalCoords(new Vector2(position.X, position.Y));
+            if (!new RectangleF(new PointF(), RenderSize).Contains(new PointF(p.X, p.Y))) return false;
             element = this;
             return true;
         }
@@ -232,7 +232,7 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        public virtual FloatRect Layout(FloatRect target)
+        public virtual RectangleF Layout(RectangleF target)
         {
             var sw = Stopwatch.StartNew();
             try
@@ -240,37 +240,38 @@ namespace iLynx.UI.OpenGL.Controls
                 LayoutLock.EnterWriteLock();
                 var va = verticalAlignment;
                 var ha = horizontalAlignment;
-                var computedSize = Measure(target.Size()) + margin;
-                var final = target;
-                final.Width = computedSize.X;
-                final.Height = computedSize.Y;
+                var computedSize = Measure(target.Size) + margin;
+                var finalLeft = target.Left;
+                var finalTop = target.Top;
+                var finalWidth = computedSize.Width;
+                var finalHeight = computedSize.Height;
                 switch (ha)
                 {
-                    case Alignment.Stretch when float.IsNaN(size.X):
-                        final.Width = target.Width;
+                    case Alignment.Stretch when float.IsNaN(size.Width):
+                        finalWidth = target.Width;
                         break;
                     case Alignment.Center:
-                        final.Left = final.Left + (target.Width / 2f - computedSize.X / 2f);
+                        finalLeft = finalLeft + (target.Width / 2f - computedSize.Width / 2f);
                         break;
                     case Alignment.End:
-                        final.Left = final.Left + target.Width - computedSize.X;
+                        finalLeft = finalLeft + target.Width - computedSize.Width;
                         break;
                 }
 
                 switch (va)
                 {
-                    case Alignment.Stretch when float.IsNaN(size.Y):
-                        final.Height = target.Height;
+                    case Alignment.Stretch when float.IsNaN(size.Height):
+                        finalHeight = target.Height;
                         break;
                     case Alignment.Center:
-                        final.Top = final.Top + (target.Height / 2f - computedSize.Y / 2f);
+                        finalTop = finalTop + (target.Height / 2f - computedSize.Width / 2f);
                         break;
                     case Alignment.End:
-                        final.Top = final.Top + target.Height - computedSize.Y;
+                        finalTop = finalTop + target.Height - computedSize.Height;
                         break;
                 }
 
-                final -= margin;
+                var final = new RectangleF(finalLeft, finalTop, finalWidth, finalHeight) - margin;
                 BoundingBox = LayoutLocked(final);
                 return BoundingBox; // The final layout size of this element is it's bounding box plus margins
             }
@@ -282,19 +283,19 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        public virtual Vector2f Measure(Vector2f availableSpace)
+        public virtual SizeF Measure(SizeF availableSpace)
         {
             var dims = size;
-            var result = new Vector2f();
-            if (!float.IsNaN(dims.X) && dims.X < availableSpace.X)
-                result.X = dims.X;
-            else if (dims.X >= availableSpace.X)
-                result.X = availableSpace.X;
+            var result = new SizeF();
+            if (!float.IsNaN(dims.Width) && dims.Width < availableSpace.Width)
+                result.Width = dims.Width;
+            else if (dims.Width >= availableSpace.Width)
+                result.Width = availableSpace.Width;
 
-            if (!float.IsNaN(dims.Y) && dims.Y < availableSpace.Y)
-                result.Y = dims.Y;
-            else if (dims.Y >= availableSpace.Y)
-                result.Y = availableSpace.Y;
+            if (!float.IsNaN(dims.Height) && dims.Height < availableSpace.Height)
+                result.Height = dims.Height;
+            else if (dims.Height >= availableSpace.Height)
+                result.Height = availableSpace.Height;
             return result;
         }
 
@@ -313,7 +314,7 @@ namespace iLynx.UI.OpenGL.Controls
 
         public event EventHandler<PropertyChangedEventArgs> LayoutPropertyChanged;
 
-        public FloatRect BoundingBox
+        public RectangleF BoundingBox
         {
             get => boundingBox;
             private set
@@ -323,14 +324,14 @@ namespace iLynx.UI.OpenGL.Controls
                 boundingBox = value;
                 OnPropertyChanged(old, value);
                 OnBoundingBoxChanged(old, value);
-                RenderSize = value.Size();
-                RenderPosition = value.Position();
+                RenderSize = value.Size;
+                RenderPosition = new Vector2(value.X, value.Y);
             }
         }
 
-        protected virtual void OnBoundingBoxChanged(FloatRect oldBox, FloatRect newBox)
+        protected virtual void OnBoundingBoxChanged(RectangleF oldBox, RectangleF newBox)
         {
-            BoundingBoxChanged?.Invoke(this, new ValueChangedEventArgs<FloatRect>(oldBox, newBox));
+            BoundingBoxChanged?.Invoke(this, new ValueChangedEventArgs<RectangleF>(oldBox, newBox));
         }
 
         public void SetLogicalParent(IRenderElement parent)
@@ -343,11 +344,11 @@ namespace iLynx.UI.OpenGL.Controls
 
         public IRenderElement Parent { get; private set; }
 
-        public virtual void Draw(RenderTarget target, RenderStates states)
+        public virtual void Draw(IRenderTarget target)
         {
             LayoutLock.EnterReadLock();
-            states.Transform.Translate(RenderPosition);
-            DrawLocked(target, states);
+            //states.Transform.Translate(RenderPosition);
+            DrawLocked(target);
             LayoutLock.ExitReadLock();
         }
 
@@ -356,7 +357,7 @@ namespace iLynx.UI.OpenGL.Controls
         /// </summary>
         /// <param name="finalRect"></param>
         /// <returns></returns>
-        protected abstract FloatRect LayoutLocked(FloatRect finalRect);
+        protected abstract RectangleF LayoutLocked(RectangleF finalRect);
 
         protected virtual void OnLayoutPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -399,6 +400,6 @@ namespace iLynx.UI.OpenGL.Controls
         {
         }
 
-        protected abstract void DrawLocked(RenderTarget target, RenderStates states);
+        protected abstract void DrawLocked(IRenderTarget target);
     }
 }

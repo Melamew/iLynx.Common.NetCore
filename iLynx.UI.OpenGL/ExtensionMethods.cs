@@ -29,14 +29,14 @@
 using System;
 using System.Collections.Generic;
 using iLynx.Common.Maths;
-using SFML.Graphics;
-using SFML.System;
+using iLynx.UI.OpenGL.Rendering;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL
 {
     public static class ExtensionMethods
     {
-        public static bool Intersects(this IntRect src, FloatRect rect, out FloatRect overlap)
+        public static bool Intersects(this Rectangle src, RectangleF rect, out RectangleF overlap)
         {
             var right = src.Left + src.Width;
             var bottom = src.Top + src.Height;
@@ -57,25 +57,20 @@ namespace iLynx.UI.OpenGL
             var innerBottom = Math.Min(srcBottom, rectBottom);
             if (innerLeft < innerRight && innerTop < innerBottom)
             {
-                overlap.Left = innerLeft;
-                overlap.Top = innerTop;
-                overlap.Width = innerRight - innerLeft;
-                overlap.Height = innerBottom - innerTop;
+                overlap = new RectangleF(innerLeft, innerTop, innerRight - innerLeft, innerBottom - innerTop);
                 return true;
             }
-            overlap.Left = 0;
-            overlap.Top = 0;
-            overlap.Height = 0;
-            overlap.Width = 0;
+
+            overlap = new RectangleF();
             return false;
         }
 
-        public static bool Intersects(this IntRect src, FloatRect rect)
+        public static bool Intersects(this Rectangle src, RectangleF rect)
         {
             return src.Intersects(rect, out _);
         }
 
-        public static bool Intersects(this FloatRect src, IntRect rect, out FloatRect overlap)
+        public static bool Intersects(this RectangleF src, Rectangle rect, out RectangleF overlap)
         {
             var right = src.Left + src.Width;
             var bottom = src.Top + src.Height;
@@ -96,37 +91,26 @@ namespace iLynx.UI.OpenGL
             var innerBottom = Math.Min(srcBottom, rectBottom);
             if (innerLeft < innerRight && innerTop < innerBottom)
             {
-                overlap.Left = innerLeft;
-                overlap.Top = innerTop;
-                overlap.Width = innerRight - innerLeft;
-                overlap.Height = innerBottom - innerTop;
+                overlap = new RectangleF(innerLeft, innerTop, innerRight - innerLeft, innerBottom - innerTop);
                 return true;
             }
-            overlap.Left = 0;
-            overlap.Top = 0;
-            overlap.Height = 0;
-            overlap.Width = 0;
+            overlap = new RectangleF();
             return false;
         }
 
-        public static bool Intersects(this FloatRect src, IntRect rect)
+        public static bool Intersects(this RectangleF src, Rectangle rect)
         {
             return src.Intersects(rect, out _);
         }
 
-        public static Vector2f Size(this FloatRect src)
+        public static RectangleF Translate(this RectangleF rect, Vector2 distance)
         {
-            return new Vector2f(src.Width, src.Height);
+            return new RectangleF(rect.Left + distance.X, rect.Top + distance.Y, rect.Width, rect.Height);
         }
 
-        public static FloatRect Translate(this FloatRect rect, Vector2f distance)
+        public static SizeF Scale(this SizeF size, Vector2 scalar)
         {
-            return new FloatRect(rect.Left + distance.X, rect.Top + distance.Y, rect.Width, rect.Height);
-        }
-
-        public static Vector2f Position(this FloatRect rect)
-        {
-            return new Vector2f(rect.Left, rect.Top);
+            return new SizeF(size.Width * scalar.X, size.Height * scalar.Y);
         }
 
         public static void AddOrUpdate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue value)
@@ -137,9 +121,9 @@ namespace iLynx.UI.OpenGL
                 dict.Add(key, value);
         }
 
-        public static Vector2f Scale(this Vector2f vector, Vector2f scalar)
+        public static Vector2 Scale(this Vector2 vector, Vector2 scalar)
         {
-            return new Vector2f(vector.X * scalar.X, vector.Y * scalar.Y);
+            return new Vector2(vector.X * scalar.X, vector.Y * scalar.Y);
         }
 
         public static Intersect Intersects(this LineSegment v1, LineSegment v2)
@@ -147,27 +131,28 @@ namespace iLynx.UI.OpenGL
             return Math2D.AreIntersecting(v1.P1.X, v1.P1.Y, v1.P2.X, v1.P2.Y, v2.P1.X, v2.P1.Y, v2.P2.X, v2.P2.Y);
         }
 
-        public static bool HitTest(this Shape s, Vector2f point)
+        public static bool HitTest(this Geometry geometry, Vector2 point)
         {
-            var boundingBox = s.GetLocalBounds();
-            if (!boundingBox.Contains(point.X, point.Y)) return false;
-            var ray = new LineSegment(boundingBox.Left - 10f, boundingBox.Top - 10f, point);
-            var count = s.GetPointCount();
-            if (count < 3) return false;
-            var intersections = 0;
-            for (uint i = 1; i < count; ++i)
-            {
-                LineSegment line;
-                line.P1 = s.GetPoint(i - 1);
-                line.P2 = s.GetPoint(i);
-                intersections += (int)line.Intersects(ray);
-            }
+            return false;
+            //var boundingBox = s.GetLocalBounds();
+            //if (!boundingBox.Contains(point.X, point.Y)) return false;
+            //var ray = new LineSegment(boundingBox.Left - 10f, boundingBox.Top - 10f, point);
+            //var count = s.GetPointCount();
+            //if (count < 3) return false;
+            //var intersections = 0;
+            //for (uint i = 1; i < count; ++i)
+            //{
+            //    LineSegment line;
+            //    line.P1 = s.GetPoint(i - 1);
+            //    line.P2 = s.GetPoint(i);
+            //    intersections += (int)line.Intersects(ray);
+            //}
 
-            return (intersections & 1) == 1;
+            //return (intersections & 1) == 1;
         }
 
-        //public static IAnimation StartAnimation(this IUIElement element, Canvas canvas, Vector2f from,
-        //    Vector2f to)
+        //public static IAnimation StartAnimation(this IUIElement element, Canvas canvas, Vector2 from,
+        //    Vector2 to)
         //{
 
         //}

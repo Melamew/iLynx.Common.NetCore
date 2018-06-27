@@ -30,34 +30,33 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using SFML.Graphics;
-using SFML.System;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL.Layout
 {
     public class Canvas : Panel
     {
-        private readonly Dictionary<IUIElement, Vector2f> positions = new Dictionary<IUIElement, Vector2f>();
+        private readonly Dictionary<IUIElement, Vector2> positions = new Dictionary<IUIElement, Vector2>();
 
-        protected override void LayoutChildren(FloatRect target)
+        protected override void LayoutChildren(RectangleF target)
         {
-            var totalSize = target.Size();
+            var totalSize = target.Size;
             foreach (var child in Children)
             {
                 if (!positions.TryGetValue(child, out var position))
-                    position = new Vector2f();
+                    position = new Vector2();
                 var relativePosition = position;
-                var subTarget = new FloatRect(relativePosition, totalSize - relativePosition);
+                var subTarget = new RectangleF(relativePosition.X, relativePosition.Y, totalSize.Width, totalSize.Height);
                 child.Layout(subTarget);
             }
         }
 
-        public void SetGlobalPosition(IUIElement element, Vector2f position)
+        public void SetGlobalPosition(IUIElement element, Vector2 position)
         {
             SetRelativePosition(element, position - RenderPosition);
         }
 
-        public void SetRelativePosition(IUIElement element, Vector2f position)
+        public void SetRelativePosition(IUIElement element, Vector2 position)
         {
             if (Children.All(x => x != element))
                 throw new InvalidOperationException("The specified element is not contained in this canvas");
@@ -65,14 +64,14 @@ namespace iLynx.UI.OpenGL.Layout
             OnChildLayoutPropertyChanged(element, new PropertyChangedEventArgs("Canvas.Position"));
         }
 
-        public Vector2f GetGlobalPosition(IUIElement element)
+        public Vector2 GetGlobalPosition(IUIElement element)
         {
             return GetRelativePosition(element) - RenderPosition;
         }
 
-        public Vector2f GetRelativePosition(IUIElement element)
+        public Vector2 GetRelativePosition(IUIElement element)
         {
-            return !positions.TryGetValue(element, out var value) ? new Vector2f() : value;
+            return !positions.TryGetValue(element, out var value) ? new Vector2() : value;
         }
     }
 }

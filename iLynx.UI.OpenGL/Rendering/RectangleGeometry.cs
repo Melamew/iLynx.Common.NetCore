@@ -27,8 +27,8 @@
 #endregion
 
 using System;
-using SFML.Graphics;
-using SFML.System;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.UI.OpenGL.Rendering
 {
@@ -74,10 +74,10 @@ namespace iLynx.UI.OpenGL.Rendering
         {
             float w = width, h = height;
             ClearVertices();
-            AddVertex(new Vector2f(0f, 0f), color);
-            AddVertex(new Vector2f(0f, h), color);
-            AddVertex(new Vector2f(w, 0f), color);
-            AddVertex(new Vector2f(w, h), color);
+            AddVertex(new Vector2(0f, 0f), color);
+            AddVertex(new Vector2(0f, h), color);
+            AddVertex(new Vector2(w, 0f), color);
+            AddVertex(new Vector2(w, h), color);
         }
 
         public RectangleGeometry(float width, float height, Color color)
@@ -89,7 +89,7 @@ namespace iLynx.UI.OpenGL.Rendering
             GenerateVertices();
         }
 
-        public RectangleGeometry(Vector2f dimensions, Color color)
-            : this(dimensions.X, dimensions.Y, color) { }
+        public RectangleGeometry(SizeF dimensions, Color color)
+            : this(dimensions.Width, dimensions.Height, color) { }
     }
 }

@@ -27,42 +27,87 @@
 #endregion
 
 using System.Collections.Generic;
-using SFML.Graphics;
-using SFML.System;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.UI.OpenGL.Rendering
 {
-    public abstract class Geometry : Drawable
+    public class Texture
     {
-        private readonly List<Vertex> vertices = new List<Vertex>();
 
-        public Vertex[] Vertices => vertices.ToArray();
+    }
 
-        public PrimitiveType PrimitiveType { get; protected set; }
+    public class Shader
+    {
 
-        protected virtual void AddVertex(Vector2f position, Color color)
+    }
+
+    public class ShaderProgram
+    {
+
+    }
+
+    public abstract class Geometry// : Drawable
+    {
+        private readonly VertexBuffer buffer = new VertexBuffer();
+
+        protected virtual void AddVertex(Vector2 position, Color color)
         {
             AddVertex(new Vertex(position, color));
         }
 
         protected virtual void DeleteVertex(int index)
         {
-            vertices.RemoveAt(index);
+            //vertices.RemoveAt(index);
         }
 
         protected virtual void ClearVertices()
         {
-            vertices.Clear();
+            //vertices.Clear();
         }
 
         protected virtual void AddVertex(params Vertex[] v)
         {
-            vertices.AddRange(v);
+            //vertices.AddRange(v);
         }
 
-        public void Draw(RenderTarget target, RenderStates states)
+        public void Draw(IRenderTarget target)
         {
-            target.Draw(Vertices, PrimitiveType, states);
+            target.Draw(buffer, PrimitiveType);
+        }
+        public Color FillColor { get; set; }
+        public Color BorderColor { get; set; }
+        public float BorderThickness { get; set; }
+        public float CornerRadius { get; set; }
+        public Texture Texture { get; set; }
+        public ShaderProgram Shader { get; set; }
+        public PrimitiveType PrimitiveType { get; protected set; }
+    }
+
+    public struct Vertex
+    {
+        public Vector2 Position;
+        public Color Color;
+        public Vector2 TexCoord;
+        public Vertex(Vector2 position, Color color, Vector2 texCoord)
+        {
+            Position = position;
+            Color = color;
+            TexCoord = texCoord;
+        }
+
+        public Vertex(Vector2 position, Color color)
+        {
+            Position = position;
+            Color = color;
+            TexCoord = new Vector2();
+        }
+
+        public Vertex(Vector2 position)
+        {
+            Position = position;
+            Color = Color.Transparent;
+            TexCoord = new Vector2();
         }
     }
 }

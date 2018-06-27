@@ -27,8 +27,8 @@
 #endregion
 
 using System.ComponentModel;
-using SFML.Graphics;
-using SFML.System;
+using iLynx.UI.OpenGL.Rendering;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls
 {
@@ -71,13 +71,13 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected override void DrawLocked(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(IRenderTarget target)
         {
-            base.DrawLocked(target, states);
-            content?.Draw(target, states);
+            base.DrawLocked(target);
+            //content?.Draw(target, states);
         }
 
-        public override Vector2f Measure(Vector2f availableSpace)
+        public override SizeF Measure(SizeF availableSpace)
         {
             var dims = base.Measure(availableSpace);
             //// ReSharper disable CompareOfFloatsByEqualityOperator
@@ -86,11 +86,11 @@ namespace iLynx.UI.OpenGL.Controls
             //if (0 == dims.Y)
             //    dims.Y = availableSpace.Y;
             //// ReSharper restore CompareOfFloatsByEqualityOperator
-            if (dims.X > 0f || dims.Y > 0f) return dims;
+            if (dims.Width > 0f || dims.Height > 0f) return dims;
             return content?.Measure(availableSpace - padding) + padding + content?.Margin ?? dims;
         }
 
-        public override bool HitTest(Vector2f position, out IInputElement element)
+        public override bool HitTest(PointF position, out IInputElement element)
         {
             var hit = base.HitTest(position, out element);
             if (!hit && IsHitTestVisible) return false;
@@ -102,10 +102,10 @@ namespace iLynx.UI.OpenGL.Controls
             return IsHitTestVisible;
         }
 
-        protected override FloatRect LayoutLocked(FloatRect finalRect)
+        protected override RectangleF LayoutLocked(RectangleF finalRect)
         {
             finalRect = base.LayoutLocked(finalRect);
-            var contentRect = new FloatRect(0f, 0f, finalRect.Width, finalRect.Height) - padding;
+            var contentRect = new RectangleF(0f, 0f, finalRect.Width, finalRect.Height) - padding;
             content?.Layout(contentRect);
             return finalRect;
         }

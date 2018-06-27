@@ -12,9 +12,6 @@
 
   <ItemGroup>
     <PackageReference Include="OpenTK.NETCore" Version="1.1.2749.6433" />
-    <PackageReference Include="SFML.Graphics.NetCore" Version="1.0.0" />
-    <PackageReference Include="SFML.System.NetCore" Version="1.0.0" />
-    <PackageReference Include="SFML.Window.NetCore" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +40,10 @@
     <None Update="lib\win64\csfml-window-2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="shaders\" />
   </ItemGroup>
 
 </Project>

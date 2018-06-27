@@ -27,8 +27,7 @@
 #endregion
 
 using System.Linq;
-using SFML.Graphics;
-using SFML.System;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL.Layout
 {
@@ -63,22 +62,18 @@ namespace iLynx.UI.OpenGL.Layout
             }
         }
 
-        protected override void LayoutChildren(FloatRect target)
+        protected override void LayoutChildren(RectangleF target)
         {
             var availableSpace = target;
-            var scalar = orientation == Orientation.Horizontal ? new Vector2f(0f, 1f) : new Vector2f(1f, 0f);
-            var childSpaceScalar = orientation == Orientation.Horizontal ? new Vector2f(1f, 0f) : new Vector2f(0f, 1f); // The inverse for stepping size
-            var usedSpace = new FloatRect(availableSpace.Position(), availableSpace.Size().Scale(scalar));
+            var childSpaceScalar = orientation == Orientation.Horizontal ? new Vector2(1f, 0f) : new Vector2(0f, 1f); // The inverse for stepping size
             foreach (var child in reverse ? Children.Reverse() : Children)
             {
                 child.Layout(availableSpace);
-                var childSpace = (child.BoundingBox + child.Margin).Size().Scale(childSpaceScalar);
-                usedSpace.Height += childSpace.Y;
-                usedSpace.Width += childSpace.X;
-                availableSpace.Left += childSpace.X;
-                availableSpace.Width -= childSpace.X;
-                availableSpace.Top += childSpace.Y;
-                availableSpace.Height -= childSpace.Y;
+                var childSpace = (child.BoundingBox + child.Margin).Size.Scale(childSpaceScalar);
+                availableSpace.X += childSpace.Width;
+                availableSpace.Width -= childSpace.Width;
+                availableSpace.Y += childSpace.Height;
+                availableSpace.Height -= childSpace.Height;
             }
         }
     }

@@ -26,13 +26,13 @@
  */
 #endregion
 
-using SFML.System;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL.Input
 {
     public class MouseLeaveEventArgs : MouseEventArgs
     {
-        public MouseLeaveEventArgs(Vector2f position) : base(position)
+        public MouseLeaveEventArgs(PointF position) : base(position)
         {
         }
     }

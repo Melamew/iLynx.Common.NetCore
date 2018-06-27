@@ -26,13 +26,13 @@
  */
 #endregion
 
-using SFML.Window;
+using OpenTK.Input;
 
 namespace iLynx.UI.OpenGL.Input
 {
     public class KeyUpEventArgs : KeyboardEventArgs
     {
-        public KeyUpEventArgs(Keyboard.Key key, ModifierKeys modifiers) : base(key, modifiers)
+        public KeyUpEventArgs(Key key, ModifierKeys modifiers) : base(key, modifiers)
         {
         }
     }

@@ -27,17 +27,16 @@
 #endregion
 
 using iLynx.Common;
-using SFML.Graphics;
-using SFML.System;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL
 {
-    public interface IRenderElement : Drawable, IBindingSource
+    public interface IRenderElement : IBindingSource
     {
         /// <summary>
         /// Gets the bounding box of this element
         /// </summary>
-        FloatRect BoundingBox { get; }
+        RectangleF BoundingBox { get; }
 
         /// <summary>
         /// Gets the parent element (if any) of this element.
@@ -57,33 +56,33 @@ namespace iLynx.UI.OpenGL
         /// </summary>
         /// <param name="coords"></param>
         /// <returns></returns>
-        Vector2f ToLocalCoords(Vector2f coords);
+        Vector2 ToLocalCoords(Vector2 coords);
 
         /// <summary>
         /// Transforms the specified coordinates from local to global coordinates (coordinates relative to this element)
         /// </summary>
         /// <param name="coords"></param>
         /// <returns></returns>
-        Vector2f ToGlobalCoords(Vector2f coords);
+        Vector2 ToGlobalCoords(Vector2 coords);
 
         /// <summary>
         /// Gets the size of this element in "render coordinates"
         /// </summary>
-        Vector2f RenderSize { get; }
+        SizeF RenderSize { get; }
 
         /// <summary>
         /// Raised when the bounding box of this element has changed
         /// </summary>
-        event ValueChangedEventHandler<IRenderElement, FloatRect> BoundingBoxChanged;
+        event ValueChangedEventHandler<IRenderElement, RectangleF> BoundingBoxChanged;
 
         /// <summary>
         /// Raised when the render size of this element has changed
         /// </summary>
-        event ValueChangedEventHandler<IRenderElement, Vector2f> RenderSizeChanged;
+        event ValueChangedEventHandler<IRenderElement, SizeF> RenderSizeChanged;
 
         /// <summary>
         /// Raised when the render position of this element has changed
         /// </summary>
-        event ValueChangedEventHandler<IRenderElement, Vector2f> RenderPositionChanged;
+        event ValueChangedEventHandler<IRenderElement, Vector2> RenderPositionChanged;
     }
 }

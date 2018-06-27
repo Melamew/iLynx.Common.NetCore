@@ -31,9 +31,9 @@ using System.Threading;
 using iLynx.Common.Threading;
 using iLynx.UI.OpenGL.Animation;
 using iLynx.UI.OpenGL.Input;
-using SFML.Graphics;
-using SFML.System;
-using SFML.Window;
+using iLynx.UI.OpenGL.Rendering;
+using OpenTK;
+using OpenTK.Input;
 
 namespace iLynx.UI.OpenGL.Controls
 {
@@ -41,7 +41,7 @@ namespace iLynx.UI.OpenGL.Controls
     {
         private int caretIndex;
         private readonly TimeSpan caretTransitionDuration = TimeSpan.FromMilliseconds(50d);
-        private readonly RectangleShape caret = new RectangleShape();
+        //private readonly RectangleShape caret = new RectangleShape();
         private readonly ReaderWriterLockSlim caretLock = new ReaderWriterLockSlim();
         private IAnimation caretAnimation;
         private bool isModifying;
@@ -50,13 +50,13 @@ namespace iLynx.UI.OpenGL.Controls
         protected override void OnMouseButtonDown(MouseDownEventArgs args)
         {
             base.OnMouseButtonDown(args);
-            var relPos = ToLocalCoords(args.Position);
+            var relPos = ToLocalCoords(args.Position.AsVector());
             switch (args.Button)
             {
-                case Mouse.Button.Left:
+                case MouseButton.Left:
                     LeftMouseDown(relPos);
                     break;
-                case Mouse.Button.Right:
+                case MouseButton.Right:
                     RightMouseDown(relPos);
                     break;
                 default:
@@ -66,7 +66,7 @@ namespace iLynx.UI.OpenGL.Controls
             SetCaretIndex(relPos);
         }
 
-        protected override void OnBoundingBoxChanged(FloatRect oldBox, FloatRect newBox)
+        protected override void OnBoundingBoxChanged(RectangleF oldBox, RectangleF newBox)
         {
             base.OnBoundingBoxChanged(oldBox, newBox);
             MoveCaretToCurrentIndex();
@@ -93,13 +93,13 @@ namespace iLynx.UI.OpenGL.Controls
             CaretIndex = newValue.Length;
         }
 
-        private void SetCaretIndex(Vector2f position)
+        private void SetCaretIndex(Vector2 position)
         {
             for (var i = Text.Length - 1; i >= 0; --i)
             {
                 if (char.IsControl(Text[i])) continue;
                 var rect = GetCharacterRectangleForIndex(i);
-                if (!rect.Contains(position.X, position.Y)) continue;
+                if (!rect.Contains(position.AsPoint())) continue;
                 if (i == Text.Length - 1 && rect.Left + rect.Width / 2f < position.X)
                     CaretIndex = i + 1;
                 else
@@ -108,58 +108,58 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected virtual Vector2f CharacterSize => new Vector2f(FontSize, FontSize);
+        protected virtual SizeF CharacterSize => new SizeF(FontSize, FontSize);
 
-        private FloatRect GetCharacterRectangleForIndex(int index)
+        private RectangleF GetCharacterRectangleForIndex(int index)
         {
             var size = (float)FontSize;
             var charPos = FindCharacterPosition((uint)index);
-            return new FloatRect(new Vector2f(charPos.X - size / 4f, charPos.Y), CharacterSize);
+            return new RectangleF(new PointF(charPos.X - size / 4f, charPos.Y), CharacterSize);
         }
 
         private void MoveCaretToCurrentIndex()
         {
             var index = caretIndex;
             var caretSize = CharacterSize;
-            caretSize.X *= 0.1f;
+            caretSize.Width *= 0.1f;
             var rect = GetCharacterRectangleForIndex(index);
-            var position = new Vector2f(rect.Left + caretSize.X * 2f, rect.Top);
+            var position = new Vector2(rect.Left + caretSize.Width * 2f, rect.Top);
             using (caretLock.AcquireWriteLock())
             {
-                caret.Size = caretSize;
-                caret.FillColor = Foreground;
+                //caret.Size = caretSize;
+                //caret.FillColor = Foreground;
             }
             SetCaretPosition(position);
         }
 
-        protected virtual void SetCaretPosition(Vector2f position)
+        protected virtual void SetCaretPosition(Vector2 position)
         {
             caretAnimation?.Cancel();
             caretAnimation?.Tick(caretTransitionDuration);
-            var oldPos = caret.Position - RenderPosition;
-            var delta = position - oldPos;
-            caretAnimation = Animator.Start(d =>
-            {
-                using (caretLock.AcquireWriteLock())
-                    caret.Position = oldPos + delta * (float)d + RenderPosition;
-            }, caretTransitionDuration, easingFunction: EasingFunctions.QuadraticOut);
+            //var oldPos = caret.Position - RenderPosition;
+            //var delta = position - oldPos;
+            //caretAnimation = Animator.Start(d =>
+            //{
+            //    using (caretLock.AcquireWriteLock())
+            //        caret.Position = oldPos + delta * (float)d + RenderPosition;
+            //}, caretTransitionDuration, easingFunction: EasingFunctions.QuadraticOut);
         }
 
-        protected override void DrawLocked(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(IRenderTarget target)
         {
-            base.DrawLocked(target, states);
-            if (!HasFocus) return;
-            caretLock.EnterReadLock();
-            target.Draw(caret);
-            caretLock.ExitReadLock();
+            base.DrawLocked(target);
+            //if (!HasFocus) return;
+            //caretLock.EnterReadLock();
+            //target.Draw(caret);
+            //caretLock.ExitReadLock();
         }
 
-        private void RightMouseDown(Vector2f position)
+        private void RightMouseDown(Vector2 position)
         {
 
         }
 
-        private void LeftMouseDown(Vector2f position)
+        private void LeftMouseDown(Vector2 position)
         {
 
         }
@@ -169,31 +169,31 @@ namespace iLynx.UI.OpenGL.Controls
             base.OnKeyDown(args);
             switch (args.Key)
             {
-                case Keyboard.Key.BackSpace:
+                case Key.BackSpace:
                     BackSpace();
                     break;
-                case Keyboard.Key.Return:
+                case Key.Enter:
                     Return();
                     break;
-                case Keyboard.Key.Left:
+                case Key.Left:
                     Left();
                     break;
-                case Keyboard.Key.Right:
+                case Key.Right:
                     Right();
                     break;
-                case Keyboard.Key.Up:
+                case Key.Up:
                     Up();
                     break;
-                case Keyboard.Key.Down:
+                case Key.Down:
                     Down();
                     break;
-                case Keyboard.Key.End:
+                case Key.End:
                     End();
                     break;
-                case Keyboard.Key.Home:
+                case Key.Home:
                     Home();
                     break;
-                case Keyboard.Key.Delete:
+                case Key.Delete:
                     Delete();
                     break;
                 default:

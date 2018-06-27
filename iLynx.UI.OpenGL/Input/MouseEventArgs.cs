@@ -26,17 +26,17 @@
  */
 #endregion
 
-using SFML.System;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL.Input
 {
     public class MouseEventArgs : InputEventArgs
     {
-        public MouseEventArgs(Vector2f position)
+        public MouseEventArgs(PointF position)
         {
             Position = position;
         }
 
-        public Vector2f Position { get; }
+        public PointF Position { get; }
     }
 }

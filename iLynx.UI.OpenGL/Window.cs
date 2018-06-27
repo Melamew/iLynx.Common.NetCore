@@ -29,20 +29,18 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using iLynx.Common;
-using iLynx.UI.OpenGL.Input;
 using iLynx.UI.OpenGL.Layout;
-using SFML.Graphics;
-using SFML.System;
-using SFML.Window;
+using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.UI.OpenGL
 {
-    public class Window : RenderWindow, IBindingSource
+    public class Window : GameWindow, IBindingSource
     {
         private readonly DetachedBindingSource bindingSource = new DetachedBindingSource();
-        private Color background = Color.Transparent;
+        private Color background = Color.Black;
         private IUIElement root;
         private readonly StatisticsElement stats = new StatisticsElement { Padding = 16f, Margin = 16f };
         private TimeSpan frameTime;
@@ -50,15 +48,15 @@ namespace iLynx.UI.OpenGL
         private TimeSpan layoutTime;
         private readonly IBinding<TimeSpan> layoutTimeBinding;
 
-        public Window(string title = "", Styles style = Styles.None)
-            : this(VideoMode.DesktopMode, title, style) { }
+        //public Window(string title = "", Styles style = Styles.None)
+        //    : this(VideoMode.DesktopMode, title, style) { }
 
-        public Window(VideoMode mode, string title = "", Styles style = Styles.None)
-            : base(mode, title, style)
+        public Window(int width, int height, string title = "")
+            : base(width, height, GraphicsMode.Default, title)
         {
             SetupAlpha();
             // ReSharper disable once RedundantBaseQualifier
-            base.SetFramerateLimit(120);
+            //base.SetFramerateLimit(120);
             stats.LayoutPropertyChanged += OnStatsLayoutPropertyChanged;
             root = new Canvas { Background = background };
             frameTimeBinding = new MultiBinding<TimeSpan>().Bind(this, nameof(FrameTime))
@@ -122,23 +120,24 @@ namespace iLynx.UI.OpenGL
             bindingSource.RemovePropertyChangedHandler(valueName, callback);
         }
 
-        public void Show()
+        protected override void OnRenderFrame(FrameEventArgs e)
         {
             var sw = new Stopwatch();
-            while (IsOpen)
-            {
-                sw.Start();
-                if (PollEvent(out var e))
-                    EventDispatcher.Dispatch(this, e);
-                Clear(background);
-                Draw(root);
-                sw.Stop();
-                FrameTime = sw.Elapsed;
-                sw.Reset();
-                if (ShowStats)
-                    Draw(stats);
-                Display();
-            }
+            sw.Start();
+            GL.ClearColor(background);
+            GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
+
+            SwapBuffers();
+            //Clear(background);
+            //Draw(root);
+            sw.Stop();
+            FrameTime = sw.Elapsed;
+            sw.Reset();
+        }
+
+        public void Show()
+        {
+            Run(120d);
         }
 
         public bool ShowStats { get; set; } = true;
@@ -163,43 +162,43 @@ namespace iLynx.UI.OpenGL
         protected virtual void Layout()
         {
             var sw = Stopwatch.StartNew();
-            root.Layout(new FloatRect(0f, 0f, Size.X, Size.Y));
+            root.Layout(new RectangleF(0f, 0f, ClientSize.Width, ClientSize.Height));
             sw.Stop();
             LayoutTime = sw.Elapsed;
         }
 
         private void OnStatsLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var statsSize = stats.Measure((Vector2f)Size);
-            var verticalOffset = Size.Y - statsSize.Y - stats.Margin.Vertical;
-            stats.Layout(new FloatRect(0f, verticalOffset, Size.X, Size.Y - verticalOffset));
+            var statsSize = stats.Measure(new SizeF(ClientSize.Width, ClientSize.Height));
+            var verticalOffset = ClientSize.Height - statsSize.Height - stats.Margin.Vertical;
+            stats.Layout(new RectangleF(0f, verticalOffset, ClientSize.Width, ClientSize.Height - verticalOffset));
         }
 
         private void SetupAlpha()
         {
             // Such a hack...
             // TODO: Support other platforms?
-            var handle = SystemHandle;
-            var margins = new MARGINS { leftWidth = -1 };
-            DwmExtendFrameIntoClientArea(handle, ref margins);
+            //var handle = base.;
+            //var margins = new MARGINS { leftWidth = -1 };
+            //DwmExtendFrameIntoClientArea(handle, ref margins);
         }
 
-        [DllImport("dwmapi.dll")]
-        private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
+        //[DllImport("dwmapi.dll")]
+        //private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
 
-        [StructLayout(LayoutKind.Sequential)]
-        // ReSharper disable once InconsistentNaming
-        private struct MARGINS
-        {
-            // ReSharper disable FieldCanBeMadeReadOnly.Local
-            // ReSharper disable MemberCanBePrivate.Local
-            public int leftWidth;
-            public int rightWidth;
-            public int topHeight;
+        //[StructLayout(LayoutKind.Sequential)]
+        //// ReSharper disable once InconsistentNaming
+        //private struct MARGINS
+        //{
+        //    // ReSharper disable FieldCanBeMadeReadOnly.Local
+        //    // ReSharper disable MemberCanBePrivate.Local
+        //    public int leftWidth;
+        //    public int rightWidth;
+        //    public int topHeight;
 
-            public int bottomHeight;
-            // ReSharper restore FieldCanBeMadeReadOnly.Local
-            // ReSharper restore MemberCanBePrivate.Local
-        }
+        //    public int bottomHeight;
+        //    // ReSharper restore FieldCanBeMadeReadOnly.Local
+        //    // ReSharper restore MemberCanBePrivate.Local
+        //}
     }
 }

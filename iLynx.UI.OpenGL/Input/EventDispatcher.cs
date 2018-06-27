@@ -30,107 +30,106 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using iLynx.Common.Threading;
-using SFML.Window;
 
 namespace iLynx.UI.OpenGL.Input
 {
-    public class EventDispatcher : BackgroundWorker
-    {
-        private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
-        private readonly ConcurrentQueue<(Window Window, Event Event)> dispatchQueue = new ConcurrentQueue<(Window, Event)>();
-        private readonly Dictionary<EventType, List<SfmlEventHandler>> eventHandlers =
-            new Dictionary<EventType, List<SfmlEventHandler>>();
-        private volatile bool isRunning;
-        private readonly AutoResetEvent autoResetEvent = new AutoResetEvent(false);
-        private static EventDispatcher instance;
+    //public class EventDispatcher : BackgroundWorker
+    //{
+    //    private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
+    //    private readonly ConcurrentQueue<(Window Window, Event Event)> dispatchQueue = new ConcurrentQueue<(Window, Event)>();
+    //    private readonly Dictionary<EventType, List<SfmlEventHandler>> eventHandlers =
+    //        new Dictionary<EventType, List<SfmlEventHandler>>();
+    //    private volatile bool isRunning;
+    //    private readonly AutoResetEvent autoResetEvent = new AutoResetEvent(false);
+    //    private static EventDispatcher instance;
 
-        private static EventDispatcher Instance => instance ?? (instance = new EventDispatcher());
+    //    private static EventDispatcher Instance => instance ?? (instance = new EventDispatcher());
 
-        public override void Start()
-        {
-            isRunning = true;
-            base.Start();
-        }
+    //    public override void Start()
+    //    {
+    //        isRunning = true;
+    //        base.Start();
+    //    }
 
-        public override void Stop()
-        {
-            isRunning = false;
-            base.Stop();
-        }
+    //    public override void Stop()
+    //    {
+    //        isRunning = false;
+    //        base.Stop();
+    //    }
 
-        static EventDispatcher()
-        {
-            AddHandler(EventType.Closed, (w, e) => w.Close());
-            StartEventPump();
-        }
+    //    static EventDispatcher()
+    //    {
+    //        AddHandler(EventType.Closed, (w, e) => w.Close());
+    //        StartEventPump();
+    //    }
 
-        private static void StartEventPump()
-        {
-            Instance.Start();
-        }
+    //    private static void StartEventPump()
+    //    {
+    //        Instance.Start();
+    //    }
 
-        public static void StopEventPump()
-        {
-            Instance.Stop();
-        }
+    //    public static void StopEventPump()
+    //    {
+    //        Instance.Stop();
+    //    }
 
-        public static void AddHandler(EventType type, SfmlEventHandler handler)
-        {
-            Instance.RegisterHandler(type, handler);
-        }
+    //    public static void AddHandler(EventType type, SfmlEventHandler handler)
+    //    {
+    //        Instance.RegisterHandler(type, handler);
+    //    }
 
-        public void RegisterHandler(EventType type, SfmlEventHandler handler)
-        {
-            using (rwl.AcquireWriteLock())
-            {
-                if (eventHandlers.TryGetValue(type, out var list) && !list.Contains(handler))
-                    list.Add(handler);
-                else if (null == list)
-                {
-                    list = new List<SfmlEventHandler> { handler };
-                    eventHandlers.Add(type, list);
-                }
-            }
-        }
+    //    public void RegisterHandler(EventType type, SfmlEventHandler handler)
+    //    {
+    //        using (rwl.AcquireWriteLock())
+    //        {
+    //            if (eventHandlers.TryGetValue(type, out var list) && !list.Contains(handler))
+    //                list.Add(handler);
+    //            else if (null == list)
+    //            {
+    //                list = new List<SfmlEventHandler> { handler };
+    //                eventHandlers.Add(type, list);
+    //            }
+    //        }
+    //    }
 
-        public static void RemoveHandler(EventType type, SfmlEventHandler handler)
-        {
-            Instance.UnregisterHandler(type, handler);
-        }
+    //    public static void RemoveHandler(EventType type, SfmlEventHandler handler)
+    //    {
+    //        Instance.UnregisterHandler(type, handler);
+    //    }
 
-        public void UnregisterHandler(EventType type, SfmlEventHandler handler)
-        {
-            using (rwl.AcquireWriteLock())
-            {
-                if (!eventHandlers.TryGetValue(type, out var list)) return;
-                list.Remove(handler);
-                if (0 >= list.Count)
-                    eventHandlers.Remove(type);
-            }
-        }
+    //    public void UnregisterHandler(EventType type, SfmlEventHandler handler)
+    //    {
+    //        using (rwl.AcquireWriteLock())
+    //        {
+    //            if (!eventHandlers.TryGetValue(type, out var list)) return;
+    //            list.Remove(handler);
+    //            if (0 >= list.Count)
+    //                eventHandlers.Remove(type);
+    //        }
+    //    }
 
-        public static void Dispatch(Window source, Event e)
-        {
-            Instance.DispatchEvent(source, e);
-        }
+    //    public static void Dispatch(Window source, Event e)
+    //    {
+    //        Instance.DispatchEvent(source, e);
+    //    }
 
-        public void DispatchEvent(Window source, Event e)
-        {
-            dispatchQueue.Enqueue((source, e));
-            autoResetEvent.Set();
-        }
+    //    public void DispatchEvent(Window source, Event e)
+    //    {
+    //        dispatchQueue.Enqueue((source, e));
+    //        autoResetEvent.Set();
+    //    }
 
-        protected override void Run()
-        {
-            while (isRunning)
-            {
-                autoResetEvent.WaitOne();
-                while (!dispatchQueue.IsEmpty)
-                {
-                    if (dispatchQueue.TryDequeue(out var e) && eventHandlers.TryGetValue(e.Event.Type, out var handlers))
-                        handlers.ForEach(x => x?.Invoke(e.Window, e.Event));
-                }
-            }
-        }
-    }
+    //    protected override void Run()
+    //    {
+    //        while (isRunning)
+    //        {
+    //            autoResetEvent.WaitOne();
+    //            while (!dispatchQueue.IsEmpty)
+    //            {
+    //                if (dispatchQueue.TryDequeue(out var e) && eventHandlers.TryGetValue(e.Event.Type, out var handlers))
+    //                    handlers.ForEach(x => x?.Invoke(e.Window, e.Event));
+    //            }
+    //        }
+    //    }
+    //}
 }

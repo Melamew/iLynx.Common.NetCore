@@ -27,7 +27,7 @@
 #endregion
 
 using System;
-using SFML.Graphics;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL
 {

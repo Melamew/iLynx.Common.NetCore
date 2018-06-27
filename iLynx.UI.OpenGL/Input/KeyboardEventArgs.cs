@@ -26,16 +26,16 @@
  */
 #endregion
 
-using SFML.Window;
+using OpenTK.Input;
 
 namespace iLynx.UI.OpenGL.Input
 {
     public abstract class KeyboardEventArgs : InputEventArgs
     {
-        public Keyboard.Key Key { get; }
+        public Key Key { get; }
         public ModifierKeys Modifiers { get; }
 
-        protected KeyboardEventArgs(Keyboard.Key key, ModifierKeys modifiers)
+        protected KeyboardEventArgs(Key key, ModifierKeys modifiers)
         {
             Key = key;
             Modifiers = modifiers;

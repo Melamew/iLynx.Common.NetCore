@@ -26,8 +26,8 @@
  */
 #endregion
 
-using SFML.System;
-using SFML.Window;
+using OpenTK;
+using OpenTK.Input;
 
 namespace iLynx.UI.OpenGL.Input
 {
@@ -35,12 +35,12 @@ namespace iLynx.UI.OpenGL.Input
     {
         public float Delta { get; }
 
-        public Mouse.Wheel Wheel { get; }
+        //public Mouse Wheel { get; }
 
-        public MouseScrollEventArgs(Vector2f position, float delta, Mouse.Wheel wheel) : base(position)
+        public MouseScrollEventArgs(PointF position, float delta/*, Mouse.Wheel wheel*/) : base(position)
         {
             Delta = delta;
-            Wheel = wheel;
+            //Wheel = wheel;
         }
     }
 }

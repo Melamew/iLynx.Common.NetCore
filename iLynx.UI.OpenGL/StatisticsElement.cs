@@ -30,7 +30,7 @@ using System;
 using System.Text;
 using System.Threading;
 using iLynx.UI.OpenGL.Controls;
-using SFML.Graphics;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL
 {

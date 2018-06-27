@@ -27,11 +27,35 @@
 #endregion
 
 using System.Linq;
-using SFML.Graphics;
-using SFML.System;
+using iLynx.UI.OpenGL.Rendering;
+using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls
 {
+    public class Font
+    {
+        public Font(string filePath) { }
+    }
+
+    public class Text : IRenderable
+    {
+        public Vector2 FindCharacterPos(uint index)
+        {
+            return new Vector2();
+        }
+
+        public Color FillColor { get; set; }
+        public void Draw(IRenderTarget target)
+        {
+            
+        }
+    }
+
+    public interface IRenderable
+    {
+        void Draw(IRenderTarget target);
+    }
+
     public class TextElement : Control
     {
         private readonly Text renderable = new Text();
@@ -89,9 +113,9 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected Vector2f FindCharacterPosition(uint index)
+        protected Vector2 FindCharacterPosition(uint index)
         {
-            return renderable?.FindCharacterPos(index) ?? new Vector2f();
+            return renderable?.FindCharacterPos(index) ?? new Vector2();
         }
 
         public string Text
@@ -149,39 +173,41 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected override void DrawLocked(RenderTarget target, RenderStates states)
+        protected override void DrawLocked(IRenderTarget target)
         {
-            base.DrawLocked(target, states);
-            var textStates = states;
-            textStates.Transform.Translate(-renderable.GetLocalBounds().Position());
+            base.DrawLocked(target);
+            //textStates.Transform.Translate(-renderable.GetLocalBounds().Position());
             renderable.FillColor = foreground;
-            target.Draw(renderable, textStates);
+            renderable.Draw(target);
+            //target.Draw(renderable);
         }
 
         public override string ToString()
         {
-            return $"{GetType().Name}: {renderable.DisplayedString}";
+            return $"{GetType().Name}: {Text}";
         }
 
-        public override Vector2f Measure(Vector2f availableSpace)
+        public override SizeF Measure(SizeF availableSpace)
         {
-            renderable.CharacterSize = fontSize;
-            renderable.DisplayedString = text;
-            renderable.Font = font;
-            var localBounds = renderable.GetLocalBounds();
-            return new Vector2f(localBounds.Width, LineCount * FontSize);
+            return base.Measure(availableSpace);
+            //renderable.CharacterSize = fontSize;
+            //renderable.DisplayedString = text;
+            //renderable.Font = font;
+            //var localBounds = renderable.GetLocalBounds();
+            //return new Vector2(localBounds.Width, LineCount * FontSize);
         }
 
-        protected override FloatRect LayoutLocked(FloatRect finalRect)
+        protected override RectangleF LayoutLocked(RectangleF finalRect)
         {
-            var localBounds = renderable.GetLocalBounds();
-            var height = LineCount * FontSize;
-            var result = new FloatRect(
-                finalRect.Left,
-                finalRect.Top,
-                localBounds.Width < finalRect.Width ? localBounds.Width : finalRect.Width,
-                height < finalRect.Height ? height : finalRect.Height);
-            return base.LayoutLocked(result);
+            return base.LayoutLocked(finalRect);
+            //var localBounds = renderable.GetLocalBounds();
+            //var height = LineCount * FontSize;
+            //var result = new RectangleF(
+            //    finalRect.Left,
+            //    finalRect.Top,
+            //    localBounds.Width < finalRect.Width ? localBounds.Width : finalRect.Width,
+            //    height < finalRect.Height ? height : finalRect.Height);
+            //return base.LayoutLocked(result);
         }
     }
 }
