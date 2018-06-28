@@ -61,5 +61,10 @@ namespace iLynx.Common
             collection.Remove(value);
             collection.Add(value);
         }
+
+        public static bool Remove<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, out TValue value)
+        {
+            return dict.TryGetValue(key, out value) && dict.Remove(key);
+        }
     }
 }
