@@ -45,6 +45,7 @@ namespace iLynx.UI.TestBench
         private static void Main()
         {
             StartWindow();
+            
             //var endMargin = stretchedControl.RenderSize.Width / 2f - stretchedControl.Content.BoundingBox.Width / 2f;
             //Animator.AddAnimation(new CallbackAnimation(p =>
             //    {

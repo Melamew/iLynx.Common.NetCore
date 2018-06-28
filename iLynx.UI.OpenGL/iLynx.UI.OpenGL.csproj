@@ -15,10 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\iLynx.Common\iLynx.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="fonts\Mechanical.otf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -44,6 +40,10 @@
 
   <ItemGroup>
     <Folder Include="shaders\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\iLynx.Common\iLynx.Common.csproj" />
   </ItemGroup>
 
 </Project>

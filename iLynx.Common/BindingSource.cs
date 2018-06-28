@@ -33,14 +33,14 @@ namespace iLynx.Common
 {
     public abstract class BindingSource : IBindingSource
     {
-        private readonly Dictionary<string, List<dynamic>> subscribers =
-            new Dictionary<string, List<dynamic>>();
+        private readonly Dictionary<string, List<Delegate>> subscribers =
+            new Dictionary<string, List<Delegate>>();
 
         public void AddPropertyChangedHandler<TValue>(string valueName, ValueChangedCallback<TValue> callback)
         {
             if (!subscribers.TryGetValue(valueName, out var list))
             {
-                list = new List<dynamic>();
+                list = new List<Delegate>();
                 subscribers.Add(valueName, list);
             }
             if (list.Contains(callback)) return;
@@ -61,7 +61,7 @@ namespace iLynx.Common
             if (!subscribers.TryGetValue(propertyName, out var handlers)) return;
             var e = new ValueChangedEventArgs<TValue>(oldValue, newValue);
             foreach (var handler in handlers.ToArray())
-                handler?.Invoke(this, e);
+                handler?.DynamicInvoke(this, e);
         }
     }
 }
