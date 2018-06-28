@@ -147,6 +147,21 @@ namespace iLynx.UI.OpenGL.Controls
             RenderSizeChanged?.Invoke(this, new ValueChangedEventArgs<SizeF>(old, value));
         }
 
+        public void Update()
+        {
+            LayoutLock.EnterReadLock();
+            try
+            {
+                UpdateLocked();
+            }
+            finally
+            {
+                LayoutLock.ExitReadLock();
+            }
+        }
+
+        protected abstract void UpdateLocked();
+
         public event ValueChangedEventHandler<IRenderElement, RectangleF> BoundingBoxChanged;
         public event ValueChangedEventHandler<IRenderElement, SizeF> RenderSizeChanged;
         public event ValueChangedEventHandler<IRenderElement, Vector2> RenderPositionChanged;
@@ -235,9 +250,9 @@ namespace iLynx.UI.OpenGL.Controls
         public virtual RectangleF Layout(RectangleF target)
         {
             var sw = Stopwatch.StartNew();
+            LayoutLock.EnterWriteLock();
             try
             {
-                LayoutLock.EnterWriteLock();
                 var va = verticalAlignment;
                 var ha = horizontalAlignment;
                 var computedSize = Measure(target.Size) + margin;
@@ -347,9 +362,15 @@ namespace iLynx.UI.OpenGL.Controls
         public virtual void Draw(IRenderTarget target)
         {
             LayoutLock.EnterReadLock();
-            //states.Transform.Translate(RenderPosition);
-            DrawLocked(target);
-            LayoutLock.ExitReadLock();
+            try
+            {
+                //states.Transform.Translate(RenderPosition);
+                DrawLocked(target);
+            }
+            finally
+            {
+                LayoutLock.ExitReadLock();
+            }
         }
 
         /// <summary>

@@ -76,8 +76,8 @@ namespace iLynx.UI.OpenGL.Rendering
             ClearVertices();
             AddVertex(new Vector2(0f, 0f), color);
             AddVertex(new Vector2(0f, h), color);
-            AddVertex(new Vector2(w, 0f), color);
             AddVertex(new Vector2(w, h), color);
+            AddVertex(new Vector2(w, 0f), color);
         }
 
         public RectangleGeometry(float width, float height, Color color)
@@ -85,11 +85,14 @@ namespace iLynx.UI.OpenGL.Rendering
             this.width = width;
             this.height = height;
             this.color = color;
-            PrimitiveType = PrimitiveType.TriangleStrip;
+            PrimitiveType = PrimitiveType.TriangleFan;
             GenerateVertices();
         }
 
         public RectangleGeometry(SizeF dimensions, Color color)
-            : this(dimensions.Width, dimensions.Height, color) { }
+            : this(dimensions.Width, dimensions.Height, color)
+        {
+
+        }
     }
 }

@@ -38,22 +38,22 @@ namespace iLynx.UI.OpenGL.Animation
     {
         private static readonly Dictionary<IAnimation, DateTime> Animations = new Dictionary<IAnimation, DateTime>();
         private static readonly ReaderWriterLockSlim Rwl = new ReaderWriterLockSlim();
-        private static readonly CallbackTicker Ticker = new CallbackTicker();
+        //private static readonly CallbackTicker Ticker = new CallbackTicker();
 
         static Animator()
         {
-            StartAnimationThread();
+            //StartAnimationThread();
         }
 
-        public static void StartAnimationThread()
-        {
-            Ticker.Start(DoAnimations);
-        }
+        //public static void StartAnimationThread()
+        //{
+        //    Ticker.Start(DoAnimations);
+        //}
 
-        public static void StopAnimationThread()
-        {
-            Ticker.Stop();
-        }
+        //public static void StopAnimationThread()
+        //{
+        //    Ticker.Stop();
+        //}
 
         public static IAnimation AddAnimation(IAnimation animation)
         {
@@ -82,7 +82,7 @@ namespace iLynx.UI.OpenGL.Animation
             }
         }
 
-        private static void DoAnimations()
+        public static void DoAnimations()
         {
             KeyValuePair<IAnimation, DateTime>[] anims;
             try

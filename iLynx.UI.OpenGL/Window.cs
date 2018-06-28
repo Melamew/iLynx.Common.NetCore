@@ -30,14 +30,16 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using iLynx.Common;
+using iLynx.UI.OpenGL.Animation;
 using iLynx.UI.OpenGL.Layout;
+using iLynx.UI.OpenGL.Rendering;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.UI.OpenGL
 {
-    public class Window : GameWindow, IBindingSource
+    public class Window : GameWindow, IBindingSource, IRenderTarget
     {
         private readonly DetachedBindingSource bindingSource = new DetachedBindingSource();
         private Color background = Color.Black;
@@ -120,16 +122,20 @@ namespace iLynx.UI.OpenGL
             bindingSource.RemovePropertyChangedHandler(valueName, callback);
         }
 
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            Animator.DoAnimations();
+            root?.Update();
+        }
+
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             var sw = new Stopwatch();
             sw.Start();
             GL.ClearColor(background);
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
-
+            root?.Draw(this);
             SwapBuffers();
-            //Clear(background);
-            //Draw(root);
             sw.Stop();
             FrameTime = sw.Elapsed;
             sw.Reset();
@@ -200,5 +206,12 @@ namespace iLynx.UI.OpenGL
         //    // ReSharper restore FieldCanBeMadeReadOnly.Local
         //    // ReSharper restore MemberCanBePrivate.Local
         //}
+        public void Draw(VertexBuffer buffer, PrimitiveType primitiveType)
+        {
+        }
+
+        public void Draw(Geometry geometry)
+        {
+        }
     }
 }

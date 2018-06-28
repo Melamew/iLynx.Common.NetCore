@@ -91,6 +91,11 @@ namespace iLynx.UI.OpenGL.Controls
             target.Draw(shape);
         }
 
+        protected override void UpdateLocked()
+        {
+            
+        }
+
         public override bool HitTest(PointF position, out IInputElement element)
         {
             return base.HitTest(position, out element);

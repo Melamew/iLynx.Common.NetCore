@@ -26,6 +26,7 @@
  */
 #endregion
 
+using System;
 using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -58,7 +59,7 @@ namespace iLynx.UI.OpenGL.Rendering
 
         protected virtual void DeleteVertex(int index)
         {
-            //vertices.RemoveAt(index);
+            buffer.RemoveAt(index);
         }
 
         protected virtual void ClearVertices()
@@ -84,7 +85,7 @@ namespace iLynx.UI.OpenGL.Rendering
         public PrimitiveType PrimitiveType { get; protected set; }
     }
 
-    public struct Vertex
+    public struct Vertex : IEquatable<Vertex>
     {
         public Vector2 Position;
         public Color Color;
@@ -108,6 +109,38 @@ namespace iLynx.UI.OpenGL.Rendering
             Position = position;
             Color = Color.Transparent;
             TexCoord = new Vector2();
+        }
+
+        public static bool operator ==(Vertex left, Vertex right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Vertex left, Vertex right)
+        {
+            return !left.Equals(right);
+        }
+
+        public bool Equals(Vertex other)
+        {
+            return Position.Equals(other.Position) && Color.Equals(other.Color) && TexCoord.Equals(other.TexCoord);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is Vertex vertex && Equals(vertex);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Position.GetHashCode();
+                hashCode = (hashCode * 397) ^ Color.GetHashCode();
+                hashCode = (hashCode * 397) ^ TexCoord.GetHashCode();
+                return hashCode;
+            }
         }
     }
 }

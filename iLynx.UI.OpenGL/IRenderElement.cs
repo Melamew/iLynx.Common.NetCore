@@ -27,6 +27,7 @@
 #endregion
 
 using iLynx.Common;
+using iLynx.UI.OpenGL.Rendering;
 using OpenTK;
 
 namespace iLynx.UI.OpenGL
@@ -69,6 +70,17 @@ namespace iLynx.UI.OpenGL
         /// Gets the size of this element in "render coordinates"
         /// </summary>
         SizeF RenderSize { get; }
+
+        /// <summary>
+        /// Draws this element on to the specified <see cref="IRenderTarget"/>
+        /// </summary>
+        /// <param name="target"></param>
+        void Draw(IRenderTarget target);
+
+        /// <summary>
+        /// Called whenever a frame update occurs. Use this to recompute geometry and positions where needed.
+        /// </summary>
+        void Update();
 
         /// <summary>
         /// Raised when the bounding box of this element has changed

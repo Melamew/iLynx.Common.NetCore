@@ -31,6 +31,7 @@ using iLynx.UI.OpenGL;
 using iLynx.UI.OpenGL.Animation;
 using iLynx.UI.OpenGL.Controls;
 using iLynx.UI.OpenGL.Layout;
+using OpenTK;
 using Window = iLynx.UI.OpenGL.Window;
 
 namespace iLynx.UI.TestBench
@@ -55,7 +56,8 @@ namespace iLynx.UI.TestBench
 
         private static void StartWindow()
         {
-            window = new Window(1920, 1080, "Test");
+            var displayDevice = DisplayDevice.Default;
+            window = new Window(1280, 720, "Test") {Location = new Point(0, 0)};
             window.Run();
         }
 

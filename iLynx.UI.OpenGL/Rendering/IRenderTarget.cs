@@ -17,43 +17,83 @@ namespace iLynx.UI.OpenGL.Rendering
     {
         private readonly int handle;
         private readonly List<Vertex> vertices = new List<Vertex>();
-        private PrimitiveType primitiveType;
+        private bool dirty = true;
 
         public VertexBuffer()
         {
             handle = GL.GenBuffer();
         }
 
-        public VertexBuffer(Vertex[] vertices)
+        public VertexBuffer(IEnumerable<Vertex> vertices)
             : this()
         {
             this.vertices = new List<Vertex>(vertices);
         }
 
-        public PrimitiveType PrimitiveType
-        {
-            get { return primitiveType; }
-            set { primitiveType = value; }
-        }
+        public PrimitiveType PrimitiveType { get; set; } = PrimitiveType.TriangleFan;
+        public BufferUsageHint BufferUsage { get; set; } = BufferUsageHint.StreamDraw;
 
-        public void Bind()
+        protected virtual void BindBuffer(int bufferHandle)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, handle);
         }
 
-        public void CopyToDevice()
+        protected virtual void Copy()
         {
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr) vertices.Count, vertices.ToArray(),
+            if (!dirty) return;
+            var verts = vertices.ToArray();
+            GL.BufferData(BufferTarget.ArrayBuffer, verts.Length, verts,
                 BufferUsageHint.StreamDraw);
+            dirty = false;
         }
 
         public void Draw()
         {
-            GL.DrawArrays(primitiveType, 0, vertices.Count);
+            BindBuffer(handle);
+            Copy();
+            GL.DrawArrays(PrimitiveType, 0, vertices.Count);
         }
 
         public void Dispose()
         {
+            GL.DeleteBuffer(handle);
         }
+
+        public void AddVertex(Vertex vertex)
+        {
+            vertices.Add(vertex);
+            dirty = true;
+        }
+
+        public void AddVertices(IEnumerable<Vertex> verts)
+        {
+            vertices.AddRange(verts);
+            dirty = true;
+        }
+
+        public void RemoveAt(int index)
+        {
+            vertices.RemoveAt(index);
+            dirty = true;
+        }
+
+        public void AddVertices(params Vertex[] verts)
+        {
+            vertices.AddRange(verts);
+            dirty = true;
+        }
+
+        public Vertex this[int index]
+        {
+            get => vertices[index];
+            set
+            {
+                if (vertices[index] == value) return;
+                vertices[index] = value;
+                dirty = true;
+            }
+        }
+
+        public int Length => vertices.Count;
     }
 }

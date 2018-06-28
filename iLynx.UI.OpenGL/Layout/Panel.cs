@@ -110,6 +110,11 @@ namespace iLynx.UI.OpenGL.Layout
         //    return (texture, sprite);
         //}
 
+        protected override void UpdateLocked()
+        {
+            //throw new NotImplementedException();
+        }
+
         protected override void DrawLocked(IRenderTarget target)
         {
             //var renderItems = GetRenderItems();
