@@ -35,18 +35,6 @@ namespace iLynx.UI.OpenGL.Rendering
     public class RectangleGeometry : Geometry
     {
         private float width, height;
-        private Color color;
-
-        public Color Color
-        {
-            get => color;
-            set
-            {
-                if (value == color) return;
-                color = value;
-                GenerateVertices();
-            }
-        }
 
         public float Width
         {
@@ -72,19 +60,24 @@ namespace iLynx.UI.OpenGL.Rendering
 
         private void GenerateVertices()
         {
-            float w = width, h = height;
-            ClearVertices();
-            AddVertex(new Vector2(0f, 0f), color);
-            AddVertex(new Vector2(0f, h), color);
-            AddVertex(new Vector2(w, h), color);
-            AddVertex(new Vector2(w, 0f), color);
+            Update();
+            //ClearVertices();
+            //AddVertex(new Vector2(0f, 0f), FillColor);
+            //AddVertex(new Vector2(0f, h), FillColor);
+            //AddVertex(new Vector2(w, h), FillColor);
+            //AddVertex(new Vector2(w, 0f), FillColor);
         }
 
-        public RectangleGeometry(float width, float height, Color color)
+        protected override Vertex[] GetVertices()
+        {
+            throw new NotImplementedException();
+        }
+
+        public RectangleGeometry(float width, float height, Color fillColor)
         {
             this.width = width;
             this.height = height;
-            this.color = color;
+            FillColor = fillColor;
             PrimitiveType = PrimitiveType.TriangleFan;
             GenerateVertices();
         }

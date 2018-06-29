@@ -32,7 +32,7 @@ using OpenTK;
 
 namespace iLynx.UI.OpenGL
 {
-    public interface IRenderElement : IBindingSource
+    public interface IRenderElement : IDrawable, IBindingSource
     {
         /// <summary>
         /// Gets the bounding box of this element
@@ -70,12 +70,6 @@ namespace iLynx.UI.OpenGL
         /// Gets the size of this element in "render coordinates"
         /// </summary>
         SizeF RenderSize { get; }
-
-        /// <summary>
-        /// Draws this element on to the specified <see cref="IRenderTarget"/>
-        /// </summary>
-        /// <param name="target"></param>
-        void Draw(IRenderTarget target);
 
         /// <summary>
         /// Called whenever a frame update occurs. Use this to recompute geometry and positions where needed.

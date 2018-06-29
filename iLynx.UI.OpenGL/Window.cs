@@ -208,6 +208,12 @@ namespace iLynx.UI.OpenGL
         //}
         public void Draw(VertexBuffer buffer, PrimitiveType primitiveType)
         {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(Vertex[] vertices, PrimitiveType primitiveType)
+        {
+            throw new NotImplementedException();
         }
 
         public void Draw(Geometry geometry)

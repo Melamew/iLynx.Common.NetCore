@@ -26,121 +26,34 @@
  */
 #endregion
 
-using System;
 using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.UI.OpenGL.Rendering
 {
-    public class Texture
+    public abstract class Geometry : IDrawable
     {
+        private readonly List<Vertex> geometryBuffer = new List<Vertex>();
+        private readonly List<Vertex> outlineVerts = new List<Vertex>();
 
-    }
-
-    public class Shader
-    {
-
-    }
-
-    public class ShaderProgram
-    {
-
-    }
-
-    public abstract class Geometry// : Drawable
-    {
-        private readonly VertexBuffer buffer = new VertexBuffer();
-
-        protected virtual void AddVertex(Vector2 position, Color color)
-        {
-            AddVertex(new Vertex(position, color));
-        }
-
-        protected virtual void DeleteVertex(int index)
-        {
-            buffer.RemoveAt(index);
-        }
-
-        protected virtual void ClearVertices()
-        {
-            //vertices.Clear();
-        }
-
-        protected virtual void AddVertex(params Vertex[] v)
-        {
-            //vertices.AddRange(v);
-        }
-
-        public void Draw(IRenderTarget target)
-        {
-            target.Draw(buffer, PrimitiveType);
-        }
         public Color FillColor { get; set; }
         public Color BorderColor { get; set; }
         public float BorderThickness { get; set; }
-        public float CornerRadius { get; set; }
         public Texture Texture { get; set; }
         public ShaderProgram Shader { get; set; }
         public PrimitiveType PrimitiveType { get; protected set; }
-    }
-
-    public struct Vertex : IEquatable<Vertex>
-    {
-        public Vector2 Position;
-        public Color Color;
-        public Vector2 TexCoord;
-        public Vertex(Vector2 position, Color color, Vector2 texCoord)
+        
+        public void Draw(IRenderTarget target)
         {
-            Position = position;
-            Color = color;
-            TexCoord = texCoord;
+            target.Draw(geometryBuffer.ToArray(), PrimitiveType);
         }
 
-        public Vertex(Vector2 position, Color color)
+        protected virtual void Update()
         {
-            Position = position;
-            Color = color;
-            TexCoord = new Vector2();
+            //geometryBuffer.SetVertices(GetVertices());
         }
 
-        public Vertex(Vector2 position)
-        {
-            Position = position;
-            Color = Color.Transparent;
-            TexCoord = new Vector2();
-        }
-
-        public static bool operator ==(Vertex left, Vertex right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(Vertex left, Vertex right)
-        {
-            return !left.Equals(right);
-        }
-
-        public bool Equals(Vertex other)
-        {
-            return Position.Equals(other.Position) && Color.Equals(other.Color) && TexCoord.Equals(other.TexCoord);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            return obj is Vertex vertex && Equals(vertex);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = Position.GetHashCode();
-                hashCode = (hashCode * 397) ^ Color.GetHashCode();
-                hashCode = (hashCode * 397) ^ TexCoord.GetHashCode();
-                return hashCode;
-            }
-        }
+        protected abstract Vertex[] GetVertices();
     }
 }
