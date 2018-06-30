@@ -25,21 +25,28 @@
  *
  */
 #endregion
+
 using System;
 
-namespace iLynx.Common.Maths
+namespace iLynx.Graphics.Maths
 {
     public static class Math2D
     {
         // Thanks to Mecki at https://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-point-is-within-a-polygon
-        public static Intersect AreIntersecting(
-            float v1X1, float v1Y1, float v1X2, float v1Y2,
-            float v2X1, float v2Y1, float v2X2, float v2Y2
-        )
+        public static Intersect AreIntersecting(LineSegment line1, LineSegment line2)
         {
             // Convert vector 1 to a line (line 1) of infinite length.
             // We want the line in linear equation standard form: A*x + B*y + C = 0
             // See: http://en.wikipedia.org/wiki/Linear_equation
+            float v1X1 = line1.P1.X,
+                v1Y1 = line1.P1.Y,
+                v1X2 = line1.P2.X,
+                v1Y2 = line1.P2.Y,
+                v2X1 = line2.P1.X,
+                v2Y1 = line2.P1.Y,
+                v2X2 = line2.P2.X,
+                v2Y2 = line2.P2.Y;
+
             var a1 = v1Y2 - v1Y1;
             var b1 = v1X1 - v1X2;
             var c1 = (v1X2 * v1Y1) - (v1X1 * v1Y2);

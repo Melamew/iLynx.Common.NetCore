@@ -32,6 +32,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using iLynx.Graphics;
+using iLynx.Graphics.Rendering;
 using iLynx.UI.OpenGL.Controls;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -115,7 +116,7 @@ namespace iLynx.UI.OpenGL.Layout
             //throw new NotImplementedException();
         }
 
-        protected override void DrawLocked(IRenderTarget target)
+        protected override void DrawLocked(IRenderContext context)
         {
             //var renderItems = GetRenderItems();
             //var t = renderItems.texture;
@@ -156,23 +157,5 @@ namespace iLynx.UI.OpenGL.Layout
         }
 
         protected abstract void LayoutChildren(RectangleF target);
-    }
-
-    public class RenderTexture : IRenderTarget
-    {
-        public void Draw(VertexBuffer buffer, PrimitiveType primitiveType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Draw(Vertex[] vertices, PrimitiveType primitiveType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Draw(Geometry geometry)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -28,6 +28,7 @@
 
 using System.Linq;
 using iLynx.Graphics;
+using iLynx.Graphics.Rendering;
 using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls
@@ -45,7 +46,7 @@ namespace iLynx.UI.OpenGL.Controls
         }
 
         public Color FillColor { get; set; }
-        public void Draw(IRenderTarget target)
+        public void Draw(IRenderContext context)
         {
             
         }
@@ -53,7 +54,7 @@ namespace iLynx.UI.OpenGL.Controls
 
     public interface IRenderable
     {
-        void Draw(IRenderTarget target);
+        void Draw(IRenderContext context);
     }
 
     public class TextElement : Control
@@ -173,12 +174,12 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected override void DrawLocked(IRenderTarget target)
+        protected override void DrawLocked(IRenderContext context)
         {
-            base.DrawLocked(target);
+            base.DrawLocked(context);
             //textStates.Transform.Translate(-renderable.GetLocalBounds().Position());
             renderable.FillColor = foreground;
-            renderable.Draw(target);
+            renderable.Draw(context);
             //target.Draw(renderable);
         }
 

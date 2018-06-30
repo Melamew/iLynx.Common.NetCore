@@ -25,12 +25,43 @@
  *
  */
 #endregion
-namespace iLynx.Common.Maths
+
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
+
+namespace iLynx.Graphics.Rendering
 {
-    public enum Intersect
+    public abstract class Geometry2D
     {
-        No = 0,
-        Yes = 1,
-        Collinear = 2
+        private readonly VertexBuffer<Vertex2> fillBuffer = new VertexBuffer<Vertex2>(0) { PrimitiveType = PrimitiveType.TriangleFan };
+        //private readonly VertexBuffer<Vertex2> outlineBuffer = new VertexBuffer<Vertex2>(4) { PrimitiveType = PrimitiveType.LineLoop };
+
+        public Color FillColor
+        {
+            get;
+            set;
+        }
+
+        public Color BorderColor { get; set; }
+        public float BorderThickness { get; set; }
+        public Texture Texture { get; set; }
+        public ShaderProgram Shader { get; set; }
+        public PrimitiveType PrimitiveType { get; protected set; }
+
+        protected virtual void Update()
+        {
+            var verts = GetVertices();
+            if (verts.Length < 3) return;
+            if (!fillBuffer.IsInitialized)
+                fillBuffer.Initialize();
+            fillBuffer.SetVertices(verts);
+        }
+
+        protected abstract Vertex2[] GetVertices();
+
+        public void Dispose()
+        {
+            fillBuffer?.Dispose();
+        }
     }
 }

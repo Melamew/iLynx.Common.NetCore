@@ -28,6 +28,7 @@
 
 using System;
 using iLynx.Graphics;
+using iLynx.Graphics.Rendering;
 using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls
@@ -36,11 +37,11 @@ namespace iLynx.UI.OpenGL.Controls
     public abstract class Control : UIElement
     {
         private Color background = Color.Transparent;
-        private Func<SizeF, Geometry> backgroundShapeGenerator = size => new RectangleGeometry(size, Color.Transparent);
-        private Geometry shape;
+        private Func<SizeF, Geometry2D> backgroundShapeGenerator = size => new RectangleGeometry(size, Color.Transparent);
+        private Geometry2D shape;
         private SizeF size;
 
-        public Func<SizeF, Geometry> BackgroundShapeGenerator
+        public Func<SizeF, Geometry2D> BackgroundShapeGenerator
         {
             get => backgroundShapeGenerator;
             set
@@ -85,11 +86,11 @@ namespace iLynx.UI.OpenGL.Controls
             return finalRect;
         }
 
-        protected override void DrawLocked(IRenderTarget target)
+        protected override void DrawLocked(IRenderContext context)
         {
             if (size == default(SizeF)) return;
             shape.FillColor = background;
-            target.Draw(shape);
+            //target.Draw(shape);
         }
 
         public override bool HitTest(PointF position, out IInputElement element)

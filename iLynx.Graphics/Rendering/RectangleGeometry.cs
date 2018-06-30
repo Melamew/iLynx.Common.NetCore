@@ -30,9 +30,9 @@ using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics
+namespace iLynx.Graphics.Rendering
 {
-    public class RectangleGeometry : Geometry
+    public class RectangleGeometry : Geometry2D
     {
         private float width, height;
 
@@ -68,7 +68,7 @@ namespace iLynx.Graphics
             //AddVertex(new Vector2(w, 0f), FillColor);
         }
 
-        protected override Vertex[] GetVertices()
+        protected override Vertex2[] GetVertices()
         {
             throw new NotImplementedException();
         }

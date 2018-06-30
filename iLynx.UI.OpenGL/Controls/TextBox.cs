@@ -30,6 +30,7 @@ using System;
 using System.Threading;
 using iLynx.Common.Threading;
 using iLynx.Graphics;
+using iLynx.Graphics.Rendering;
 using iLynx.UI.OpenGL.Animation;
 using iLynx.UI.OpenGL.Input;
 using OpenTK;
@@ -145,9 +146,9 @@ namespace iLynx.UI.OpenGL.Controls
             //}, caretTransitionDuration, easingFunction: EasingFunctions.QuadraticOut);
         }
 
-        protected override void DrawLocked(IRenderTarget target)
+        protected override void DrawLocked(IRenderContext context)
         {
-            base.DrawLocked(target);
+            base.DrawLocked(context);
             //if (!HasFocus) return;
             //caretLock.EnterReadLock();
             //target.Draw(caret);

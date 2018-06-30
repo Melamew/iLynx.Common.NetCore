@@ -29,10 +29,8 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading;
 using iLynx.Common;
-using iLynx.Graphics;
 using iLynx.UI.OpenGL.Animation;
 using iLynx.UI.OpenGL.Layout;
 using OpenTK;
@@ -41,7 +39,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.UI.OpenGL
 {
-    public class Window : GameWindow, IBindingSource, IRenderTarget
+    public sealed class Window : GameWindow, IBindingSource//, IRenderContext
     {
         private readonly DetachedBindingSource bindingSource = new DetachedBindingSource();
         private Color background = Color.Black;
@@ -51,12 +49,11 @@ namespace iLynx.UI.OpenGL
         private readonly IBinding<TimeSpan> frameTimeBinding;
         private TimeSpan layoutTime;
         private readonly IBinding<TimeSpan> layoutTimeBinding;
-        private readonly Thread renderThread;
+        //private readonly Thread renderThread;
 
         public Window(int width, int height, string title = "")
             : base(width, height, GraphicsMode.Default, title)
         {
-            SetupAlpha();
             stats.LayoutPropertyChanged += OnStatsLayoutPropertyChanged;
             root = new Canvas { Background = background };
             frameTimeBinding = new MultiBinding<TimeSpan>().Bind(this, nameof(FrameTime))
@@ -132,7 +129,7 @@ namespace iLynx.UI.OpenGL
             sw.Start();
             GL.ClearColor(background);
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
-            root?.Draw(this);
+            //root?.Draw(this);
             SwapBuffers();
             sw.Stop();
             FrameTime = sw.Elapsed;
@@ -163,7 +160,7 @@ namespace iLynx.UI.OpenGL
             Layout();
         }
 
-        protected virtual void Layout()
+        private void Layout()
         {
             var sw = Stopwatch.StartNew();
             root.Layout(new RectangleF(0f, 0f, ClientSize.Width, ClientSize.Height));
@@ -176,46 +173,6 @@ namespace iLynx.UI.OpenGL
             var statsSize = stats.Measure(new SizeF(ClientSize.Width, ClientSize.Height));
             var verticalOffset = ClientSize.Height - statsSize.Height - stats.Margin.Vertical;
             stats.Layout(new RectangleF(0f, verticalOffset, ClientSize.Width, ClientSize.Height - verticalOffset));
-        }
-
-        private void SetupAlpha()
-        {
-            // Such a hack...
-            // TODO: Support other platforms?
-            //var handle = base.;
-            //var margins = new MARGINS { leftWidth = -1 };
-            //DwmExtendFrameIntoClientArea(handle, ref margins);
-        }
-
-        //[DllImport("dwmapi.dll")]
-        //private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
-
-        //[StructLayout(LayoutKind.Sequential)]
-        //// ReSharper disable once InconsistentNaming
-        //private struct MARGINS
-        //{
-        //    // ReSharper disable FieldCanBeMadeReadOnly.Local
-        //    // ReSharper disable MemberCanBePrivate.Local
-        //    public int leftWidth;
-        //    public int rightWidth;
-        //    public int topHeight;
-
-        //    public int bottomHeight;
-        //    // ReSharper restore FieldCanBeMadeReadOnly.Local
-        //    // ReSharper restore MemberCanBePrivate.Local
-        //}
-        public void Draw(VertexBuffer buffer, PrimitiveType primitiveType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Draw(Vertex[] vertices, PrimitiveType primitiveType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Draw(Geometry geometry)
-        {
         }
     }
 }

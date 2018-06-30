@@ -28,11 +28,10 @@
 
 using System;
 using System.Collections.Generic;
-using iLynx.Common.Maths;
-using iLynx.Graphics;
+using iLynx.Graphics.Rendering;
 using OpenTK;
 
-namespace iLynx.UI.OpenGL
+namespace iLynx.Graphics.Maths
 {
     public static class ExtensionMethods
     {
@@ -126,12 +125,7 @@ namespace iLynx.UI.OpenGL
             return new Vector2(vector.X * scalar.X, vector.Y * scalar.Y);
         }
 
-        public static Intersect Intersects(this LineSegment v1, LineSegment v2)
-        {
-            return Math2D.AreIntersecting(v1.P1.X, v1.P1.Y, v1.P2.X, v1.P2.Y, v2.P1.X, v2.P1.Y, v2.P2.X, v2.P2.Y);
-        }
-
-        public static bool HitTest(this Geometry geometry, Vector2 point)
+        public static bool HitTest(this Geometry2D geometry, Vector2 point)
         {
             return false;
             //var boundingBox = s.GetLocalBounds();

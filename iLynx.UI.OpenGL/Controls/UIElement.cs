@@ -33,6 +33,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using iLynx.Common;
 using iLynx.Graphics;
+using iLynx.Graphics.Rendering;
 using iLynx.UI.OpenGL.Input;
 using OpenTK;
 
@@ -359,13 +360,13 @@ namespace iLynx.UI.OpenGL.Controls
 
         public IRenderElement Parent { get; private set; }
 
-        public virtual void Draw(IRenderTarget target)
+        public virtual void Draw(IRenderContext context)
         {
             LayoutLock.EnterReadLock();
             try
             {
                 //states.Transform.Translate(RenderPosition);
-                DrawLocked(target);
+                DrawLocked(context);
             }
             finally
             {
@@ -421,6 +422,11 @@ namespace iLynx.UI.OpenGL.Controls
         {
         }
 
-        protected abstract void DrawLocked(IRenderTarget target);
+        protected abstract void DrawLocked(IRenderContext context);
+
+        public void Dispose()
+        {
+            LayoutLock?.Dispose();
+        }
     }
 }

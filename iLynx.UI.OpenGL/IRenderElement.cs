@@ -28,11 +28,12 @@
 
 using iLynx.Common;
 using iLynx.Graphics;
+using iLynx.Graphics.Rendering;
 using OpenTK;
 
 namespace iLynx.UI.OpenGL
 {
-    public interface IRenderElement : IDrawable, IBindingSource
+    public interface IRenderElement : IBindingSource
     {
         /// <summary>
         /// Gets the bounding box of this element

@@ -1,53 +1,55 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using OpenTK;
 
-namespace iLynx.Graphics
+namespace iLynx.Graphics.Rendering
 {
-    public struct Vertex : IEquatable<Vertex>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Vertex2 : IEquatable<Vertex2>
     {
-        public Vector2 Position;
-        public Color Color;
-        public Vector2 TexCoord;
-        public Vertex(Vector2 position, Color color, Vector2 texCoord)
+        public readonly Vector2 Position;
+        public readonly Color Color;
+        public readonly Vector2 TexCoord;
+        public Vertex2(Vector2 position, Color color, Vector2 texCoord)
         {
             Position = position;
             Color = color;
             TexCoord = texCoord;
         }
 
-        public Vertex(Vector2 position, Color color)
+        public Vertex2(Vector2 position, Color color)
         {
             Position = position;
             Color = color;
             TexCoord = new Vector2();
         }
 
-        public Vertex(Vector2 position)
+        public Vertex2(Vector2 position)
         {
             Position = position;
             Color = Color.Transparent;
             TexCoord = new Vector2();
         }
 
-        public static bool operator ==(Vertex left, Vertex right)
+        public static bool operator ==(Vertex2 left, Vertex2 right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(Vertex left, Vertex right)
+        public static bool operator !=(Vertex2 left, Vertex2 right)
         {
             return !left.Equals(right);
         }
 
-        public bool Equals(Vertex other)
+        public bool Equals(Vertex2 other)
         {
-            return Position.Equals(other.Position) && Color.Equals(other.Color) && TexCoord.Equals(other.TexCoord);
+            return Position == other.Position && Color == other.Color && TexCoord == other.TexCoord;
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            return obj is Vertex vertex && Equals(vertex);
+            if (obj is null) return false;
+            return obj is Vertex2 vertex && Equals(vertex);
         }
 
         public override int GetHashCode()

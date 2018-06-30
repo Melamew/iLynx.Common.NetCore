@@ -26,34 +26,37 @@
  */
 #endregion
 
-using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics
+namespace iLynx.Graphics.Maths
 {
-    public abstract class Geometry : IDrawable
+    [StructLayout(LayoutKind.Sequential)]
+    public struct LineSegment
     {
-        private readonly List<Vertex> geometryBuffer = new List<Vertex>();
-        private readonly List<Vertex> outlineVerts = new List<Vertex>();
+        public readonly Vector2 P1;
+        public readonly Vector2 P2;
+        public readonly Vector2 Normal;
 
-        public Color FillColor { get; set; }
-        public Color BorderColor { get; set; }
-        public float BorderThickness { get; set; }
-        public Texture Texture { get; set; }
-        public ShaderProgram Shader { get; set; }
-        public PrimitiveType PrimitiveType { get; protected set; }
-        
-        public void Draw(IRenderTarget target)
+        public LineSegment(Vector2 p1, Vector2 p2)
         {
-            target.Draw(geometryBuffer.ToArray(), PrimitiveType);
+            P1 = p1;
+            P2 = p2;
+            Normal = new Vector2(P1.Y - P2.Y, P2.X - P1.X).Normalized();
         }
 
-        protected virtual void Update()
-        {
-            //geometryBuffer.SetVertices(GetVertices());
-        }
+        public LineSegment(float x1, float y1, float x2, float y2)
+            : this(new Vector2(x1, y1), new Vector2(x2, y2)) { }
 
-        protected abstract Vertex[] GetVertices();
+        public LineSegment(float x1, float y1, Vector2 p2)
+            : this(new Vector2(x1, y1), p2) { }
+
+        public LineSegment(Vector2 p1, float x2, float y2)
+            : this(p1, new Vector2(x2, y2)) { }
+
+        public Intersect Intersects(LineSegment other)
+        {
+            return Math2D.AreIntersecting(this, other);
+        }
     }
 }

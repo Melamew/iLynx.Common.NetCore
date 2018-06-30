@@ -28,6 +28,7 @@
 
 using System.ComponentModel;
 using iLynx.Graphics;
+using iLynx.Graphics.Rendering;
 using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls
@@ -71,9 +72,9 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected override void DrawLocked(IRenderTarget target)
+        protected override void DrawLocked(IRenderContext context)
         {
-            base.DrawLocked(target);
+            base.DrawLocked(context);
             //content?.Draw(target, states);
         }
 
