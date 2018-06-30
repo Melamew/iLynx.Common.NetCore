@@ -27,7 +27,7 @@
 #endregion
 
 using System;
-using iLynx.UI.OpenGL.Rendering;
+using iLynx.Graphics;
 using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls

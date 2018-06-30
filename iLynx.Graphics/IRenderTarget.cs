@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Text;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.UI.OpenGL.Rendering
+namespace iLynx.Graphics
 {
     public interface IRenderTarget
     {

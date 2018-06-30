@@ -32,9 +32,9 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using iLynx.Common;
+using iLynx.Graphics;
 using iLynx.UI.OpenGL.Animation;
 using iLynx.UI.OpenGL.Layout;
-using iLynx.UI.OpenGL.Rendering;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -57,8 +57,6 @@ namespace iLynx.UI.OpenGL
             : base(width, height, GraphicsMode.Default, title)
         {
             SetupAlpha();
-            // ReSharper disable once RedundantBaseQualifier
-            //base.SetFramerateLimit(120);
             stats.LayoutPropertyChanged += OnStatsLayoutPropertyChanged;
             root = new Canvas { Background = background };
             frameTimeBinding = new MultiBinding<TimeSpan>().Bind(this, nameof(FrameTime))

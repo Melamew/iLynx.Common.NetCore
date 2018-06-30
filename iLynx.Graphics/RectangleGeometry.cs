@@ -26,34 +26,66 @@
  */
 #endregion
 
-using System.Collections.Generic;
+using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.UI.OpenGL.Rendering
+namespace iLynx.Graphics
 {
-    public abstract class Geometry : IDrawable
+    public class RectangleGeometry : Geometry
     {
-        private readonly List<Vertex> geometryBuffer = new List<Vertex>();
-        private readonly List<Vertex> outlineVerts = new List<Vertex>();
+        private float width, height;
 
-        public Color FillColor { get; set; }
-        public Color BorderColor { get; set; }
-        public float BorderThickness { get; set; }
-        public Texture Texture { get; set; }
-        public ShaderProgram Shader { get; set; }
-        public PrimitiveType PrimitiveType { get; protected set; }
-        
-        public void Draw(IRenderTarget target)
+        public float Width
         {
-            target.Draw(geometryBuffer.ToArray(), PrimitiveType);
+            get => width;
+            set
+            {
+                if (MathF.Abs(value - width) <= float.Epsilon) return;
+                width = value;
+                GenerateVertices();
+            }
         }
 
-        protected virtual void Update()
+        public float Height
         {
-            //geometryBuffer.SetVertices(GetVertices());
+            get => height;
+            set
+            {
+                if (MathF.Abs(value - height) <= float.Epsilon) return;
+                height = value;
+                GenerateVertices();
+            }
         }
 
-        protected abstract Vertex[] GetVertices();
+        private void GenerateVertices()
+        {
+            Update();
+            //ClearVertices();
+            //AddVertex(new Vector2(0f, 0f), FillColor);
+            //AddVertex(new Vector2(0f, h), FillColor);
+            //AddVertex(new Vector2(w, h), FillColor);
+            //AddVertex(new Vector2(w, 0f), FillColor);
+        }
+
+        protected override Vertex[] GetVertices()
+        {
+            throw new NotImplementedException();
+        }
+
+        public RectangleGeometry(float width, float height, Color fillColor)
+        {
+            this.width = width;
+            this.height = height;
+            FillColor = fillColor;
+            PrimitiveType = PrimitiveType.TriangleFan;
+            GenerateVertices();
+        }
+
+        public RectangleGeometry(SizeF dimensions, Color color)
+            : this(dimensions.Width, dimensions.Height, color)
+        {
+
+        }
     }
 }

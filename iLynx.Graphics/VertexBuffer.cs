@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.UI.OpenGL.Rendering
+namespace iLynx.Graphics
 {
     public class VertexBuffer : IDisposable
     {

@@ -32,8 +32,8 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using iLynx.Common;
+using iLynx.Graphics;
 using iLynx.UI.OpenGL.Input;
-using iLynx.UI.OpenGL.Rendering;
 using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls

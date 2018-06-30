@@ -29,7 +29,7 @@
 using System;
 using System.Collections.Generic;
 using iLynx.Common.Maths;
-using iLynx.UI.OpenGL.Rendering;
+using iLynx.Graphics;
 using OpenTK;
 
 namespace iLynx.UI.OpenGL

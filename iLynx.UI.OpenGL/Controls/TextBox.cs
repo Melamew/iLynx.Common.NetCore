@@ -29,9 +29,9 @@
 using System;
 using System.Threading;
 using iLynx.Common.Threading;
+using iLynx.Graphics;
 using iLynx.UI.OpenGL.Animation;
 using iLynx.UI.OpenGL.Input;
-using iLynx.UI.OpenGL.Rendering;
 using OpenTK;
 using OpenTK.Input;
 

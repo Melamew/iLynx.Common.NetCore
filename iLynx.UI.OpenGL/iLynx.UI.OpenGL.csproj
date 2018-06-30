@@ -39,11 +39,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="shaders\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\iLynx.Common\iLynx.Common.csproj" />
+    <ProjectReference Include="..\iLynx.Graphics\iLynx.Graphics.csproj" />
   </ItemGroup>
 
 </Project>

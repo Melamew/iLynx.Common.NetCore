@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenTK;
 
-namespace iLynx.UI.OpenGL.Rendering
+namespace iLynx.Graphics
 {
     public struct Vertex : IEquatable<Vertex>
     {

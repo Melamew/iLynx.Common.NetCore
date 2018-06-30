@@ -1,6 +1,6 @@
 ﻿using OpenTK;
 
-namespace iLynx.UI.OpenGL.Rendering
+namespace iLynx.Graphics
 {
     public static class ExtensionMethods
     {

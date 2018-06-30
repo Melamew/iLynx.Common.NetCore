@@ -57,7 +57,11 @@ namespace iLynx.UI.TestBench
         private static void StartWindow()
         {
             var displayDevice = DisplayDevice.Default;
-            window = new Window(1280, 720, "Test") { Location = new Point(0, 0), Background = Color.Green };
+            window = new Window(1280, 720, "Test")
+            {
+                Location = new Point(0, 0),
+                Background = Color.Green
+            };
             window.Run();
         }
 
