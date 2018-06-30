@@ -54,11 +54,6 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected override void OnParentChanged()
-        {
-            base.OnParentChanged();
-        }
-
         protected Control(Alignment horizontalAlignment = Alignment.Start,
             Alignment verticalAlignment = Alignment.Start)
             : base(horizontalAlignment, verticalAlignment)
@@ -87,6 +82,12 @@ namespace iLynx.UI.OpenGL.Controls
 
         protected override void DrawLocked(IRenderTarget target)
         {
+            if (size == default(Vector2f)) return;
+            if (shapeDirty)
+            {
+                shapeDirty = false;
+                shape = backgroundShapeGenerator(size);
+            }
             shape.FillColor = background;
             target.Draw(shape);
         }

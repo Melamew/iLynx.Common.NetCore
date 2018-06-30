@@ -29,6 +29,8 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading;
 using iLynx.Common;
 using iLynx.UI.OpenGL.Animation;
 using iLynx.UI.OpenGL.Layout;
@@ -49,6 +51,7 @@ namespace iLynx.UI.OpenGL
         private readonly IBinding<TimeSpan> frameTimeBinding;
         private TimeSpan layoutTime;
         private readonly IBinding<TimeSpan> layoutTimeBinding;
+        private readonly Thread renderThread;
 
         //public Window(string title = "", Styles style = Styles.None)
         //    : this(VideoMode.DesktopMode, title, style) { }
@@ -65,6 +68,40 @@ namespace iLynx.UI.OpenGL
                 .Bind(stats, nameof(StatisticsElement.FrameTime));
             layoutTimeBinding = new MultiBinding<TimeSpan>().Bind(this, nameof(LayoutTime))
                 .Bind(stats, nameof(StatisticsElement.LayoutTime));
+            SetActive(false);
+            renderThread = new Thread(DoRender);
+        }
+
+        protected virtual void DoEvents()
+        {
+            while (IsOpen)
+            {
+                if (WaitEvent(out var e))
+                    EventDispatcher.Dispatch(this, e);
+            }
+        }
+
+        protected virtual void DoRender()
+        {
+            var sw = new Stopwatch();
+            while (IsOpen)
+            {
+                sw.Start();
+                Clear(background);
+                root.PrepareDraw();
+                Draw(root);
+                sw.Stop();
+                FrameTime = sw.Elapsed;
+                sw.Reset();
+                if (ShowStats)
+                    Draw(stats);
+                Display();
+            }
+        }
+
+        public sealed override bool SetActive(bool active)
+        {
+            return base.SetActive(active);
         }
 
         ~Window()
