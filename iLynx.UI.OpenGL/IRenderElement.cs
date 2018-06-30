@@ -77,11 +77,6 @@ namespace iLynx.UI.OpenGL
         void Update();
 
         /// <summary>
-        /// Called when a frame update is occuring.
-        /// </summary>
-        void PrepareDraw();
-
-        /// <summary>
         /// Raised when the bounding box of this element has changed
         /// </summary>
         event ValueChangedEventHandler<IRenderElement, RectangleF> BoundingBoxChanged;

@@ -60,6 +60,11 @@ namespace iLynx.UI.OpenGL.Controls
         {
         }
 
+        protected override void UpdateLocked()
+        {
+            shape.FillColor = background;
+        }
+
         public Color Background
         {
             get => background;
@@ -75,26 +80,16 @@ namespace iLynx.UI.OpenGL.Controls
         protected override RectangleF LayoutLocked(RectangleF finalRect)
         {
             if (finalRect.Size == size) return finalRect;
-            shape = backgroundShapeGenerator(size);
             size = finalRect.Size;
+            shape = backgroundShapeGenerator(size);
             return finalRect;
         }
 
         protected override void DrawLocked(IRenderTarget target)
         {
-            if (size == default(Vector2f)) return;
-            if (shapeDirty)
-            {
-                shapeDirty = false;
-                shape = backgroundShapeGenerator(size);
-            }
+            if (size == default(SizeF)) return;
             shape.FillColor = background;
             target.Draw(shape);
-        }
-
-        protected override void UpdateLocked()
-        {
-            
         }
 
         public override bool HitTest(PointF position, out IInputElement element)

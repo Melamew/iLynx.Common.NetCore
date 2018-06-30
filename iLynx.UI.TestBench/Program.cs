@@ -46,7 +46,7 @@ namespace iLynx.UI.TestBench
         private static void Main()
         {
             StartWindow();
-            
+
             //var endMargin = stretchedControl.RenderSize.Width / 2f - stretchedControl.Content.BoundingBox.Width / 2f;
             //Animator.AddAnimation(new CallbackAnimation(p =>
             //    {
@@ -57,7 +57,7 @@ namespace iLynx.UI.TestBench
         private static void StartWindow()
         {
             var displayDevice = DisplayDevice.Default;
-            window = new Window(1280, 720, "Test") {Location = new Point(0, 0)};
+            window = new Window(1280, 720, "Test") { Location = new Point(0, 0), Background = Color.Green };
             window.Run();
         }
 
