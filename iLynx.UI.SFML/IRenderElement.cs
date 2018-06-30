@@ -71,6 +71,11 @@ namespace iLynx.UI.Sfml
         Vector2f RenderSize { get; }
 
         /// <summary>
+        /// Called when a frame update is occuring.
+        /// </summary>
+        void PrepareDraw();
+
+        /// <summary>
         /// Raised when the bounding box of this element has changed
         /// </summary>
         event ValueChangedEventHandler<IRenderElement, FloatRect> BoundingBoxChanged;

@@ -146,6 +146,21 @@ namespace iLynx.UI.Sfml.Controls
             RenderSizeChanged?.Invoke(this, new ValueChangedEventArgs<Vector2f>(old, value));
         }
 
+        public void PrepareDraw()
+        {
+            LayoutLock.EnterReadLock();
+            try
+            {
+                PrepareDrawLocked();
+            }
+            finally
+            {
+                LayoutLock.ExitReadLock();
+            }
+        }
+
+        protected abstract void PrepareDrawLocked();
+
         public event ValueChangedEventHandler<IRenderElement, FloatRect> BoundingBoxChanged;
         public event ValueChangedEventHandler<IRenderElement, Vector2f> RenderSizeChanged;
         public event ValueChangedEventHandler<IRenderElement, Vector2f> RenderPositionChanged;
@@ -234,9 +249,9 @@ namespace iLynx.UI.Sfml.Controls
         public virtual FloatRect Layout(FloatRect target)
         {
             var sw = Stopwatch.StartNew();
+            LayoutLock.EnterWriteLock();
             try
             {
-                LayoutLock.EnterWriteLock();
                 var va = verticalAlignment;
                 var ha = horizontalAlignment;
                 var computedSize = Measure(target.Size()) + margin;
@@ -345,9 +360,15 @@ namespace iLynx.UI.Sfml.Controls
         public virtual void Draw(RenderTarget target, RenderStates states)
         {
             LayoutLock.EnterReadLock();
-            states.Transform.Translate(RenderPosition);
-            DrawLocked(target, states);
-            LayoutLock.ExitReadLock();
+            try
+            {
+                states.Transform.Translate(RenderPosition);
+                DrawLocked(target, states);
+            }
+            finally
+            {
+                LayoutLock.ExitReadLock();
+            }
         }
 
         /// <summary>

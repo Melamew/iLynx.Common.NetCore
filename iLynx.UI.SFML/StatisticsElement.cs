@@ -26,6 +26,8 @@
  */
 #endregion
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using iLynx.UI.Sfml.Controls;
@@ -40,6 +42,7 @@ namespace iLynx.UI.Sfml
         private TimeSpan layoutTime;
         private readonly StringBuilder builder = new StringBuilder();
         private readonly object syncObj = new object();
+        private readonly Queue<TimeSpan> frameTimes = new Queue<TimeSpan>();
 
         public StatisticsElement()
         {
@@ -52,9 +55,13 @@ namespace iLynx.UI.Sfml
             if (!Monitor.TryEnter(syncObj)) return;
             try
             {
+                while (frameTimes.Count > 100)
+                    frameTimes.Dequeue();
+                var avgTimes = frameTimes.Sum(x => x.TotalMilliseconds) / frameTimes.Count;
                 builder.Clear();
                 builder.Append($"FrameTime: {frameTime.TotalMilliseconds:f2} ms\n");
-                builder.Append($"Animation FrameTime: {animationFrameTime.TotalMilliseconds:f2} ms\n");
+                builder.Append($"Avg. FrameTime: {avgTimes:f2} ms\n");
+                //builder.Append($"Animation FrameTime: {animationFrameTime.TotalMilliseconds:f2} ms\n");
                 builder.Append($"Layout Time: {layoutTime.TotalMilliseconds:f2} ms");
                 ContentString = builder.ToString();
             }
@@ -73,6 +80,9 @@ namespace iLynx.UI.Sfml
                 var old = frameTime;
                 frameTime = value;
                 OnPropertyChanged(old, value);
+                Monitor.Enter(syncObj);
+                frameTimes.Enqueue(value);
+                Monitor.Exit(syncObj);
                 GenContent();
             }
         }

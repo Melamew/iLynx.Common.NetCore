@@ -39,6 +39,7 @@ namespace iLynx.UI.Sfml.Controls
         private Func<Vector2f, Shape> backgroundShapeGenerator = size => new RectangleShape(size);
         private Shape shape;
         private Vector2f size;
+        private volatile bool shapeDirty = true;
 
         public Func<Vector2f, Shape> BackgroundShapeGenerator
         {
@@ -52,11 +53,6 @@ namespace iLynx.UI.Sfml.Controls
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
-        }
-
-        protected override void OnParentChanged()
-        {
-            base.OnParentChanged();
         }
 
         protected Control(Alignment horizontalAlignment = Alignment.Start,
@@ -79,15 +75,27 @@ namespace iLynx.UI.Sfml.Controls
 
         protected override FloatRect LayoutLocked(FloatRect finalRect)
         {
-            if (finalRect.Size() == size) return finalRect;
-            shape = backgroundShapeGenerator(size);
+            if (finalRect.Size() == size)
+                return finalRect;
             size = finalRect.Size();
+            shapeDirty = true;
             return finalRect;
+        }
+
+        protected override void PrepareDrawLocked()
+        {
+            if (size == default(Vector2f)) return;
+            if (shapeDirty)
+            {
+                shapeDirty = false;
+                shape = backgroundShapeGenerator(size);
+            }
+            shape.FillColor = background;
         }
 
         protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
-            shape.FillColor = background;
+            if (null == shape) return;
             target.Draw(shape, states);
         }
 

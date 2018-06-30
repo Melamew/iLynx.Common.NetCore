@@ -30,11 +30,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using iLynx.UI.Sfml.Controls;
-using iLynx.UI.Sfml.Input;
 using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 
 namespace iLynx.UI.Sfml.Layout
 {
@@ -103,30 +102,27 @@ namespace iLynx.UI.Sfml.Layout
             OnLayoutPropertyChanged(nameof(Children));
         }
 
-        private (RenderTexture texture, Sprite sprite) GetRenderItems()
+        protected override void PrepareDrawLocked()
         {
-            if (!requireNewTexture || textureDimensions.X <= 0 || textureDimensions.Y <= 0) return (texture, sprite);
+            children.ForEach(x => x.PrepareDraw());
+            Parallel.ForEach(children, x => x.PrepareDraw());
+            if (!requireNewTexture || textureDimensions.X == 0 || textureDimensions.Y == 0) return;
             texture?.Dispose();
             texture = null;
             texture = new RenderTexture(textureDimensions.X, textureDimensions.Y);
             sprite = new Sprite(texture.Texture);
             requireNewTexture = false;
-            return (texture, sprite);
         }
 
         protected override void DrawLocked(RenderTarget target, RenderStates states)
         {
-            var renderItems = GetRenderItems();
-            var t = renderItems.texture;
-            if (null == t) return;
-            var s = renderItems.sprite;
-            var c = children.ToArray();
-            t.Clear(background);
+            if (null == sprite) return;
+            texture.Clear(background);
             var childStates = new RenderStates(states) { Transform = Transform.Identity };
-            foreach (var child in c)
-                child.Draw(t, childStates);
-            t.Display();
-            target.Draw(s, states);
+            foreach (var child in children)
+                child.Draw(texture, childStates);
+            texture.Display();
+            target.Draw(sprite, states);
         }
 
         protected override FloatRect LayoutLocked(FloatRect finalRect)

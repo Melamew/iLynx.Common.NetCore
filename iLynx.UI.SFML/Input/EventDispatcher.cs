@@ -33,7 +33,7 @@ using SFML.Window;
 
 namespace iLynx.UI.Sfml.Input
 {
-    public class EventDispatcher : BackgroundWorker
+    public class EventDispatcher// : BackgroundWorker
     {
         private readonly ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
         private readonly ConcurrentQueue<(Window Window, Event Event)> dispatchQueue = new ConcurrentQueue<(Window, Event)>();
@@ -45,33 +45,33 @@ namespace iLynx.UI.Sfml.Input
 
         private static EventDispatcher Instance => instance ?? (instance = new EventDispatcher());
 
-        public override void Start()
-        {
-            isRunning = true;
-            base.Start();
-        }
+        //public override void Start()
+        //{
+        //    isRunning = true;
+        //    base.Start();
+        //}
 
-        public override void Stop()
-        {
-            isRunning = false;
-            base.Stop();
-        }
+        //public override void Stop()
+        //{
+        //    isRunning = false;
+        //    base.Stop();
+        //}
 
         static EventDispatcher()
         {
             AddHandler(EventType.Closed, (w, e) => w.Close());
-            StartEventPump();
+            //StartEventPump();
         }
 
-        private static void StartEventPump()
-        {
-            Instance.Start();
-        }
+        //private static void StartEventPump()
+        //{
+        //    Instance.Start();
+        //}
 
-        public static void StopEventPump()
-        {
-            Instance.Stop();
-        }
+        //public static void StopEventPump()
+        //{
+        //    Instance.Stop();
+        //}
 
         public static void AddHandler(EventType type, SfmlEventHandler handler)
         {
@@ -115,21 +115,23 @@ namespace iLynx.UI.Sfml.Input
 
         public void DispatchEvent(Window source, Event e)
         {
-            dispatchQueue.Enqueue((source, e));
-            autoResetEvent.Set();
+            if (eventHandlers.TryGetValue(e.Type, out var handlers))
+                handlers.ForEach(x => x?.Invoke(source, e));
+            //dispatchQueue.Enqueue((source, e));
+            //autoResetEvent.Set();
         }
 
-        protected override void Run()
-        {
-            while (isRunning)
-            {
-                autoResetEvent.WaitOne();
-                while (!dispatchQueue.IsEmpty)
-                {
-                    if (dispatchQueue.TryDequeue(out var e) && eventHandlers.TryGetValue(e.Event.Type, out var handlers))
-                        handlers.ForEach(x => x?.Invoke(e.Window, e.Event));
-                }
-            }
-        }
+        //protected override void Run()
+        //{
+        //    while (isRunning)
+        //    {
+        //        autoResetEvent.WaitOne();
+        //        while (!dispatchQueue.IsEmpty)
+        //        {
+        //            if (dispatchQueue.TryDequeue(out var e) && eventHandlers.TryGetValue(e.Event.Type, out var handlers))
+        //                handlers.ForEach(x => x?.Invoke(e.Window, e.Event));
+        //        }
+        //    }
+        //}
     }
 }
