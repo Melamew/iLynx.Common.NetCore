@@ -26,9 +26,8 @@
  */
 #endregion
 using System;
-using System.Collections.Generic;
-using System.Text;
 using iLynx.Graphics.Rendering;
+using iLynx.Graphics.Rendering.Geometry;
 using OpenTK;
 using Xunit;
 

@@ -25,12 +25,13 @@
  *
  */
 #endregion
+
 using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Rendering
+namespace iLynx.Graphics.Rendering.Geometry
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct Vertex2 : IEquatable<Vertex2>, IVertex

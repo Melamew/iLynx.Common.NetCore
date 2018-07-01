@@ -25,10 +25,11 @@
  *
  */
 #endregion
+
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Rendering
+namespace iLynx.Graphics.Rendering.Geometry
 {
     public abstract class Geometry2D
     {

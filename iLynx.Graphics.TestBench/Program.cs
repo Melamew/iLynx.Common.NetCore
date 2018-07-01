@@ -29,7 +29,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using iLynx.Graphics.Geometry;
 using iLynx.Graphics.Rendering;
+using iLynx.Graphics.Rendering.Geometry;
 using OpenTK;
 
 namespace iLynx.Graphics.TestBench

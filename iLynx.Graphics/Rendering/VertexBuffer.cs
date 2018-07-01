@@ -29,6 +29,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using iLynx.Graphics.Geometry;
+using iLynx.Graphics.Rendering.Geometry;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering

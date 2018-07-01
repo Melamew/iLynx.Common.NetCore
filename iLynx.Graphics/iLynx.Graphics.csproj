@@ -12,4 +12,8 @@
     <ProjectReference Include="..\iLynx.Common\iLynx.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="shaders\" />
+  </ItemGroup>
+
 </Project>

@@ -27,11 +27,10 @@
 #endregion
 
 using System;
-using iLynx.Graphics.Rendering.Geometry;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Geometry
+namespace iLynx.Graphics.Rendering.Geometry
 {
     public class RectangleGeometry : Geometry2D
     {
