@@ -25,7 +25,6 @@
  *
  */
 #endregion
-
 using System.Linq;
 using iLynx.Graphics;
 using iLynx.Graphics.Rendering;
@@ -33,30 +32,6 @@ using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls
 {
-    public class Font
-    {
-        public Font(string filePath) { }
-    }
-
-    public class Text : IRenderable
-    {
-        public Vector2 FindCharacterPos(uint index)
-        {
-            return new Vector2();
-        }
-
-        public Color FillColor { get; set; }
-        public void Draw(IRenderContext context)
-        {
-            
-        }
-    }
-
-    public interface IRenderable
-    {
-        void Draw(IRenderContext context);
-    }
-
     public class TextElement : Control
     {
         private readonly Text renderable = new Text();

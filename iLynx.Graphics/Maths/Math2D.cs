@@ -25,7 +25,6 @@
  *
  */
 #endregion
-
 using System;
 
 namespace iLynx.Graphics.Maths

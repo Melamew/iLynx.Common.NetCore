@@ -48,7 +48,7 @@ namespace iLynx.Common
         {
             var sourceType = targetInstance?.GetType() ?? throw new ArgumentNullException(nameof(targetInstance));
             var sourceProperty = sourceType.GetProperty(propertyName) ??
-                                 throw new InvalidTypeException(sourceType, propertyName);
+                                 throw new InvalidBindingTypeException(sourceType, propertyName);
             return Create(targetInstance, sourceProperty);
         }
 
@@ -62,7 +62,7 @@ namespace iLynx.Common
 
         private void CreateDelegates(object targetInstance, PropertyInfo property)
         {
-            if (property.PropertyType != typeof(TValue)) throw new InvalidTypeException(typeof(TValue).DeclaringType, property.Name);
+            if (property.PropertyType != typeof(TValue)) throw new InvalidBindingTypeException(typeof(TValue).DeclaringType, property.Name);
             var getMethod = property.GetGetMethod();
             var setMethod = property.GetSetMethod();
             getter = (GetMethod)getMethod.CreateDelegate(typeof(GetMethod), targetInstance);

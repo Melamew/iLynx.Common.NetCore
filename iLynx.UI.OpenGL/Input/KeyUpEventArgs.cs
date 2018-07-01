@@ -25,7 +25,6 @@
  *
  */
 #endregion
-
 using OpenTK.Input;
 
 namespace iLynx.UI.OpenGL.Input

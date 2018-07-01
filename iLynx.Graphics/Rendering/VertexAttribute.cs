@@ -25,18 +25,33 @@
  *
  */
 #endregion
-using OpenTK;
-using OpenTK.Input;
+using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.UI.OpenGL.Input
+namespace iLynx.Graphics.Rendering
 {
-    public class MouseButtonInputEventArgs : MouseEventArgs
+    /// <summary>
+    /// Defines a vertex attribute for use in a vertex array object (<see cref="VertexArrayObject{TVertex}"/>)
+    /// </summary>
+    public struct VertexAttribute
     {
-        public MouseButton Button { get; }
+        /// <summary>
+        /// Gets the number of elements in this attribute (must be 1,2,3 or 4)
+        /// </summary>
+        public int Count;
 
-        public MouseButtonInputEventArgs(PointF position, MouseButton button) : base(position)
-        {
-            Button = button;
-        }
+        /// <summary>
+        /// Gets the <see cref="VertexAttribPointerType"/> of this attribute
+        /// </summary>
+        public VertexAttribPointerType GLType;
+
+        /// <summary>
+        /// Gets the offset of this attribute in the parent structure (in bytes)
+        /// </summary>
+        public int ByteOffset;
+
+        /// <summary>
+        /// Gets a value indicating whether or not the data in this attribute should be normalized by opengl before being passed on to the shader
+        /// </summary>
+        public bool Normalized;
     }
 }

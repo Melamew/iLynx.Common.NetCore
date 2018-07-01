@@ -25,18 +25,10 @@
  *
  */
 #endregion
-using OpenTK;
-using OpenTK.Input;
-
-namespace iLynx.UI.OpenGL.Input
+namespace iLynx.Graphics.Rendering
 {
-    public class MouseButtonInputEventArgs : MouseEventArgs
+    public interface IVertex
     {
-        public MouseButton Button { get; }
-
-        public MouseButtonInputEventArgs(PointF position, MouseButton button) : base(position)
-        {
-            Button = button;
-        }
+        VertexAttribute[] GetVertexAttributes();
     }
 }

@@ -25,18 +25,22 @@
  *
  */
 #endregion
-using OpenTK;
-using OpenTK.Input;
 
-namespace iLynx.UI.OpenGL.Input
-{
-    public class MouseButtonInputEventArgs : MouseEventArgs
-    {
-        public MouseButton Button { get; }
+//using System;
+//using System.Collections.Generic;
+//using System.Runtime.InteropServices;
+//using System.Text;
+//using OpenTK;
+//using OpenTK.Graphics.OpenGL4;
 
-        public MouseButtonInputEventArgs(PointF position, MouseButton button) : base(position)
-        {
-            Button = button;
-        }
-    }
-}
+//namespace iLynx.Graphics.Rendering
+//{
+//    // ReSharper disable once InconsistentNaming
+//    public class Geometry2DVAO : VertexArrayObject<Vertex2>
+//    {
+//        protected override void SetupAttributes()
+//        {
+
+//        }
+//    }
+//}

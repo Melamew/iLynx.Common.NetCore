@@ -25,18 +25,12 @@
  *
  */
 #endregion
-using OpenTK;
-using OpenTK.Input;
+using iLynx.Graphics.Rendering;
 
-namespace iLynx.UI.OpenGL.Input
+namespace iLynx.UI.OpenGL.Controls
 {
-    public class MouseButtonInputEventArgs : MouseEventArgs
+    public interface IRenderable
     {
-        public MouseButton Button { get; }
-
-        public MouseButtonInputEventArgs(PointF position, MouseButton button) : base(position)
-        {
-            Button = button;
-        }
+        void Draw(IRenderContext context);
     }
 }

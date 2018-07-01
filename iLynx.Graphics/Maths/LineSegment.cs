@@ -25,7 +25,6 @@
  *
  */
 #endregion
-
 using System.Runtime.InteropServices;
 using OpenTK;
 

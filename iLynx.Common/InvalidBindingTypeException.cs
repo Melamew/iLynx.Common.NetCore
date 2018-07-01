@@ -25,18 +25,21 @@
  *
  */
 #endregion
-using OpenTK;
-using OpenTK.Input;
+using System;
+using System.Reflection;
 
-namespace iLynx.UI.OpenGL.Input
+namespace iLynx.Common
 {
-    public class MouseButtonInputEventArgs : MouseEventArgs
+    public class InvalidBindingTypeException : Exception
     {
-        public MouseButton Button { get; }
-
-        public MouseButtonInputEventArgs(PointF position, MouseButton button) : base(position)
+        public InvalidBindingTypeException(Type sourceType, string memberName)
+            : base($"The type {sourceType} does not contain a valid binding member with the propertyName {memberName}")
         {
-            Button = button;
+
         }
+
+        public InvalidBindingTypeException(Type expectedType, PropertyInfo property) :
+            base($"The property {property.Name} is not of the expected type {expectedType}")
+        { }
     }
 }

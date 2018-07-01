@@ -25,7 +25,6 @@
  *
  */
 #endregion
-
 using System.ComponentModel;
 using iLynx.Graphics;
 using iLynx.Graphics.Rendering;

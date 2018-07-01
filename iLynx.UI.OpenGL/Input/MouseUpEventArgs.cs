@@ -25,7 +25,6 @@
  *
  */
 #endregion
-
 using OpenTK;
 using OpenTK.Input;
 
