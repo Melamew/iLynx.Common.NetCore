@@ -38,18 +38,12 @@ namespace iLynx.Graphics.Rendering.Geometry
         private Buffer<uint> indexBuffer;
         //private readonly Buffer<Vertex2> outlineBuffer = new Buffer<Vertex2>(4) { PrimitiveType = PrimitiveType.LineLoop };
 
-        protected Geometry2D()
+        protected Geometry2D(bool isFixedSize = false, int length = 0)
         {
-            Initialize();
-        }
-
-        private void Initialize()
-        {
-            // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-            if (!IsFixedSize)
+            if (!isFixedSize)
                 fillBuffer = new Buffer<Vertex2>(0);
             else // TODO: Make this use a single VBO to store all the "static / fixed size" geometries
-                fillBuffer = new Buffer<Vertex2>(GetSize());
+                fillBuffer = new Buffer<Vertex2>(length);
             vao.BindVertexBuffer(fillBuffer);
         }
 
@@ -58,10 +52,6 @@ namespace iLynx.Graphics.Rendering.Geometry
             get;
             set;
         }
-
-        protected abstract bool IsFixedSize { get; }
-
-        protected abstract int GetSize();
 
         public Color BorderColor { get; set; }
         public float BorderThickness { get; set; }
@@ -88,9 +78,9 @@ namespace iLynx.Graphics.Rendering.Geometry
 
         public void Draw(IRenderContext context)
         {
-            var transformLocation = Shader.GetUniformLocation("transform");
-            var transform = Transform;
-            GL.UniformMatrix4(transformLocation, false, ref transform);
+            //var transformLocation = Shader.GetUniformLocation("transform");
+            //var transform = Transform;
+            //GL.UniformMatrix4(transformLocation, false, ref transform);
 
             //context.Draw(vao);
         }

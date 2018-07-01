@@ -26,17 +26,36 @@
  */
 #endregion
 
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering
 {
     public class ShaderProgram
     {
+        public const string TransformUniformName = "transform";
         private readonly int handle;
+
+        public ShaderProgram(Shader[] shaders)
+        {
+            handle = GL.CreateProgram();
+            foreach (var shader in shaders)
+                GL.AttachShader(handle, shader.Handle);
+            GL.LinkProgram(handle);
+        }
 
         public int GetUniformLocation(string uniformName)
         {
+            if (0 == handle) throw new NotInitializedException();
             return GL.GetUniformLocation(handle, uniformName);
+        }
+
+        public void SetTransform(Matrix4 transform)
+        {
+            int location;
+            if (0 == handle) throw new NotInitializedException();
+            if ((location = GL.GetUniformLocation(handle, TransformUniformName)) == -1) return;
+            GL.UniformMatrix4(location, false, ref transform);
         }
     }
 }

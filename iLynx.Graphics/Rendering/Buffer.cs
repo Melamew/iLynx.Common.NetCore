@@ -38,10 +38,6 @@ namespace iLynx.Graphics.Rendering
         private TElement[] vertices = new TElement[0];
         protected static readonly int ElementSize = Marshal.SizeOf<TElement>();
 
-        private Buffer()
-        {
-        }
-
         public void Initialize()
         {
             if (0 != handle) return;
@@ -50,13 +46,11 @@ namespace iLynx.Graphics.Rendering
         }
 
         public Buffer(int capacity)
-            : this()
         {
             Array.Resize(ref vertices, capacity);
         }
 
         public Buffer(params TElement[] vertices)
-            : this()
         {
             this.vertices = vertices;
         }

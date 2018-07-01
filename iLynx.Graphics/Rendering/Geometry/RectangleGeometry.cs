@@ -27,13 +27,16 @@
 #endregion
 
 using System;
+using iLynx.Graphics.Rendering.Geometry;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Rendering.Geometry
+namespace iLynx.Graphics.Geometry
 {
     public class RectangleGeometry : Geometry2D
     {
+        private readonly Vertex2[] vertices = new Vertex2[4];
+
         private float width, height;
 
         public float Width
@@ -43,7 +46,6 @@ namespace iLynx.Graphics.Rendering.Geometry
             {
                 if (MathF.Abs(value - width) <= float.Epsilon) return;
                 width = value;
-                GenerateVertices();
             }
         }
 
@@ -54,41 +56,22 @@ namespace iLynx.Graphics.Rendering.Geometry
             {
                 if (MathF.Abs(value - height) <= float.Epsilon) return;
                 height = value;
-                GenerateVertices();
             }
         }
 
-        private void GenerateVertices()
-        {
-            Update();
-        }
-
-        protected override bool IsFixedSize { get; }
-        protected override int GetSize()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override PrimitiveType PrimitiveType { get; }
+        protected override PrimitiveType PrimitiveType => PrimitiveType.TriangleFan;
 
         protected override Vertex2[] GetVertices()
         {
-            return new[]
-            {
-                new Vertex2(),
-                new Vertex2(),
-                new Vertex2(),
-                new Vertex2()
-            };
+            return vertices;
         }
 
         public RectangleGeometry(float width, float height, Color fillColor)
+            : base(true, 4)
         {
             this.width = width;
             this.height = height;
             FillColor = fillColor;
-            PrimitiveType = PrimitiveType.TriangleFan;
-            GenerateVertices();
         }
 
         public RectangleGeometry(SizeF dimensions, Color color)

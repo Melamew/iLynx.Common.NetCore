@@ -25,10 +25,18 @@
  *
  */
 #endregion
+
+using OpenTK.Graphics.OpenGL;
+
 namespace iLynx.Graphics.Rendering
 {
-    public class Shader
+    public abstract class Shader
     {
+        protected Shader(ShaderType type)
+        {
+            Handle = GL.CreateShader(type);
+        }
 
+        public int Handle { get; }
     }
 }
