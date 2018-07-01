@@ -27,29 +27,21 @@
 #endregion
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering
 {
-    public abstract class VertexArrayObject<TVertex> : IDisposable where TVertex : struct, IEquatable<TVertex>, IVertex
+    public class VertexArrayObject<TVertex> : IDisposable where TVertex : struct, IEquatable<TVertex>, IVAOElement
     {
         private int handle;
-        private readonly List<VertexBuffer<TVertex>> buffers = new List<VertexBuffer<TVertex>>();
+        private Buffer<TVertex> vertexBuffer;
+        private Buffer<uint> indexBuffer;
 
-        protected VertexArrayObject()
-        {
-        }
-
-        public void Initialize()
+        private void Initialize()
         {
             if (0 != handle) return;
             handle = GL.GenVertexArray();
-            GL.BindVertexArray(handle);
-            SetupAttributes();
         }
 
         ~VertexArrayObject()
@@ -57,12 +49,39 @@ namespace iLynx.Graphics.Rendering
             Dispose(false);
         }
 
+        public void Bind()
+        {
+            if (0 == handle) throw new NotInitializedException();
+            GL.BindVertexArray(handle);
+        }
+
+        public void BindVertexBuffer(Buffer<TVertex> buffer, Buffer<uint> indices = null)
+        {
+            vertexBuffer?.Dispose();
+            vertexBuffer = buffer;
+            indexBuffer?.Dispose();
+            indexBuffer = indices;
+            if (0 == handle) Initialize();
+            Bind();
+            vertexBuffer.Bind();
+            SetupAttributes();
+            indices?.Bind();
+            Unbind();
+            vertexBuffer.Unbind();
+            indices?.Unbind();
+        }
+
+        public void Unbind()
+        {
+            GL.BindVertexArray(0);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposing) return;
             if (handle == 0) return;
+            vertexBuffer?.Dispose();
             GL.DeleteVertexArray(handle);
-            buffers.ForEach(x => x.Dispose());
         }
 
         public void Dispose()
@@ -76,18 +95,9 @@ namespace iLynx.Graphics.Rendering
             var attributes = default(TVertex).GetVertexAttributes();
             for (var i = 0; i < attributes.Length; ++i)
             {
-                GL.EnableVertexAttribArray(i);
                 GL.VertexAttribPointer(i, attributes[i].Count, attributes[i].GLType, attributes[i].Normalized, stride, attributes[i].ByteOffset);
+                GL.EnableVertexAttribArray(i);
             }
-            //GL.EnableVertexAttribArray(0);
-            //GL.EnableVertexAttribArray(1);
-            //GL.EnableVertexAttribArray(2);
-            //GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, Marshal.SizeOf<Vertex2>(), 0);
-            //GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Byte, false, Marshal.SizeOf<Vertex2>(),
-            //    Marshal.SizeOf<Vector2>());
-            //GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, Marshal.SizeOf<Vertex2>(),
-            //    Marshal.SizeOf<Vector2>() + Marshal.SizeOf<Color>());
-
         }
     }
 }

@@ -35,6 +35,8 @@ namespace iLynx.Graphics.Geometry
 {
     public class RectangleGeometry : Geometry2D
     {
+        private readonly Vertex2[] vertices = new Vertex2[4];
+
         private float width, height;
 
         public float Width
@@ -44,7 +46,6 @@ namespace iLynx.Graphics.Geometry
             {
                 if (MathF.Abs(value - width) <= float.Epsilon) return;
                 width = value;
-                GenerateVertices();
             }
         }
 
@@ -55,23 +56,21 @@ namespace iLynx.Graphics.Geometry
             {
                 if (MathF.Abs(value - height) <= float.Epsilon) return;
                 height = value;
-                GenerateVertices();
             }
         }
 
-        private void GenerateVertices()
+        protected override bool IsFixedSize => true;
+
+        protected override int GetSize()
         {
-            Update();
-            //ClearVertices();
-            //AddVertex(new Vector2(0f, 0f), FillColor);
-            //AddVertex(new Vector2(0f, h), FillColor);
-            //AddVertex(new Vector2(w, h), FillColor);
-            //AddVertex(new Vector2(w, 0f), FillColor);
+            return 4;
         }
+
+        protected override PrimitiveType PrimitiveType => PrimitiveType.TriangleFan;
 
         protected override Vertex2[] GetVertices()
         {
-            throw new NotImplementedException();
+            return vertices;
         }
 
         public RectangleGeometry(float width, float height, Color fillColor)
@@ -79,8 +78,6 @@ namespace iLynx.Graphics.Geometry
             this.width = width;
             this.height = height;
             FillColor = fillColor;
-            PrimitiveType = PrimitiveType.TriangleFan;
-            GenerateVertices();
         }
 
         public RectangleGeometry(SizeF dimensions, Color color)

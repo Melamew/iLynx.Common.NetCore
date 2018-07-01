@@ -33,10 +33,20 @@ namespace iLynx.Graphics.Scene
 {
     public interface IScene : IDisposable
     {
+        /// <summary>
+        /// Renders the scene
+        /// </summary>
+        /// <param name="context"></param>
         void Display(IRenderContext context);
 
+        /// <summary>
+        /// Updates the scene
+        /// </summary>
         void Update();
 
+        /// <summary>
+        /// Gets or Sets the root object of this scene
+        /// </summary>
         ISceneObject Root { get; set; }
     }
 }

@@ -27,7 +27,8 @@
 #endregion
 namespace iLynx.Graphics.Rendering
 {
-    public interface IVertex
+    // ReSharper disable once InconsistentNaming
+    public interface IVAOElement
     {
         VertexAttribute[] GetVertexAttributes();
     }

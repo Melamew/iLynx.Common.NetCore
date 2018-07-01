@@ -61,16 +61,25 @@ namespace iLynx.Graphics.Rendering.Geometry
         private void GenerateVertices()
         {
             Update();
-            //ClearVertices();
-            //AddVertex(new Vector2(0f, 0f), FillColor);
-            //AddVertex(new Vector2(0f, h), FillColor);
-            //AddVertex(new Vector2(w, h), FillColor);
-            //AddVertex(new Vector2(w, 0f), FillColor);
         }
+
+        protected override bool IsFixedSize { get; }
+        protected override int GetSize()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override PrimitiveType PrimitiveType { get; }
 
         protected override Vertex2[] GetVertices()
         {
-            throw new NotImplementedException();
+            return new[]
+            {
+                new Vertex2(),
+                new Vertex2(),
+                new Vertex2(),
+                new Vertex2()
+            };
         }
 
         public RectangleGeometry(float width, float height, Color fillColor)

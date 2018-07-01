@@ -26,39 +26,43 @@
  */
 #endregion
 using System;
-using System.Collections.Generic;
-using System.Text;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering
 {
     public class OpenGlRenderContext : IRenderContext
     {
-        public void Bind<TVertex>(VertexBuffer<TVertex> buffer) where TVertex : struct, IEquatable<TVertex>
+        public void DrawArrays<TVertex>(Buffer<TVertex> buffer) where TVertex : struct, IEquatable<TVertex>
         {
-            throw new NotImplementedException();
+            //buffer.Bind();
+            //GL.DrawArrays(buffer.PrimitiveType, 0, buffer.Length);
+            //buffer.Unbind();
         }
 
-        public void UseShader(ShaderProgram program)
+        public void DrawArrays<TVertex>(VertexArrayObject<TVertex> vao, PrimitiveType primitiveType, int offset,
+            int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement
         {
-            throw new NotImplementedException();
+            vao.Bind();
+            GL.DrawArrays(primitiveType, offset, count);
+            vao.Unbind();
         }
 
-        public void BindTexture(Texture texture)
+        public void DrawElements<TVertex>(VertexArrayObject<TVertex> vao, PrimitiveType primitiveType, int offset,
+            int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement
         {
-            throw new NotImplementedException();
+            //GL.GenBuffer();
+            //GL.BindVertexBuffer(Target.ElementArrayBuffer, )
+            //GL.DrawElements()
         }
 
-        public void Draw()
+        public void DrawArrays<TVertex>(VertexArrayObject<TVertex> vao, int offset, int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement
         {
-            throw new NotImplementedException();
+
         }
 
-        public void Draw<TVertex>(VertexBuffer<TVertex> vertexBuffer) where TVertex : struct, IEquatable<TVertex>
+        public void Draw(IDrawable drawable)
         {
-            VertexBuffer<TVertex>.BindBuffer(vertexBuffer);
-            GL.DrawArrays(vertexBuffer.PrimitiveType, 0, vertexBuffer.Length);
-            VertexBuffer<TVertex>.BindBuffer(null);
+            drawable.Draw(this);
         }
     }
 }

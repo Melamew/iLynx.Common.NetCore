@@ -36,7 +36,7 @@ namespace iLynx.Graphics.TestBench
 {
     public class MainWindow : GameWindow
     {
-        private readonly IScene scene = new Scene.Scene();
+        private readonly IScene scene = new GraphicsScene();
         private readonly IRenderContext context = new OpenGlRenderContext();
 
         public MainWindow(int width, int height, string title)

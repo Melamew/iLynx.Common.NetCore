@@ -38,7 +38,7 @@ namespace iLynx.Graphics.Tests
         [Fact]
         public void WhenSetVerticesCalledWithNullExceptionIsThrown()
         {
-            var buffer = new VertexBuffer<float>();
+            var buffer = new Buffer<float>();
             Assert.Throws<ArgumentNullException>(() => buffer.SetVertices(null));
         }
 
@@ -49,23 +49,23 @@ namespace iLynx.Graphics.Tests
             const int insertAmount = 10;
             const int offset = 10;
             const int expectedNewLength = offset + insertAmount;
-            var buffer = new VertexBuffer<float>(initialCapacity);
-            buffer.ReplaceVertices(10, new float[insertAmount]);
+            var buffer = new Buffer<float>(initialCapacity);
+            buffer.SetVertices(10, new float[insertAmount]);
             Assert.Equal(expectedNewLength, buffer.Length);
         }
 
         [Fact]
         public void WhenSettingIndexThenGettingValueIsEqual()
         {
-            var expected = new Vertex2(new Vector2(1f, 2f), Color.Green, new Vector2(3f, 4f));
-            var buffer = new VertexBuffer<Vertex2>(10) {[4] = expected};
+            var expected = new Vertex2(new Vector2(1f, 2f), new Vector4(0.0f, 1.0f, 0.0f, 0.0f), new Vector2(3f, 4f));
+            var buffer = new Buffer<Vertex2>(10) {[4] = expected};
             Assert.Equal(expected, buffer[4]);
         }
 
         [Fact]
         public void WhenSettingIndexGreaterThanLengthExceptionIsThrown()
         {
-            var buffer = new VertexBuffer<float>();
+            var buffer = new Buffer<float>();
             Assert.Throws<IndexOutOfRangeException>(() => buffer[10] = 20f);
         }
     }

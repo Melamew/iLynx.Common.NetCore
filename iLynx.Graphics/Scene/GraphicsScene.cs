@@ -29,7 +29,7 @@ using iLynx.Graphics.Rendering;
 
 namespace iLynx.Graphics.Scene
 {
-    public class Scene : IScene
+    public class GraphicsScene : IScene
     {
         public void Dispose()
         {

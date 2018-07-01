@@ -26,6 +26,7 @@
  */
 #endregion
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -44,10 +45,48 @@ namespace iLynx.Graphics.TestBench
             Console.WriteLine($"SizeOf<Color>(): {Marshal.SizeOf<Color>()}");
             Console.WriteLine($"SizeOf<Vector2>(): {Marshal.SizeOf<Vector2>()}");
             Console.WriteLine($"SizeOf<Color>() + SizeOf<Vector2>() * 2: {Marshal.SizeOf<Color>() + Marshal.SizeOf<Vector2>() * 2}");
-            //Console.WriteLine($@"{typeof(Vertex2)
-            //    .GetFields(BindingFlags.Instance | BindingFlags.Public)
-            //    .Aggregate("", (s, f) => s += $" {f.Name}")}");
+            var arr = new Vertex2[1024];
+            RuinEverything(arr);
             Console.ReadKey();
+        }
+
+        private static void RuinEverything(Vertex2[] arr)
+        {
+            var rnd = new Random();
+            var cumulativeSkipTake = new TimeSpan();
+            var cumulativeArraySegment = new TimeSpan();
+            var cumulativeArrayCopy = new TimeSpan();
+            const int loopCount = 5000;
+            for (var i = 0; i < loopCount; ++i)
+            {
+                var r1 = rnd.Next(0, arr.Length - 1);
+                var r2 = rnd.Next(0, arr.Length - 1);
+                var start = Math.Min(r1, r2);
+                var length = Math.Max(r1, r2) + 1 - start;
+                var sw = Stopwatch.StartNew();
+                var result = arr.Skip(start).Take(length).ToArray();
+                sw.Stop();
+                cumulativeSkipTake += sw.Elapsed;
+                var segment = new ArraySegment<Vertex2>(arr, start, length);
+                sw.Reset();
+                sw.Start();
+                result = segment.ToArray();
+                sw.Stop();
+                cumulativeArraySegment += sw.Elapsed;
+                sw.Reset();
+                sw.Start();
+                result = new Vertex2[length];
+                Array.Copy(arr, start, result, 0, length);
+                sw.Stop();
+                cumulativeArrayCopy += sw.Elapsed;
+                Console.CursorLeft = 0;
+                Console.Write($"Loop: {i + 1} / {loopCount}");
+            }
+
+            Console.Write(Environment.NewLine);
+            Console.WriteLine($"SkipTake:     {cumulativeSkipTake.TotalMilliseconds / loopCount} ms");
+            Console.WriteLine($"ArraySegment: {cumulativeArraySegment.TotalMilliseconds / loopCount} ms");
+            Console.WriteLine($"Array.Copy:   {cumulativeArrayCopy.TotalMilliseconds / loopCount} ms");
         }
     }
 }

@@ -31,10 +31,27 @@ using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering.Geometry
 {
-    public abstract class Geometry2D
+    public abstract class Geometry2D : IDrawable
     {
-        private readonly VertexBuffer<Vertex2> fillBuffer = new VertexBuffer<Vertex2>(0) { PrimitiveType = PrimitiveType.TriangleFan };
-        //private readonly VertexBuffer<Vertex2> outlineBuffer = new VertexBuffer<Vertex2>(4) { PrimitiveType = PrimitiveType.LineLoop };
+        private readonly VertexArrayObject<Vertex2> vao = new VertexArrayObject<Vertex2>();
+        private Buffer<Vertex2> fillBuffer;
+        private Buffer<uint> indexBuffer;
+        //private readonly Buffer<Vertex2> outlineBuffer = new Buffer<Vertex2>(4) { PrimitiveType = PrimitiveType.LineLoop };
+
+        protected Geometry2D()
+        {
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+            if (!IsFixedSize)
+                fillBuffer = new Buffer<Vertex2>(0);
+            else // TODO: Make this use a single VBO to store all the "static / fixed size" geometries
+                fillBuffer = new Buffer<Vertex2>(GetSize());
+            vao.BindVertexBuffer(fillBuffer);
+        }
 
         public Color FillColor
         {
@@ -42,11 +59,16 @@ namespace iLynx.Graphics.Rendering.Geometry
             set;
         }
 
+        protected abstract bool IsFixedSize { get; }
+
+        protected abstract int GetSize();
+
         public Color BorderColor { get; set; }
         public float BorderThickness { get; set; }
         public Texture Texture { get; set; }
         public ShaderProgram Shader { get; set; }
-        public PrimitiveType PrimitiveType { get; protected set; }
+        public Matrix4 Transform { get; set; }
+        protected abstract PrimitiveType PrimitiveType { get; }
 
         protected virtual void Update()
         {
@@ -62,6 +84,15 @@ namespace iLynx.Graphics.Rendering.Geometry
         public void Dispose()
         {
             fillBuffer?.Dispose();
+        }
+
+        public void Draw(IRenderContext context)
+        {
+            var transformLocation = Shader.GetUniformLocation("transform");
+            var transform = Transform;
+            GL.UniformMatrix4(transformLocation, false, ref transform);
+
+            //context.Draw(vao);
         }
     }
 }

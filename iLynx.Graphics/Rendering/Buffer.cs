@@ -26,62 +26,76 @@
  */
 #endregion
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using iLynx.Graphics.Geometry;
-using iLynx.Graphics.Rendering.Geometry;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering
 {
-    public class VertexBuffer<TVertex> : IDisposable where TVertex : struct, IEquatable<TVertex>
+    public class Buffer<TElement> : IDisposable where TElement : struct, IEquatable<TElement>
     {
         private int handle;
-        private TVertex[] vertices = new TVertex[0];
-        private bool dirty = true;
+        private TElement[] vertices = new TElement[0];
+        protected static readonly int ElementSize = Marshal.SizeOf<TElement>();
 
-        private VertexBuffer()
+        private Buffer()
         {
         }
 
         public void Initialize()
         {
+            if (0 != handle) return;
             handle = GL.GenBuffer();
-            Update(this);
+            Update();
         }
 
-        public VertexBuffer(int capacity)
+        public Buffer(int capacity)
             : this()
         {
             Array.Resize(ref vertices, capacity);
         }
 
-        public VertexBuffer(params TVertex[] vertices)
+        public Buffer(params TElement[] vertices)
             : this()
         {
-            SetVertices(vertices);
+            this.vertices = vertices;
         }
 
         public bool IsInitialized => handle != 0;
 
-        public PrimitiveType PrimitiveType { get; set; } = PrimitiveType.TriangleFan;
-        public BufferUsageHint BufferUsage { get; set; } = BufferUsageHint.StreamDraw;
+        public BufferUsageHint BufferUsage { get; set; } = BufferUsageHint.StaticDraw;
 
-        public static void BindBuffer(VertexBuffer<TVertex> buffer)
+        public BufferTarget Target { get; set; } = BufferTarget.ArrayBuffer;
+
+        public void Bind()
         {
-            GL.BindBuffer(BufferTarget.ArrayBuffer, buffer?.handle ?? 0);
+            if (0 == handle) throw new NotInitializedException();
+            GL.BindBuffer(Target, handle);
         }
 
-        private static void Update(VertexBuffer<TVertex> buffer)
+        private void Update()
         {
-            if (0 == buffer.handle) return; // Buffer has not been initialized
-            if (!buffer.dirty) return;
-            BindBuffer(buffer);
-            var verts = buffer.vertices;
-            GL.BufferData(BufferTarget.ArrayBuffer, Marshal.SizeOf<Vertex2>() * verts.Length, verts,
-                buffer.BufferUsage);
-            BindBuffer(null);
+            if (0 == handle) return;
+            Bind();
+            var verts = vertices;
+            GL.BufferData(Target, ElementSize * verts.Length, verts,
+                BufferUsage);
+            Unbind();
+        }
+
+        private void UpdateSubData(int offset, int length)
+        {
+            if (0 == handle) return;
+            Bind();
+            var verts = new TElement[length];
+            Array.Copy(vertices, offset, verts, 0, length);
+            GL.BufferSubData(Target, (IntPtr)(offset * ElementSize), length * ElementSize, verts);
+            Unbind();
+        }
+
+        public void Unbind()
+        {
+            GL.BindBuffer(Target, 0);
         }
 
         public void Dispose()
@@ -90,39 +104,49 @@ namespace iLynx.Graphics.Rendering
             GL.DeleteBuffer(handle);
         }
 
-        public void SetVertices(params TVertex[] verts)
+        public void SetVertices(params TElement[] verts)
         {
             if (null == verts) throw new ArgumentNullException(nameof(verts));
             Array.Resize(ref vertices, verts.Length);
             Array.Copy(verts, vertices, vertices.Length);
-            dirty = true;
+            Update();
         }
 
-        public void ReplaceVertices(int startIndex, params TVertex[] verts)
+        public void SetVertices(int startIndex, params TElement[] verts)
         {
             var end = startIndex + verts.Length;
             if (end >= Length)
                 Array.Resize(ref vertices, end);
             Array.Copy(verts, 0, vertices, startIndex, verts.Length);
-            dirty = true;
+            UpdateSubData(startIndex, verts.Length);
         }
 
-        public void AddVertices(params TVertex[] verts)
+        public void AddVertices(params TElement[] verts)
         {
-            ReplaceVertices(Length - 1, verts);
+            SetVertices(Length - 1, verts);
         }
 
-        public TVertex this[int index]
+        public TElement this[int index]
         {
             get => vertices[index];
             set
             {
                 if (vertices[index].Equals(value)) return;
                 vertices[index] = value;
-                Update(this);
+                Update();
             }
         }
 
+        public TElement[] this[int index, int count]
+        {
+            get => vertices.Skip(index).Take(count).ToArray();
+            set => SetVertices(index, value.Take(count).ToArray());
+        }
+
         public int Length => vertices.Length;
+    }
+
+    public class NotInitializedException : Exception
+    {
     }
 }

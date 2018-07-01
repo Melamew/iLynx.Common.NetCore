@@ -25,10 +25,18 @@
  *
  */
 #endregion
+
+using OpenTK.Graphics.OpenGL;
+
 namespace iLynx.Graphics.Rendering
 {
     public class ShaderProgram
     {
+        private readonly int handle;
 
+        public int GetUniformLocation(string uniformName)
+        {
+            return GL.GetUniformLocation(handle, uniformName);
+        }
     }
 }
