@@ -25,7 +25,6 @@
  *
  */
 #endregion
-
 using System.IO;
 using OpenTK.Graphics.OpenGL;
 

@@ -25,7 +25,6 @@
  *
  */
 #endregion
-
 using iLynx.Common;
 using iLynx.Graphics.Rendering.Shaders;
 using OpenTK;
