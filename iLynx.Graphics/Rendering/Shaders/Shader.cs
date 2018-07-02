@@ -26,26 +26,51 @@
  */
 #endregion
 
+using System.IO;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering.Shaders
 {
     public class Shader
     {
-        private Shader(ShaderType type){}
-        //protected Shader(ShaderType type, string shaderFile)
-        //{
-        //    Handle = GL.CreateShader(type);
-        //    LoadShader();
-        //}
+        private static Shader defaultFragmentShader;
+        private static Shader default2DVertexShader;
+        public const string DefaultFragmentShaderRelPath = "/shaders/default.frag";
+        public const string Default2DVertexShaderRelPath = "/shaders/default2d.vert";
 
-        //private void LoadShader()
-        //{
-        //    //GL.ShaderSource(Handle, shaderFile);
+        public static Shader DefaultFragmentShader
+        {
+            get => defaultFragmentShader ?? (defaultFragmentShader = FromFile(ShaderType.FragmentShader, DefaultFragmentShaderRelPath));
+        }
 
-        //    if (!File.Exists())
-        //}
+        public static Shader Default2DVertexShader
+        {
+            get => default2DVertexShader ?? (default2DVertexShader = FromFile(ShaderType.VertexShader, Default2DVertexShaderRelPath));
+        }
+        
+        protected Shader(ShaderType type, string shaderSource)
+        {
+            Handle = GL.CreateShader(type);
+            GL.ShaderSource(Handle, shaderSource);
+            GL.CompileShader(Handle);
+        }
 
         public int Handle { get; }
+
+        public static Shader FromFile(ShaderType type, string fileName)
+        {
+            if (!File.Exists(fileName)) throw new FileNotFoundException();
+            string source;
+            using (var reader = new StreamReader(File.OpenRead(fileName)))
+            {
+                source = reader.ReadToEnd();
+            }
+            return new Shader(type, source);
+        }
+
+        public static Shader FromSource(ShaderType type, string source)
+        {
+            return new Shader(type, source);
+        }
     }
 }

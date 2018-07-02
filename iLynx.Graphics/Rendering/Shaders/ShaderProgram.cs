@@ -34,6 +34,13 @@ namespace iLynx.Graphics.Rendering.Shaders
     public class ShaderProgram
     {
         public const string TransformUniformName = "transform";
+        private static ShaderProgram default2DShader;
+
+        public static ShaderProgram Default2DShader
+        {
+            get => default2DShader ?? (default2DShader =
+                       new ShaderProgram(Shader.DefaultFragmentShader, Shader.Default2DVertexShader));
+        }
         private readonly int handle;
 
         public ShaderProgram(params Shader[] shaders)
@@ -44,7 +51,7 @@ namespace iLynx.Graphics.Rendering.Shaders
             GL.LinkProgram(handle);
         }
 
-        public int GetUniformLocation(string uniformName)
+        private int GetUniformLocation(string uniformName)
         {
             if (0 == handle) throw new NotInitializedException();
             return GL.GetUniformLocation(handle, uniformName);
