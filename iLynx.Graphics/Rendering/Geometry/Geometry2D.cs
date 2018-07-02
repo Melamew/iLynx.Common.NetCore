@@ -95,9 +95,10 @@ namespace iLynx.Graphics.Rendering.Geometry
             indexBuffer?.Dispose();
         }
 
-        public void Draw(IRenderTarget target)
+        public void Draw(IRenderTarget target) 
         {
-            Shader.SetTransform(Transform);
+            //Shader?.SetTransform(Transform);
+            //target.BindShader(Shader);
             //var transformLocation = Shader.GetUniformLocation("transform");
             //var transform = Transform;
             //GL.UniformMatrix4(transformLocation, false, ref transform);
