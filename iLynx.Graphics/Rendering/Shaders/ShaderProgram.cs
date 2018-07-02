@@ -29,14 +29,14 @@
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Rendering
+namespace iLynx.Graphics.Rendering.Shaders
 {
     public class ShaderProgram
     {
         public const string TransformUniformName = "transform";
         private readonly int handle;
 
-        public ShaderProgram(Shader[] shaders)
+        public ShaderProgram(params Shader[] shaders)
         {
             handle = GL.CreateProgram();
             foreach (var shader in shaders)

@@ -27,6 +27,7 @@
 #endregion
 
 using iLynx.Common;
+using iLynx.Graphics.Rendering.Shaders;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -69,7 +70,7 @@ namespace iLynx.Graphics.Rendering.Geometry
         public Color BorderColor { get; set; }
         public float BorderThickness { get; set; }
         public Texture Texture { get; set; }
-        public ShaderProgram Shader { get; set; }
+        public ShaderProgram Shader { get; set; }// = new ShaderProgram(new DefaultFragmentShader());
         public Matrix4 Transform { get; set; }
         protected abstract PrimitiveType PrimitiveType { get; }
 
@@ -77,14 +78,15 @@ namespace iLynx.Graphics.Rendering.Geometry
         {
             var verts = GetVertices();
             if (verts.Length < 3) return;
-            fillBuffer.SetVertices(verts);
+            fillBuffer.SetData(verts);
+            indexBuffer.SetData(GetIndices());
         }
 
         protected abstract Vertex2[] GetVertices();
 
         protected virtual uint[] GetIndices()
         {
-            return 
+            return 0u.To((uint)fillBuffer.Length - 1);
         }
 
         public void Dispose()
@@ -94,6 +96,7 @@ namespace iLynx.Graphics.Rendering.Geometry
 
         public void Draw(IRenderTarget target)
         {
+            Shader.SetTransform(Transform);
             //var transformLocation = Shader.GetUniformLocation("transform");
             //var transform = Transform;
             //GL.UniformMatrix4(transformLocation, false, ref transform);

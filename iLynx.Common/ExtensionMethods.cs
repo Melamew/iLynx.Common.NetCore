@@ -375,9 +375,17 @@ namespace iLynx.Common
             return res.Remove(res.Length - separator.Length);
         }
 
-        public static int[] To(this int @from, int to)
+        public static int[] To(this int from, int to)
         {
-            var result = new int[to - @from + 1];
+            var result = new int[to - from + 1];
+            for (var i = from; i <= to; ++i)
+                result[i - from] = i;
+            return result;
+        }
+
+        public static uint[] To(this uint from, uint to)
+        {
+            var result = new uint[to - from + 1];
             for (var i = from; i <= to; ++i)
                 result[i - from] = i;
             return result;

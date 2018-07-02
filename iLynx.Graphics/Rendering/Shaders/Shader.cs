@@ -28,14 +28,23 @@
 
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Rendering
+namespace iLynx.Graphics.Rendering.Shaders
 {
-    public abstract class Shader
+    public class Shader
     {
-        protected Shader(ShaderType type)
-        {
-            Handle = GL.CreateShader(type);
-        }
+        private Shader(ShaderType type){}
+        //protected Shader(ShaderType type, string shaderFile)
+        //{
+        //    Handle = GL.CreateShader(type);
+        //    LoadShader();
+        //}
+
+        //private void LoadShader()
+        //{
+        //    //GL.ShaderSource(Handle, shaderFile);
+
+        //    if (!File.Exists())
+        //}
 
         public int Handle { get; }
     }

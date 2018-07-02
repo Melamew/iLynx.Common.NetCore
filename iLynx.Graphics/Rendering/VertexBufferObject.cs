@@ -33,7 +33,7 @@ namespace iLynx.Graphics.Rendering
 {
     public class VertexBufferObject<TElement> : IDisposable where TElement : struct, IEquatable<TElement>
     {
-        private readonly int handle;
+        private int handle;
         private TElement[] vertices = new TElement[0];
         private readonly BufferTarget target;
         private readonly BufferUsageHint usage;
@@ -96,9 +96,10 @@ namespace iLynx.Graphics.Rendering
         {
             if (0 == handle) return;
             GL.DeleteBuffer(handle);
+            handle = 0;
         }
 
-        public void SetVertices(params TElement[] verts)
+        public void SetData(params TElement[] verts)
         {
             if (null == verts) throw new ArgumentNullException(nameof(verts));
             Array.Resize(ref vertices, verts.Length);
@@ -106,7 +107,7 @@ namespace iLynx.Graphics.Rendering
             UpdateGpuData();
         }
 
-        public void SetVertices(int startIndex, params TElement[] verts)
+        public void SetData(int startIndex, params TElement[] verts)
         {
             var end = startIndex + verts.Length;
             if (end >= Length)
@@ -115,9 +116,9 @@ namespace iLynx.Graphics.Rendering
             UpdateGpuSubData(startIndex, verts.Length);
         }
 
-        public void AddVertices(params TElement[] verts)
+        public void AddData(params TElement[] verts)
         {
-            SetVertices(Length - 1, verts);
+            SetData(Length - 1, verts);
         }
 
         public TElement this[int index]
