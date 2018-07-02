@@ -26,6 +26,7 @@
  */
 #endregion
 using System;
+using iLynx.Graphics.Rendering.Shaders;
 
 namespace iLynx.Graphics.Rendering
 {
@@ -46,6 +47,28 @@ namespace iLynx.Graphics.Rendering
         ///// <param name="offset"></param>
         ///// <param name="count"></param>
         //void DrawArrays<TVertex>(VertexArrayObject<TVertex> vao, int offset, int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement;
+
+        /// <summary>
+        /// Gets the currently active shader
+        /// </summary>
+        ShaderProgram ActiveShader { get; }
+
+        /// <summary>
+        /// Gets the currently active texture
+        /// </summary>
+        Texture ActiveTexture { get; }
+
+        /// <summary>
+        /// Binds the specified shader to this target.
+        /// </summary>
+        /// <param name="shader">The shader to bind</param>
+        void BindShader(ShaderProgram shader);
+
+        /// <summary>
+        /// Binds the specified texture to this target.
+        /// </summary>
+        /// <param name="texture"></param>
+        void BindTexture(Texture texture);
 
         /// <summary>
         /// Draws the specified <see cref="IDrawable"/> in this context.

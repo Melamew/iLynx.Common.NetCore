@@ -26,38 +26,23 @@
  */
 #endregion
 using System;
+using iLynx.Graphics.Rendering.Shaders;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering
 {
     public class OpenGlRenderTarget : IRenderTarget
     {
-        public void DrawArrays<TVertex>(VertexBufferObject<TVertex> buffer) where TVertex : struct, IEquatable<TVertex>
+        public ShaderProgram ActiveShader { get; }
+        public Texture ActiveTexture { get; }
+        public void BindShader(ShaderProgram shader)
         {
-            //buffer.Bind();
-            //GL.DrawArrays(buffer.PrimitiveType, 0, buffer.Length);
-            //buffer.Unbind();
+            throw new NotImplementedException();
         }
 
-        public void DrawArrays<TVertex>(VertexArrayObject<TVertex> vao, PrimitiveType primitiveType, int offset,
-            int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement
+        public void BindTexture(Texture texture)
         {
-            vao.Bind();
-            GL.DrawArrays(primitiveType, offset, count);
-            vao.Unbind();
-        }
-
-        public void DrawElements<TVertex>(VertexArrayObject<TVertex> vao, PrimitiveType primitiveType, int offset,
-            int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement
-        {
-            //GL.GenBuffer();
-            //GL.AttachVertexBuffer(Target.ElementArrayBuffer, )
-            //GL.DrawElements()
-        }
-
-        public void DrawArrays<TVertex>(VertexArrayObject<TVertex> vao, int offset, int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement
-        {
-
+            throw new NotImplementedException();
         }
 
         public void Draw(IDrawable drawable)
