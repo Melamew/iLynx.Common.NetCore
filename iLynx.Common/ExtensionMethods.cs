@@ -377,17 +377,21 @@ namespace iLynx.Common
 
         public static int[] To(this int from, int to)
         {
-            var result = new int[to - from + 1];
-            for (var i = from; i <= to; ++i)
-                result[i - from] = i;
+            var range = to - from;
+            var result = new int[Math.Abs(range) + 1];
+            var sign = Math.Sign(range);
+            for (var i = 0; i < result.Length; ++i)
+                result[i] = sign * i + from;
             return result;
         }
 
         public static uint[] To(this uint from, uint to)
         {
-            var result = new uint[to - from + 1];
-            for (var i = from; i <= to; ++i)
-                result[i - from] = i;
+            var range = to - (int)from;
+            var result = new uint[Math.Abs(range) + 1];
+            var sign = Math.Sign(range);
+            for (var i = 0u; i < result.Length; ++i)
+                result[i] = (uint) (sign * i + from);
             return result;
         }
 
