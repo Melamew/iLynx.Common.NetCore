@@ -92,6 +92,7 @@ namespace iLynx.Graphics.Rendering.Geometry
         public void Dispose()
         {
             fillBuffer?.Dispose();
+            indexBuffer?.Dispose();
         }
 
         public void Draw(IRenderTarget target)
