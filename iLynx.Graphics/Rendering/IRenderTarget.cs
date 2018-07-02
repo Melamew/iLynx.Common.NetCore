@@ -32,11 +32,11 @@ namespace iLynx.Graphics.Rendering
     public interface IRenderTarget
     {
         ///// <summary>
-        ///// Binds the specified <see cref="Buffer{TVertex}"/> and draws it with the currently set texture and shader
+        ///// Binds the specified <see cref="VertexBufferObject{TVertex}"/> and draws it with the currently set texture and shader
         ///// </summary>
         ///// <typeparam name="TVertex"></typeparam>
         ///// <param name="vertexBuffer"></param>
-        //void DrawArrays<TVertex>(Buffer<TVertex> vertexBuffer, int offset, int count) where TVertex : struct, IEquatable<TVertex>;
+        //void DrawArrays<TVertex>(VertexBufferObject<TVertex> vertexBuffer, int offset, int count) where TVertex : struct, IEquatable<TVertex>;
 
         ///// <summary>
         ///// Draws the specified <see cref="VertexArrayObject{TVertex}"/> to this context

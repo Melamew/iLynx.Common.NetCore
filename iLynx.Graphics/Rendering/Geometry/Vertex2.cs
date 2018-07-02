@@ -36,9 +36,9 @@ namespace iLynx.Graphics.Rendering.Geometry
     [StructLayout(LayoutKind.Sequential)]
     public struct Vertex2 : IEquatable<Vertex2>, IVAOElement
     {
-        public readonly Vector2 Position;
-        public readonly Vector2 TexCoord;
-        public readonly Color VertexColor;
+        public Vector2 Position;
+        public Vector2 TexCoord;
+        public Color VertexColor;
         
         public Vertex2(Vector2 position, Color vertexColor, Vector2 texCoord)
         {
@@ -50,15 +50,22 @@ namespace iLynx.Graphics.Rendering.Geometry
         public Vertex2(Vector2 position, Color vertexColor)
         {
             Position = position;
-            VertexColor = vertexColor;
             TexCoord = new Vector2();
+            VertexColor = vertexColor;
         }
 
         public Vertex2(Vector2 position)
         {
             Position = position;
-            VertexColor = Color.Transparent;
             TexCoord = new Vector2();
+            VertexColor = Color.Transparent;
+        }
+
+        public Vertex2(Color color)
+        {
+            Position = new Vector2();
+            TexCoord = new Vector2();
+            VertexColor = color;
         }
 
         public static bool operator ==(Vertex2 left, Vertex2 right)

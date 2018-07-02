@@ -11,9 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iLynx.Common", "iLynx.Commo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iLynx.Graphics", "iLynx.Graphics\iLynx.Graphics.csproj", "{16857F96-4800-41F7-A4BF-7DBCEA072CA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iLynx.Graphics.TestBench", "iLynx.Graphics.TestBench\iLynx.Graphics.TestBench.csproj", "{AE3279F9-360A-4B0A-9DB7-35FF140E6CA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iLynx.Graphics.TestBench", "iLynx.Graphics.TestBench\iLynx.Graphics.TestBench.csproj", "{AE3279F9-360A-4B0A-9DB7-35FF140E6CA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iLynx.Graphics.Tests", "iLynx.Graphics.Tests\iLynx.Graphics.Tests.csproj", "{273E6980-8790-4903-849D-BEBC7D8FB348}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iLynx.Graphics.Tests", "iLynx.Graphics.Tests\iLynx.Graphics.Tests.csproj", "{273E6980-8790-4903-849D-BEBC7D8FB348}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iLynx.Common.Tests", "iLynx.Common.Tests\iLynx.Common.Tests.csproj", "{D54F8B74-9B03-4FB3-B429-429A5B57DC73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{273E6980-8790-4903-849D-BEBC7D8FB348}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{273E6980-8790-4903-849D-BEBC7D8FB348}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{273E6980-8790-4903-849D-BEBC7D8FB348}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D54F8B74-9B03-4FB3-B429-429A5B57DC73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D54F8B74-9B03-4FB3-B429-429A5B57DC73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D54F8B74-9B03-4FB3-B429-429A5B57DC73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D54F8B74-9B03-4FB3-B429-429A5B57DC73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

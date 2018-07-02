@@ -26,70 +26,70 @@
  */
 #endregion
 using System;
-using System.Linq;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering
 {
-    public class Buffer<TElement> : IDisposable where TElement : struct, IEquatable<TElement>
+    public class VertexBufferObject<TElement> : IDisposable where TElement : struct, IEquatable<TElement>
     {
-        private int handle;
+        private readonly int handle;
         private TElement[] vertices = new TElement[0];
-        protected static readonly int ElementSize = Marshal.SizeOf<TElement>();
+        private readonly BufferTarget target;
+        private readonly BufferUsageHint usage;
+        private static readonly int ElementSize = Marshal.SizeOf<TElement>();
 
-        public void Initialize()
+        private VertexBufferObject(BufferTarget target,
+            BufferUsageHint usage)
         {
-            if (0 != handle) return;
+            this.target = target;
+            this.usage = usage;
             handle = GL.GenBuffer();
-            Update();
         }
 
-        public Buffer(int capacity)
+        public VertexBufferObject(int capacity, BufferTarget target,
+            BufferUsageHint usage)
+            : this(target, usage)
         {
             Array.Resize(ref vertices, capacity);
         }
 
-        public Buffer(params TElement[] vertices)
+        public VertexBufferObject(TElement[] vertices, BufferTarget target,
+            BufferUsageHint usage)
+            : this(target, usage)
         {
             this.vertices = vertices;
         }
 
-        public bool IsInitialized => handle != 0;
-
-        public BufferUsageHint BufferUsage { get; set; } = BufferUsageHint.StaticDraw;
-
-        public BufferTarget Target { get; set; } = BufferTarget.ArrayBuffer;
-
         public void Bind()
         {
             if (0 == handle) throw new NotInitializedException();
-            GL.BindBuffer(Target, handle);
+            GL.BindBuffer(target, handle);
         }
 
-        private void Update()
+        public void UpdateGpuData()
         {
             if (0 == handle) return;
             Bind();
             var verts = vertices;
-            GL.BufferData(Target, ElementSize * verts.Length, verts,
-                BufferUsage);
+            GL.BufferData(target, ElementSize * verts.Length, verts,
+                usage);
             Unbind();
         }
 
-        private void UpdateSubData(int offset, int length)
+        public void UpdateGpuSubData(int offset, int length)
         {
             if (0 == handle) return;
             Bind();
             var verts = new TElement[length];
             Array.Copy(vertices, offset, verts, 0, length);
-            GL.BufferSubData(Target, (IntPtr)(offset * ElementSize), length * ElementSize, verts);
+            GL.BufferSubData(target, (IntPtr)(offset * ElementSize), length * ElementSize, verts);
             Unbind();
         }
 
         public void Unbind()
         {
-            GL.BindBuffer(Target, 0);
+            GL.BindBuffer(target, 0);
         }
 
         public void Dispose()
@@ -103,7 +103,7 @@ namespace iLynx.Graphics.Rendering
             if (null == verts) throw new ArgumentNullException(nameof(verts));
             Array.Resize(ref vertices, verts.Length);
             Array.Copy(verts, vertices, vertices.Length);
-            Update();
+            UpdateGpuData();
         }
 
         public void SetVertices(int startIndex, params TElement[] verts)
@@ -112,7 +112,7 @@ namespace iLynx.Graphics.Rendering
             if (end >= Length)
                 Array.Resize(ref vertices, end);
             Array.Copy(verts, 0, vertices, startIndex, verts.Length);
-            UpdateSubData(startIndex, verts.Length);
+            UpdateGpuSubData(startIndex, verts.Length);
         }
 
         public void AddVertices(params TElement[] verts)
@@ -127,14 +127,18 @@ namespace iLynx.Graphics.Rendering
             {
                 if (vertices[index].Equals(value)) return;
                 vertices[index] = value;
-                Update();
+                UpdateGpuData();
             }
         }
 
-        public TElement[] this[int index, int count]
+        public TElement[] BackingArray
         {
-            get => vertices.Skip(index).Take(count).ToArray();
-            set => SetVertices(index, value.Take(count).ToArray());
+            get => vertices;
+            set
+            {
+                vertices = value;
+                UpdateGpuData();
+            }
         }
 
         public int Length => vertices.Length;

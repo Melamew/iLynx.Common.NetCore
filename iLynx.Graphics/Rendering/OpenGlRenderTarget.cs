@@ -32,7 +32,7 @@ namespace iLynx.Graphics.Rendering
 {
     public class OpenGlRenderTarget : IRenderTarget
     {
-        public void DrawArrays<TVertex>(Buffer<TVertex> buffer) where TVertex : struct, IEquatable<TVertex>
+        public void DrawArrays<TVertex>(VertexBufferObject<TVertex> buffer) where TVertex : struct, IEquatable<TVertex>
         {
             //buffer.Bind();
             //GL.DrawArrays(buffer.PrimitiveType, 0, buffer.Length);

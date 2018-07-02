@@ -36,7 +36,6 @@ namespace iLynx.Graphics.Geometry
     public class RectangleGeometry : Geometry2D
     {
         private readonly Vertex2[] vertices = new Vertex2[4];
-
         private float width, height;
 
         public float Width
@@ -46,7 +45,6 @@ namespace iLynx.Graphics.Geometry
             {
                 if (MathF.Abs(value - width) <= float.Epsilon) return;
                 width = value;
-
             }
         }
 
@@ -73,7 +71,10 @@ namespace iLynx.Graphics.Geometry
             this.width = width;
             this.height = height;
             FillColor = fillColor;
-            vertices[0] = new Vertex2();
+            vertices[0] = new Vertex2(fillColor);
+            vertices[1] = new Vertex2(new Vector2(0f, height), fillColor);
+            vertices[2] = new Vertex2(new Vector2(width, height), fillColor);
+            vertices[3] = new Vertex2(new Vector2(width, 0f), fillColor);
         }
 
         public RectangleGeometry(SizeF dimensions, Color color)

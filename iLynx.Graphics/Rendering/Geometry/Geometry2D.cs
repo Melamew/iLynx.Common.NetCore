@@ -26,6 +26,7 @@
  */
 #endregion
 
+using iLynx.Common;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -34,23 +35,35 @@ namespace iLynx.Graphics.Rendering.Geometry
     public abstract class Geometry2D : IDrawable
     {
         private readonly VertexArrayObject<Vertex2> vao = new VertexArrayObject<Vertex2>();
-        private Buffer<Vertex2> fillBuffer;
-        private Buffer<uint> indexBuffer;
-        //private readonly Buffer<Vertex2> outlineBuffer = new Buffer<Vertex2>(4) { PrimitiveType = PrimitiveType.LineLoop };
+        private readonly VertexBufferObject<Vertex2> fillBuffer;
+        private readonly VertexBufferObject<uint> indexBuffer;
+
+        private Color fillColor;
+        //private readonly VertexBufferObject<Vertex2> outlineBuffer = new VertexBufferObject<Vertex2>(4) { PrimitiveType = PrimitiveType.LineLoop };
 
         protected Geometry2D(bool isFixedSize = false, int length = 0)
         {
-            if (!isFixedSize)
-                fillBuffer = new Buffer<Vertex2>(0);
-            else // TODO: Make this use a single VBO to store all the "static / fixed size" geometries
-                fillBuffer = new Buffer<Vertex2>(length);
-            vao.AttachVertexBuffer(fillBuffer);
+            fillBuffer = isFixedSize
+                ? new VertexBufferObject<Vertex2>(length, BufferTarget.ArrayBuffer, BufferUsageHint.StaticDraw)
+                : new VertexBufferObject<Vertex2>(0, BufferTarget.ArrayBuffer, BufferUsageHint.StreamDraw);
+            indexBuffer = new VertexBufferObject<uint>(0, BufferTarget.ElementArrayBuffer, BufferUsageHint.StaticDraw);
+            vao.AttachVertexBuffer(fillBuffer, indexBuffer);
         }
 
         public Color FillColor
         {
-            get;
-            set;
+            get => fillColor;
+            set
+            {
+                if (value == fillColor) return;
+                fillColor = value;
+                fillBuffer.BackingArray.Transform(x =>
+                {
+                    x.VertexColor = value;
+                    return x;
+                });
+                fillBuffer.UpdateGpuData();
+            }
         }
 
         public Color BorderColor { get; set; }
@@ -64,12 +77,15 @@ namespace iLynx.Graphics.Rendering.Geometry
         {
             var verts = GetVertices();
             if (verts.Length < 3) return;
-            if (!fillBuffer.IsInitialized)
-                fillBuffer.Initialize();
             fillBuffer.SetVertices(verts);
         }
 
         protected abstract Vertex2[] GetVertices();
+
+        protected virtual uint[] GetIndices()
+        {
+            return 
+        }
 
         public void Dispose()
         {

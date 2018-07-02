@@ -36,8 +36,8 @@ namespace iLynx.Graphics.Rendering
     {
         private int handle;
         protected static readonly int ElementSize = Marshal.SizeOf<TVertex>();
-        private Buffer<TVertex> vertexBuffer;
-        private Buffer<uint> indexBuffer;
+        private VertexBufferObject<TVertex> vertexBuffer;
+        private VertexBufferObject<uint> indexBuffer;
 
         public VertexArrayObject()
         {
@@ -55,7 +55,7 @@ namespace iLynx.Graphics.Rendering
             GL.BindVertexArray(handle);
         }
 
-        public void AttachVertexBuffer(Buffer<TVertex> buffer, Buffer<uint> indices = null)
+        public void AttachVertexBuffer(VertexBufferObject<TVertex> buffer, VertexBufferObject<uint> indices = null)
         {
             if (0 == handle) throw new NotInitializedException();
             vertexBuffer?.Dispose();
