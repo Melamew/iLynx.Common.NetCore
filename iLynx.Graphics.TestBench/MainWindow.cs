@@ -27,7 +27,6 @@
 #endregion
 using System;
 using iLynx.Graphics.Rendering;
-using iLynx.Graphics.Scene;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -36,7 +35,6 @@ namespace iLynx.Graphics.TestBench
 {
     public class MainWindow : GameWindow
     {
-        private readonly IScene scene = new GraphicsScene();
         private readonly IRenderContext context = new OpenGlRenderContext();
 
         public MainWindow(int width, int height, string title)
@@ -47,12 +45,10 @@ namespace iLynx.Graphics.TestBench
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            scene.Update();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            scene.Display(context);
         }
     }
 }
