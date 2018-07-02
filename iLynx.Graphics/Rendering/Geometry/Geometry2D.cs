@@ -44,7 +44,7 @@ namespace iLynx.Graphics.Rendering.Geometry
                 fillBuffer = new Buffer<Vertex2>(0);
             else // TODO: Make this use a single VBO to store all the "static / fixed size" geometries
                 fillBuffer = new Buffer<Vertex2>(length);
-            vao.BindVertexBuffer(fillBuffer);
+            vao.AttachVertexBuffer(fillBuffer);
         }
 
         public Color FillColor
@@ -76,7 +76,7 @@ namespace iLynx.Graphics.Rendering.Geometry
             fillBuffer?.Dispose();
         }
 
-        public void Draw(IRenderContext context)
+        public void Draw(IRenderTarget target)
         {
             //var transformLocation = Shader.GetUniformLocation("transform");
             //var transform = Transform;

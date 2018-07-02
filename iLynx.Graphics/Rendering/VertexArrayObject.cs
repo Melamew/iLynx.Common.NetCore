@@ -35,12 +35,12 @@ namespace iLynx.Graphics.Rendering
     public class VertexArrayObject<TVertex> : IDisposable where TVertex : struct, IEquatable<TVertex>, IVAOElement
     {
         private int handle;
+        protected static readonly int ElementSize = Marshal.SizeOf<TVertex>();
         private Buffer<TVertex> vertexBuffer;
         private Buffer<uint> indexBuffer;
 
-        private void Initialize()
+        public VertexArrayObject()
         {
-            if (0 != handle) return;
             handle = GL.GenVertexArray();
         }
 
@@ -55,20 +55,20 @@ namespace iLynx.Graphics.Rendering
             GL.BindVertexArray(handle);
         }
 
-        public void BindVertexBuffer(Buffer<TVertex> buffer, Buffer<uint> indices = null)
+        public void AttachVertexBuffer(Buffer<TVertex> buffer, Buffer<uint> indices = null)
         {
+            if (0 == handle) throw new NotInitializedException();
             vertexBuffer?.Dispose();
             vertexBuffer = buffer;
             indexBuffer?.Dispose();
             indexBuffer = indices;
-            if (0 == handle) Initialize();
             Bind();
             vertexBuffer.Bind();
+            indexBuffer?.Bind();
             SetupAttributes();
-            indices?.Bind();
             Unbind();
             vertexBuffer.Unbind();
-            indices?.Unbind();
+            indexBuffer?.Unbind();
         }
 
         public void Unbind()
@@ -81,7 +81,9 @@ namespace iLynx.Graphics.Rendering
             if (!disposing) return;
             if (handle == 0) return;
             vertexBuffer?.Dispose();
+            indexBuffer?.Dispose();
             GL.DeleteVertexArray(handle);
+            handle = 0;
         }
 
         public void Dispose()
@@ -91,13 +93,7 @@ namespace iLynx.Graphics.Rendering
 
         protected virtual void SetupAttributes()
         {
-            var stride = Marshal.SizeOf<TVertex>();
-            var attributes = default(TVertex).GetVertexAttributes();
-            for (var i = 0; i < attributes.Length; ++i)
-            {
-                GL.VertexAttribPointer(i, attributes[i].Count, attributes[i].GLType, attributes[i].Normalized, stride, attributes[i].ByteOffset);
-                GL.EnableVertexAttribArray(i);
-            }
+            default(TVertex).SetupVertexAttributePointers();
         }
     }
 }

@@ -38,7 +38,7 @@ namespace iLynx.UI.OpenGL.Controls
         }
 
         public Color FillColor { get; set; }
-        public void Draw(IRenderContext context)
+        public void Draw(IRenderTarget target)
         {
             
         }

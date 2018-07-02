@@ -25,33 +25,44 @@
  *
  */
 #endregion
+using System;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering
 {
-    /// <summary>
-    /// Defines a vertex attribute for use in a vertex array object (<see cref="VertexArrayObject{TVertex}"/>)
-    /// </summary>
-    public struct VertexAttribute
+    public class OpenGlRenderTarget : IRenderTarget
     {
-        /// <summary>
-        /// Gets the number of elements in this attribute (must be 1,2,3 or 4)
-        /// </summary>
-        public int Count;
+        public void DrawArrays<TVertex>(Buffer<TVertex> buffer) where TVertex : struct, IEquatable<TVertex>
+        {
+            //buffer.Bind();
+            //GL.DrawArrays(buffer.PrimitiveType, 0, buffer.Length);
+            //buffer.Unbind();
+        }
 
-        /// <summary>
-        /// Gets the <see cref="VertexAttribPointerType"/> of this attribute
-        /// </summary>
-        public VertexAttribPointerType GLType;
+        public void DrawArrays<TVertex>(VertexArrayObject<TVertex> vao, PrimitiveType primitiveType, int offset,
+            int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement
+        {
+            vao.Bind();
+            GL.DrawArrays(primitiveType, offset, count);
+            vao.Unbind();
+        }
 
-        /// <summary>
-        /// Gets the offset of this attribute in the parent structure (in bytes)
-        /// </summary>
-        public int ByteOffset;
+        public void DrawElements<TVertex>(VertexArrayObject<TVertex> vao, PrimitiveType primitiveType, int offset,
+            int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement
+        {
+            //GL.GenBuffer();
+            //GL.AttachVertexBuffer(Target.ElementArrayBuffer, )
+            //GL.DrawElements()
+        }
 
-        /// <summary>
-        /// Gets a value indicating whether or not the data in this attribute should be normalized by opengl before being passed on to the shader
-        /// </summary>
-        public bool Normalized;
+        public void DrawArrays<TVertex>(VertexArrayObject<TVertex> vao, int offset, int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement
+        {
+
+        }
+
+        public void Draw(IDrawable drawable)
+        {
+            drawable.Draw(this);
+        }
     }
 }

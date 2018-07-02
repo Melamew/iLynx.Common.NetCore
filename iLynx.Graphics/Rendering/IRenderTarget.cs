@@ -26,47 +26,32 @@
  */
 #endregion
 using System;
-using iLynx.Graphics.Rendering;
-using iLynx.Graphics.Rendering.Geometry;
-using OpenTK;
-using Xunit;
 
-namespace iLynx.Graphics.Tests
+namespace iLynx.Graphics.Rendering
 {
-    public class VertexBufferTests
+    public interface IRenderTarget
     {
-        [Fact]
-        public void WhenSetVerticesCalledWithNullExceptionIsThrown()
-        {
-            var buffer = new Buffer<float>();
-            Assert.Throws<ArgumentNullException>(() => buffer.SetVertices(null));
-        }
+        ///// <summary>
+        ///// Binds the specified <see cref="Buffer{TVertex}"/> and draws it with the currently set texture and shader
+        ///// </summary>
+        ///// <typeparam name="TVertex"></typeparam>
+        ///// <param name="vertexBuffer"></param>
+        //void DrawArrays<TVertex>(Buffer<TVertex> vertexBuffer, int offset, int count) where TVertex : struct, IEquatable<TVertex>;
 
-        [Fact]
-        public void WhenReplaceVerticesCalledAndTotalLengthGreaterThanSizeThenBufferIsResized()
-        {
-            const int initialCapacity = 10;
-            const int insertAmount = 10;
-            const int offset = 10;
-            const int expectedNewLength = offset + insertAmount;
-            var buffer = new Buffer<float>(initialCapacity);
-            buffer.SetVertices(10, new float[insertAmount]);
-            Assert.Equal(expectedNewLength, buffer.Length);
-        }
+        ///// <summary>
+        ///// Draws the specified <see cref="VertexArrayObject{TVertex}"/> to this context
+        ///// </summary>
+        ///// <typeparam name="TVertex"></typeparam>
+        ///// <param name="vao"></param>
+        ///// <param name="offset"></param>
+        ///// <param name="count"></param>
+        //void DrawArrays<TVertex>(VertexArrayObject<TVertex> vao, int offset, int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement;
 
-        [Fact]
-        public void WhenSettingIndexThenGettingValueIsEqual()
-        {
-            var expected = new Vertex2(new Vector2(1f, 2f), new Vector4(0.0f, 1.0f, 0.0f, 0.0f), new Vector2(3f, 4f));
-            var buffer = new Buffer<Vertex2>(10) {[4] = expected};
-            Assert.Equal(expected, buffer[4]);
-        }
-
-        [Fact]
-        public void WhenSettingIndexGreaterThanLengthExceptionIsThrown()
-        {
-            var buffer = new Buffer<float>();
-            Assert.Throws<IndexOutOfRangeException>(() => buffer[10] = 20f);
-        }
+        /// <summary>
+        /// Draws the specified <see cref="IDrawable"/> in this context.
+        /// NOTE: This method will essentially call <see cref="IDrawable.Draw(IRenderTarget)"/> with this <see cref="IRenderTarget"/> as its argument
+        /// </summary>
+        /// <param name="drawable"></param>
+        void Draw(IDrawable drawable);
     }
 }

@@ -37,17 +37,17 @@ namespace iLynx.Graphics.Rendering.Geometry
     public struct Vertex2 : IEquatable<Vertex2>, IVAOElement
     {
         public readonly Vector2 Position;
-        public readonly Vector4 VertexColor;
         public readonly Vector2 TexCoord;
+        public readonly Color VertexColor;
         
-        public Vertex2(Vector2 position, Vector4 vertexColor, Vector2 texCoord)
+        public Vertex2(Vector2 position, Color vertexColor, Vector2 texCoord)
         {
             Position = position;
             VertexColor = vertexColor;
             TexCoord = texCoord;
         }
 
-        public Vertex2(Vector2 position, Vector4 vertexColor)
+        public Vertex2(Vector2 position, Color vertexColor)
         {
             Position = position;
             VertexColor = vertexColor;
@@ -57,7 +57,7 @@ namespace iLynx.Graphics.Rendering.Geometry
         public Vertex2(Vector2 position)
         {
             Position = position;
-            VertexColor = Vector4.Zero;
+            VertexColor = Color.Transparent;
             TexCoord = new Vector2();
         }
 
@@ -93,17 +93,24 @@ namespace iLynx.Graphics.Rendering.Geometry
             }
         }
 
-        public VertexAttribute[] GetVertexAttributes()
+        public void SetupVertexAttributePointers()
         {
-            return new[]
-            {
-                // The first attribute is a Vector2, so 2 glFloats, offset is 0 as this is the first attribute, and we don't want our data to be normalized
-                new VertexAttribute { Count = 2, GLType = VertexAttribPointerType.Float, ByteOffset = 0, Normalized = false },
-                // The second attribute is the color of the vertex, 4 , offset is simply the size of the first attribute in bytes (sizeOf(Vector2)), and again, we don't want our data normalized
-                new VertexAttribute { Count = 4, GLType = VertexAttribPointerType.Float, ByteOffset = Marshal.SizeOf<Vector2>(), Normalized = false },
-                // Our third attribute are the texture coordinates of the vertex, same as the first attribute, but offset is sizeOf(vector2) + sizeOf(vector4).
-                new VertexAttribute { Count = 2, GLType = VertexAttribPointerType.Float, ByteOffset = Marshal.SizeOf<Vector2>() + Marshal.SizeOf<Vector4>(), Normalized = false }
-            };
+            var size = Marshal.SizeOf<Vector2>();
+            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, size, 0);
+            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, size, Marshal.SizeOf<Vector2>());
+            GL.VertexAttribPointer(2, 4, VertexAttribPointerType.UnsignedByte, true, size, Marshal.SizeOf<Vector2>() * 2);
+            GL.EnableVertexAttribArray(0);
+            GL.EnableVertexAttribArray(1);
+            GL.EnableVertexAttribArray(2);
+            //return new[]
+            //{
+            //    // The first attribute is a Vector2, so 2 glFloats, offset is 0 as this is the first attribute, and we don't want our data to be normalized
+            //    new VertexAttribute { Count = 2, GLType = VertexAttribPointerType.Float, ByteOffset = 0, Normalized = false },
+            //    // The second attribute is the color of the vertex, 4 , offset is simply the size of the first attribute in bytes (sizeOf(Vector2)), and again, we don't want our data normalized
+            //    new VertexAttribute { Count = 4, GLType = VertexAttribPointerType.Float, ByteOffset = Marshal.SizeOf<Vector2>(), Normalized = false },
+            //    // Our third attribute are the texture coordinates of the vertex, same as the first attribute, but offset is sizeOf(vector2) + sizeOf(vector4).
+            //    new VertexAttribute { Count = 2, GLType = VertexAttribPointerType.Float, ByteOffset = Marshal.SizeOf<Vector2>() + Marshal.SizeOf<Vector4>(), Normalized = false }
+            //};
         }
     }
 }

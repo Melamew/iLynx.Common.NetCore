@@ -31,6 +31,6 @@ namespace iLynx.UI.OpenGL.Controls
 {
     public interface IRenderable
     {
-        void Draw(IRenderContext context);
+        void Draw(IRenderTarget target);
     }
 }

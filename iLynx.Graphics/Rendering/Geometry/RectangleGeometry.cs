@@ -46,6 +46,7 @@ namespace iLynx.Graphics.Geometry
             {
                 if (MathF.Abs(value - width) <= float.Epsilon) return;
                 width = value;
+
             }
         }
 
@@ -72,6 +73,7 @@ namespace iLynx.Graphics.Geometry
             this.width = width;
             this.height = height;
             FillColor = fillColor;
+            vertices[0] = new Vertex2();
         }
 
         public RectangleGeometry(SizeF dimensions, Color color)

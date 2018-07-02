@@ -30,6 +30,6 @@ namespace iLynx.Graphics.Rendering
     // ReSharper disable once InconsistentNaming
     public interface IVAOElement
     {
-        VertexAttribute[] GetVertexAttributes();
+        void SetupVertexAttributePointers();
     }
 }

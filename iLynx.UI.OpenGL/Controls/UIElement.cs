@@ -359,13 +359,13 @@ namespace iLynx.UI.OpenGL.Controls
 
         public IRenderElement Parent { get; private set; }
 
-        public virtual void Draw(IRenderContext context)
+        public virtual void Draw(IRenderTarget target)
         {
             LayoutLock.EnterReadLock();
             try
             {
                 //states.Transform.Translate(RenderPosition);
-                DrawLocked(context);
+                DrawLocked(target);
             }
             finally
             {
@@ -421,7 +421,7 @@ namespace iLynx.UI.OpenGL.Controls
         {
         }
 
-        protected abstract void DrawLocked(IRenderContext context);
+        protected abstract void DrawLocked(IRenderTarget target);
 
         public void Dispose()
         {
