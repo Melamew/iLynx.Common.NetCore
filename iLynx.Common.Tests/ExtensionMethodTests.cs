@@ -71,6 +71,14 @@ namespace iLynx.Common.Tests
         }
 
         [Fact]
+        public void WhenUnsignedToCalledWithZeroRangeThenFirstValueReturned()
+        {
+            uint[] expected = { 10u };
+            var result = 10u.To(10u);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
         public void WhenToCalledWithPositiveToNegativeRangeThenCorrectArrayReturned()
         {
             int[] expected = { 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5 };
@@ -81,7 +89,7 @@ namespace iLynx.Common.Tests
         [Fact]
         public void WhenToCalledWithNegativeToPositiveRangeThenCorrectArrayReturned()
         {
-            int[] expected = {-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5};
+            int[] expected = { -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5 };
             var result = (-5).To(5);
             Assert.Equal(expected, result);
         }
