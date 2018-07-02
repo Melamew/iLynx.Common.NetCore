@@ -53,5 +53,37 @@ namespace iLynx.Common.Tests
             var result = 15u.To(11);
             Assert.Equal(expected, result);
         }
+
+        [Fact]
+        public void WhenToCalledWithZeroRangeThenFirstValueReturned()
+        {
+            int[] expected = { 10 };
+            var result = 10.To(10);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void WhenToCalledWithNegativeZeroRangeThenFirstValueReturned()
+        {
+            int[] expected = { -10 };
+            var result = (-10).To(-10);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void WhenToCalledWithPositiveToNegativeRangeThenCorrectArrayReturned()
+        {
+            int[] expected = { 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5 };
+            var result = 5.To(-5);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void WhenToCalledWithNegativeToPositiveRangeThenCorrectArrayReturned()
+        {
+            int[] expected = {-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5};
+            var result = (-5).To(5);
+            Assert.Equal(expected, result);
+        }
     }
 }
