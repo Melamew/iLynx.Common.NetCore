@@ -29,6 +29,7 @@
 using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using static iLynx.Graphics.GLCheck;
 
 namespace iLynx.Graphics.Rendering.Shaders
 {
@@ -37,21 +38,26 @@ namespace iLynx.Graphics.Rendering.Shaders
         public const string TransformUniformName = "transform";
         private static ShaderProgram default2DShader;
 
-        public static ShaderProgram Default2DShader
-        {
-            get => default2DShader ?? (default2DShader =
-                       new ShaderProgram(Shader.DefaultFragmentShader, Shader.Default2DVertexShader));
-        }
+        public static ShaderProgram Default2DShader => default2DShader ?? (default2DShader =
+                                                           new ShaderProgram(Shader.DefaultFragmentShader, Shader.Default2DVertexShader));
+
         private readonly int handle;
 
         public Matrix4 ViewTransform { get; set; } = Matrix4.Identity;
 
         public ShaderProgram(params Shader[] shaders)
         {
-            handle = GL.CreateProgram();
-            foreach (var shader in shaders)
-                GL.AttachShader(handle, shader.Handle);
-            GL.LinkProgram(handle);
+            try
+            {
+                handle = Check(GL.CreateProgram);
+                foreach (var shader in shaders)
+                    shader.AttachToProgram(handle);
+                Check(GL.LinkProgram, handle);
+            }
+            catch (OpenGLCallException e)
+            {
+                throw new ShaderCompilationException("", e);
+            }
         }
 
         public void SetTransform(Matrix4 transform)

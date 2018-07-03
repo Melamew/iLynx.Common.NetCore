@@ -31,10 +31,41 @@ using iLynx.Common;
 using iLynx.Graphics.Rendering.Shaders;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using static OpenTK.Graphics.OpenGL.GL;
 
 namespace iLynx.Graphics.Rendering.Geometry
 {
-    public abstract class Geometry2D : IDrawable
+    public abstract class Transformable
+    {
+        private Matrix4 matrix;
+        private Vector3 scale;
+        private Vector3 translation;
+        private Vector3 rotation;
+
+        public Vector3 Scale
+        {
+            get => scale;
+            set
+            {
+                if (value == scale) return;
+                scale = value;
+                Update();
+            }
+        }
+
+        private void Update()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Vector3 Translation { get; set; }
+
+        public Vector3 Rotation { get; set; }
+
+        public Matrix4 Transform => matrix;
+    }
+
+    public abstract class Geometry2D : Transformable, IDrawable
     {
         private readonly VertexArrayObject<Vertex2> fillVao = new VertexArrayObject<Vertex2>();
         private readonly VertexArrayObject<Vertex2> outlineVao = new VertexArrayObject<Vertex2>();
@@ -73,7 +104,7 @@ namespace iLynx.Graphics.Rendering.Geometry
         public float BorderThickness { get; set; }
         public Texture Texture { get; set; }
         public ShaderProgram Shader { get; set; } = ShaderProgram.Default2DShader;
-        public Matrix4 Transform { get; set; } = Matrix4.Identity;
+        //public Matrix4 Transform { get; set; } = Matrix4.Identity;
         protected abstract PrimitiveType PrimitiveType { get; }
 
         protected void Update()
@@ -99,13 +130,13 @@ namespace iLynx.Graphics.Rendering.Geometry
             //indexBuffer?.Dispose();
         }
 
-        public void Draw(IDrawingContext target) 
+        public void Draw(IDrawingContext target)
         {
             target.UseShader(Shader = Shader ?? target.ActiveShader);
             target.BindTexture(Texture);
             Shader?.SetTransform(Transform);
             fillVao.Bind();
-            GL.DrawElements(PrimitiveType, fillBuffer.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            DrawElements(PrimitiveType, fillBuffer.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
             fillVao.Unbind();
             //var transformLocation = Shader.GetUniformLocation("transform");
             //var transform = Transform;

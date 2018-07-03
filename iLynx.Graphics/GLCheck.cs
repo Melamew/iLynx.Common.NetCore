@@ -5,8 +5,26 @@ using iLynx.Common;
 namespace iLynx.Graphics
 {
     // ReSharper disable once InconsistentNaming
-    public static class GLDebug
+    public static class GLCheck
     {
+        public delegate void RefAction<T>(ref T arg);
+
+        public static void Check<T>(RefAction<T> action, ref T arg)
+        {
+            try
+            {
+                action.Invoke(ref arg);
+            }
+            finally
+            {
+                Console.WriteLine($"{action.Target}.{action.Method}");
+                Console.WriteLine($"{arg}");
+                var error = GL.GetError();
+                if (error != ErrorCode.NoError)
+                    throw new OpenGLCallException(action, error);
+            }
+        }
+
         public static void Check(Action a)
         {
             Check((Delegate)a);
@@ -30,10 +48,11 @@ namespace iLynx.Graphics
             }
             finally
             {
-                Console.WriteLine($"{method.Target}.{method.Method} {arguments.ToString(", ")}");
+                Console.WriteLine($"{method.Target}.{method.Method}");
+                Console.WriteLine($"{arguments.ToString(", ")}");
                 var error = GL.GetError();
                 if (error != ErrorCode.NoError)
-                    throw new OpenGLException(method, error);
+                    throw new OpenGLCallException(method, error);
             }
         }
 
@@ -75,11 +94,22 @@ namespace iLynx.Graphics
         }
     }
 
-    public class OpenGLException : Exception
+    // ReSharper disable once InconsistentNaming
+    public class OpenGLCallException : OpenGLException
     {
-        public OpenGLException(Delegate action, ErrorCode error)
+        public OpenGLCallException(Delegate action, ErrorCode error)
             : base($"{action.Target}.{action.Method} failed with error: {error}")
         {
         }
+    }
+
+    // ReSharper disable once InconsistentNaming
+    public abstract class OpenGLException : Exception
+    {
+        protected OpenGLException() { }
+
+        protected OpenGLException(string message) : base(message) { }
+
+        protected OpenGLException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

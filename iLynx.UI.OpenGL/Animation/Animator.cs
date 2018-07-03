@@ -46,7 +46,7 @@ namespace iLynx.UI.OpenGL.Animation
 
         //public static void StartAnimationThread()
         //{
-        //    Ticker.Start(DoAnimations);
+        //    Ticker.Start(Tick);
         //}
 
         //public static void StopAnimationThread()
@@ -81,7 +81,7 @@ namespace iLynx.UI.OpenGL.Animation
             }
         }
 
-        public static void DoAnimations()
+        public static void Tick()
         {
             KeyValuePair<IAnimation, DateTime>[] anims;
             try

@@ -29,6 +29,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using static iLynx.Graphics.GLCheck;
+using static OpenTK.Graphics.OpenGL.GL;
 
 namespace iLynx.Graphics.Rendering.Geometry
 {
@@ -107,12 +109,12 @@ namespace iLynx.Graphics.Rendering.Geometry
         public void SetupVertexAttributePointers()
         {
             var size = Marshal.SizeOf<Vertex2>();
-            GL.EnableVertexAttribArray(0);
-            GL.EnableVertexAttribArray(1);
-            GL.EnableVertexAttribArray(2);
-            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, size, 0);
-            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, size, Marshal.SizeOf<Vector2>());
-            GL.VertexAttribPointer(2, 4, VertexAttribPointerType.UnsignedByte, true, size, Marshal.SizeOf<Vector2>() * 2);
+            Check(EnableVertexAttribArray, 0);
+            Check(EnableVertexAttribArray, 1);
+            Check(EnableVertexAttribArray, 2);
+            Check(VertexAttribPointer, 0, 2, VertexAttribPointerType.Float, false, size, 0);
+            Check(VertexAttribPointer, 1, 2, VertexAttribPointerType.Float, false, size, Marshal.SizeOf<Vector2>());
+            Check(VertexAttribPointer, 2, 4, VertexAttribPointerType.UnsignedByte, true, size, Marshal.SizeOf<Vector2>() * 2);
         }
     }
 }

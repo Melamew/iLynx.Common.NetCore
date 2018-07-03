@@ -32,28 +32,31 @@ using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering
 {
-    public class OpenGlDrawingContext : IDrawingContext
+    public class DrawingContext : IDrawingContext
     {
         private Matrix4 viewTransform = Matrix4.Identity;
-        private ShaderProgram activeShader;
 
-        public OpenGlDrawingContext()
+        public Matrix4 ViewTransform
         {
-            Toolkit.Init();
+            get => viewTransform;
+            set
+            {
+                if (value == viewTransform) return;
+                viewTransform = value;
+                if (null == ActiveShader) return;
+                ActiveShader.ViewTransform = value;
+            }
         }
 
-        public Matrix4 ViewTransform { get; set; } = Matrix4.Identity;
-
-        public ShaderProgram ActiveShader => activeShader;
-
+        public ShaderProgram ActiveShader { get; private set; }
         public Texture ActiveTexture { get; }
 
         public void UseShader(ShaderProgram shader)
         {
-            if (shader == activeShader || null == shader) return;
-            activeShader = shader;
-            activeShader.ViewTransform = ViewTransform;
-            ShaderProgram.Use(activeShader);
+            if (shader == ActiveShader || null == shader) return;
+            ActiveShader = shader;
+            ActiveShader.ViewTransform = ViewTransform;
+            ShaderProgram.Use(ActiveShader);
         }
 
         public void BindTexture(Texture texture)
@@ -62,8 +65,6 @@ namespace iLynx.Graphics.Rendering
 
         public void Draw(IDrawable drawable)
         {
-            GL.ClearColor(Color.Black);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             drawable.Draw(this);
         }
     }

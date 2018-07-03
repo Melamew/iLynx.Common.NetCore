@@ -29,34 +29,42 @@
 using System;
 using System.IO;
 using OpenTK.Graphics.OpenGL;
+using static iLynx.Graphics.GLCheck;
 
 namespace iLynx.Graphics.Rendering.Shaders
 {
+    public class ShaderCompilationException : OpenGLException
+    {
+        public ShaderCompilationException(string errorMessage, Exception innerException)
+            : base($"Shader compilation failed with error: {errorMessage}", innerException) { }
+    }
+
     public class Shader : IDisposable
     {
         private static Shader defaultFragmentShader;
         private static Shader default2DVertexShader;
+        private readonly int handle;
         public const string DefaultFragmentShaderRelPath = "shaders/default.frag";
         public const string Default2DVertexShaderRelPath = "shaders/default2d.vert";
 
-        public static Shader DefaultFragmentShader
-        {
-            get => defaultFragmentShader ?? (defaultFragmentShader = FromFile(ShaderType.FragmentShader, DefaultFragmentShaderRelPath));
-        }
+        public static Shader DefaultFragmentShader => defaultFragmentShader ?? (defaultFragmentShader = FromFile(ShaderType.FragmentShader, DefaultFragmentShaderRelPath));
 
-        public static Shader Default2DVertexShader
-        {
-            get => default2DVertexShader ?? (default2DVertexShader = FromFile(ShaderType.VertexShader, Default2DVertexShaderRelPath));
-        }
-        
+        public static Shader Default2DVertexShader => default2DVertexShader ?? (default2DVertexShader = FromFile(ShaderType.VertexShader, Default2DVertexShaderRelPath));
+
         protected Shader(ShaderType type, string shaderSource)
         {
-            Handle = GL.CreateShader(type);
-            GL.ShaderSource(Handle, shaderSource);
-            GL.CompileShader(Handle);
+            handle = GL.CreateShader(type);
+            try
+            {
+                Check(GL.ShaderSource, handle, shaderSource);
+                Check(GL.CompileShader, handle);
+            }
+            catch (OpenGLCallException callException)
+            {
+                var error = GL.GetShaderInfoLog(handle);
+                throw new ShaderCompilationException(error, callException);
+            }
         }
-
-        public int Handle { get; }
 
         public static Shader FromFile(ShaderType type, string fileName)
         {
@@ -76,7 +84,12 @@ namespace iLynx.Graphics.Rendering.Shaders
 
         public void Dispose()
         {
-            GL.DeleteShader(Handle);
+            GL.DeleteShader(handle);
+        }
+
+        public void AttachToProgram(int program)
+        {
+            Check(GL.AttachShader, program, handle);
         }
     }
 }

@@ -29,6 +29,7 @@
 using System;
 using iLynx.Graphics.Geometry;
 using iLynx.Graphics.Rendering;
+using iLynx.UI.OpenGL.Animation;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -42,32 +43,37 @@ namespace iLynx.Graphics.TestBench
         public MainWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title, GameWindowFlags.Default, DisplayDevice.Default)
         {
-            target = new OpenGlDrawingContext();
-            geometry = new RectangleGeometry(1f, 1f, Color.Red);
-            //target.ViewTransform = Matrix4.CreateTranslation(new Vector3(-0.5f, -0.5f, 0.0f));
+            target = new DrawingContext();
+            geometry = new RectangleGeometry(360f, 720f, Color.Red);
+            //var from = 200f;
+            //var to = 700f;
+            
+            //Animator.Start(x => )
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            // Set up the view projection
-            //var identity = Matrix4.Identity;
-            //GL.MatrixMode(MatrixMode.Projection);
-            //GL.LoadMatrix(ref identity);
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
             GL.Viewport(ClientRectangle);
+            Console.WriteLine($"Resize to: {ClientRectangle}");
+            target.ViewTransform = Matrix4.CreateTranslation(-.5f * ClientRectangle.Width, -.5f * ClientRectangle.Height, 0f);
+            target.ViewTransform *= Matrix4.CreateScale(1f / (ClientRectangle.Width / 2f), -1f / (ClientRectangle.Height / 2f), 1.0f);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            Animator.Tick();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            GL.ClearColor(Color.Black);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             target.Draw(geometry);
             SwapBuffers();
         }

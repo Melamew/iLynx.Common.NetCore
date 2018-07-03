@@ -26,22 +26,22 @@
  */
 #endregion
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
+using static iLynx.Graphics.GLCheck;
 
 namespace iLynx.Graphics.Rendering
 {
     public class VertexArrayObject<TVertex> : IDisposable where TVertex : struct, IEquatable<TVertex>, IVAOElement
     {
-        private int handle;
+        private readonly int handle;
         protected static readonly int ElementSize = Marshal.SizeOf<TVertex>();
         private VertexBufferObject<TVertex> vertexBuffer;
         private VertexBufferObject<uint> indexBuffer;
 
         public VertexArrayObject()
         {
-            handle = GL.GenVertexArray();
+            handle = Check(GL.GenVertexArray);
         }
 
         ~VertexArrayObject()
@@ -83,7 +83,6 @@ namespace iLynx.Graphics.Rendering
             vertexBuffer?.Dispose();
             indexBuffer?.Dispose();
             GL.DeleteVertexArray(handle);
-            handle = 0;
         }
 
         public void Dispose()

@@ -62,9 +62,9 @@ namespace iLynx.Graphics.Geometry
         protected override Vertex2[] GetVertices()
         {
             vertices[0] = new Vertex2(FillColor);
-            vertices[1] = new Vertex2(new Vector2(0f, height), FillColor);
-            vertices[2] = new Vertex2(new Vector2(width, height), FillColor);
-            vertices[3] = new Vertex2(new Vector2(width, 0f), FillColor);
+            vertices[1] = new Vertex2(new Vector2(0f, 1f), FillColor);
+            vertices[2] = new Vertex2(new Vector2(1f, 1f), FillColor);
+            vertices[3] = new Vertex2(new Vector2(1f, 0f), FillColor);
             return vertices;
         }
 

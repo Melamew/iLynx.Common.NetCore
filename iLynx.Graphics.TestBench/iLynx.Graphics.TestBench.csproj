@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\iLynx.Graphics\iLynx.Graphics.csproj" />
+    <ProjectReference Include="..\iLynx.UI.OpenGL\iLynx.UI.OpenGL.csproj" />
   </ItemGroup>
 
 </Project>
