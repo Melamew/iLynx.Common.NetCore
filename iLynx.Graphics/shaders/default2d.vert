@@ -8,8 +8,10 @@ layout(location = 2) in vec4 col;
 layout(location = 3) uniform mat4 transform;
 
 out vec4 fragColor;
+out vec2 textureCoordinate;
 
 void main(void){
 	fragColor = col;
+	textureCoordinate = texCoord;
 	gl_Position = transform * vec4(pos, 0.0, 1.0);
 }

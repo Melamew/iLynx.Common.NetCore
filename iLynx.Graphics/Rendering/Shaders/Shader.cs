@@ -25,17 +25,19 @@
  *
  */
 #endregion
+
+using System;
 using System.IO;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering.Shaders
 {
-    public class Shader
+    public class Shader : IDisposable
     {
         private static Shader defaultFragmentShader;
         private static Shader default2DVertexShader;
-        public const string DefaultFragmentShaderRelPath = "/shaders/default.frag";
-        public const string Default2DVertexShaderRelPath = "/shaders/default2d.vert";
+        public const string DefaultFragmentShaderRelPath = "shaders/default.frag";
+        public const string Default2DVertexShaderRelPath = "shaders/default2d.vert";
 
         public static Shader DefaultFragmentShader
         {
@@ -70,6 +72,11 @@ namespace iLynx.Graphics.Rendering.Shaders
         public static Shader FromSource(ShaderType type, string source)
         {
             return new Shader(type, source);
+        }
+
+        public void Dispose()
+        {
+            GL.DeleteShader(Handle);
         }
     }
 }

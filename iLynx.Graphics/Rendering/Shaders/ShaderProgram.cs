@@ -25,12 +25,14 @@
  *
  */
 #endregion
+
+using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering.Shaders
 {
-    public class ShaderProgram
+    public class ShaderProgram : IDisposable
     {
         public const string TransformUniformName = "transform";
         private static ShaderProgram default2DShader;
@@ -42,6 +44,8 @@ namespace iLynx.Graphics.Rendering.Shaders
         }
         private readonly int handle;
 
+        public Matrix4 ViewTransform { get; set; } = Matrix4.Identity;
+
         public ShaderProgram(params Shader[] shaders)
         {
             handle = GL.CreateProgram();
@@ -50,18 +54,23 @@ namespace iLynx.Graphics.Rendering.Shaders
             GL.LinkProgram(handle);
         }
 
-        private int GetUniformLocation(string uniformName)
-        {
-            if (0 == handle) throw new NotInitializedException();
-            return GL.GetUniformLocation(handle, uniformName);
-        }
-
         public void SetTransform(Matrix4 transform)
         {
             int location;
             if (0 == handle) throw new NotInitializedException();
             if ((location = GL.GetUniformLocation(handle, TransformUniformName)) == -1) return;
+            transform *= ViewTransform;
             GL.UniformMatrix4(location, false, ref transform);
+        }
+
+        public static void Use(ShaderProgram program)
+        {
+            GL.UseProgram(program?.handle ?? 0);
+        }
+
+        public void Dispose()
+        {
+            GL.DeleteProgram(handle);
         }
     }
 }

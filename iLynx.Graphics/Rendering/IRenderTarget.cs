@@ -27,26 +27,16 @@
 #endregion
 using System;
 using iLynx.Graphics.Rendering.Shaders;
+using OpenTK;
 
 namespace iLynx.Graphics.Rendering
 {
     public interface IRenderTarget
     {
-        ///// <summary>
-        ///// Binds the specified <see cref="VertexBufferObject{TVertex}"/> and draws it with the currently set texture and shader
-        ///// </summary>
-        ///// <typeparam name="TVertex"></typeparam>
-        ///// <param name="vertexBuffer"></param>
-        //void DrawArrays<TVertex>(VertexBufferObject<TVertex> vertexBuffer, int offset, int count) where TVertex : struct, IEquatable<TVertex>;
-
-        ///// <summary>
-        ///// Draws the specified <see cref="VertexArrayObject{TVertex}"/> to this context
-        ///// </summary>
-        ///// <typeparam name="TVertex"></typeparam>
-        ///// <param name="vao"></param>
-        ///// <param name="offset"></param>
-        ///// <param name="count"></param>
-        //void DrawArrays<TVertex>(VertexArrayObject<TVertex> vao, int offset, int count) where TVertex : struct, IEquatable<TVertex>, IVAOElement;
+        /// <summary>
+        /// Gets or Sets the current view transform.
+        /// </summary>
+        Matrix4 ViewTransform { get; set; }
 
         /// <summary>
         /// Gets the currently active shader
@@ -62,7 +52,7 @@ namespace iLynx.Graphics.Rendering
         /// Binds the specified shader to this target.
         /// </summary>
         /// <param name="shader">The shader to bind</param>
-        void BindShader(ShaderProgram shader);
+        void UseShader(ShaderProgram shader);
 
         /// <summary>
         /// Binds the specified texture to this target.

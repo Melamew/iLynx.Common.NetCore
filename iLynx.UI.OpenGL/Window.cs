@@ -30,6 +30,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
 using iLynx.Common;
+using iLynx.Graphics;
 using iLynx.UI.OpenGL.Animation;
 using iLynx.UI.OpenGL.Layout;
 using OpenTK;
@@ -126,9 +127,8 @@ namespace iLynx.UI.OpenGL
         {
             var sw = new Stopwatch();
             sw.Start();
-            GL.ClearColor(background);
-            GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
-            //root?.Draw(this);
+            GL.ClearColor(Color.LimeGreen);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             SwapBuffers();
             sw.Stop();
             FrameTime = sw.Elapsed;

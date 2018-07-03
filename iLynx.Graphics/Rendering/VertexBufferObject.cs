@@ -72,8 +72,7 @@ namespace iLynx.Graphics.Rendering
             if (0 == handle) return;
             Bind();
             var verts = vertices;
-            GL.BufferData(target, ElementSize * verts.Length, verts,
-                usage);
+            GL.BufferData(target, ElementSize * verts.Length, verts, usage);
             Unbind();
         }
 

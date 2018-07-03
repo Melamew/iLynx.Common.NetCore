@@ -71,8 +71,9 @@ namespace iLynx.Common
         public static string ToString(this IEnumerable<byte> val, string splitter)
         {
             var ret = val.Aggregate(string.Empty, (current, v) => current + (v.ToString("X2") + splitter));
-            // Remove the superflous splitter that was added during the aggregate.
-            ret = ret.Remove(ret.Length - splitter.Length, splitter.Length);
+            if (ret.Length > 1)
+                // Remove the superflous splitter that was added during the aggregate.
+                ret = ret.Remove(ret.Length - splitter.Length, splitter.Length);
             return ret;
         }
 
@@ -85,6 +86,15 @@ namespace iLynx.Common
         public static string CombineToString<T>(this IEnumerable<T> val)
         {
             return val.Aggregate(string.Empty, (s, arg2) => s + arg2.ToString());
+        }
+
+        public static string ToString<T>(this IEnumerable<T> val, string splitter)
+        {
+            var ret = val.Aggregate(string.Empty, (current, v) => current + v.ToString() + splitter);
+            if (ret.Length > 1)
+                // Remove the superflous splitter that was added during the aggregate.
+                ret = ret.Remove(ret.Length - splitter.Length, splitter.Length);
+            return ret;
         }
 
         /// <summary>

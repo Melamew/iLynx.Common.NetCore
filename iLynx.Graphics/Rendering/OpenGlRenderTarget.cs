@@ -27,26 +27,43 @@
 #endregion
 using System;
 using iLynx.Graphics.Rendering.Shaders;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering
 {
     public class OpenGlRenderTarget : IRenderTarget
     {
-        public ShaderProgram ActiveShader { get; }
-        public Texture ActiveTexture { get; }
-        public void BindShader(ShaderProgram shader)
+        private Matrix4 viewTransform = Matrix4.Identity;
+        private ShaderProgram activeShader;
+
+        public OpenGlRenderTarget()
         {
-            throw new NotImplementedException();
+            Toolkit.Init();
+        }
+
+        public Matrix4 ViewTransform { get; set; } = Matrix4.Identity;
+
+        public ShaderProgram ActiveShader => activeShader;
+
+        public Texture ActiveTexture { get; }
+
+        public void UseShader(ShaderProgram shader)
+        {
+            if (shader == activeShader || null == shader) return;
+            activeShader = shader;
+            activeShader.ViewTransform = ViewTransform;
+            ShaderProgram.Use(activeShader);
         }
 
         public void BindTexture(Texture texture)
         {
-            throw new NotImplementedException();
         }
 
         public void Draw(IDrawable drawable)
         {
+            GL.ClearColor(Color.Black);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             drawable.Draw(this);
         }
     }

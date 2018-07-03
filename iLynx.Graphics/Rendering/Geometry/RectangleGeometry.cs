@@ -70,10 +70,11 @@ namespace iLynx.Graphics.Geometry
             this.width = width;
             this.height = height;
             FillColor = fillColor;
-            vertices[0] = new Vertex2(fillColor);
-            vertices[1] = new Vertex2(new Vector2(0f, height), fillColor);
-            vertices[2] = new Vertex2(new Vector2(width, height), fillColor);
-            vertices[3] = new Vertex2(new Vector2(width, 0f), fillColor);
+            vertices[0] = new Vertex2(Color.Red);
+            vertices[1] = new Vertex2(new Vector2(0f, height), Color.Lime);
+            vertices[2] = new Vertex2(new Vector2(width, height), Color.Blue);
+            vertices[3] = new Vertex2(new Vector2(width, 0f), Color.Yellow);
+            Update();
         }
 
         public RectangleGeometry(SizeF dimensions, Color color)

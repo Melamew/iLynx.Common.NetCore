@@ -28,10 +28,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using iLynx.Graphics.Geometry;
-using iLynx.Graphics.Rendering;
 using iLynx.Graphics.Rendering.Geometry;
 using OpenTK;
 
@@ -42,11 +39,13 @@ namespace iLynx.Graphics.TestBench
         private static void Main(string[] args)
         {
             Console.WriteLine($"SizeOf<Vertex2>(): {Marshal.SizeOf<Vertex2>()}");
-            Console.WriteLine($"SizeOf<Color>(): {Marshal.SizeOf<Color>()}");
-            Console.WriteLine($"SizeOf<Vector2>(): {Marshal.SizeOf<Vector2>()}");
-            Console.WriteLine($"SizeOf<Color>() + SizeOf<Vector2>() * 2: {Marshal.SizeOf<Color>() + Marshal.SizeOf<Vector2>() * 2}");
-            var arr = new Vertex2[1024];
-            RuinEverything(arr);
+            var win = new MainWindow(1280, 720, "Test")
+            {
+                Location = new Point(0,0)
+            };
+            win.Run(60d);
+            //var arr = new Vertex2[1024];
+            //RuinEverything(arr);
             Console.ReadKey();
         }
 
