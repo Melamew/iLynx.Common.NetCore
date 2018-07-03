@@ -25,13 +25,11 @@
  *
  */
 #endregion
-
 using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
-using static iLynx.Graphics.GLCheck;
 
-namespace iLynx.Graphics.Rendering.Shaders
+namespace iLynx.Graphics.shaders
 {
     public class ShaderProgram : IDisposable
     {
@@ -49,10 +47,10 @@ namespace iLynx.Graphics.Rendering.Shaders
         {
             try
             {
-                handle = Check(GL.CreateProgram);
+                handle = GLCheck.Check(GL.CreateProgram);
                 foreach (var shader in shaders)
                     shader.AttachToProgram(handle);
-                Check(GL.LinkProgram, handle);
+                GLCheck.Check(GL.LinkProgram, handle);
             }
             catch (OpenGLCallException e)
             {

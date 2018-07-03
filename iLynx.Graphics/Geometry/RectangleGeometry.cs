@@ -26,45 +26,61 @@
  */
 #endregion
 using System;
-using iLynx.Graphics.Rendering.Shaders;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Rendering
+namespace iLynx.Graphics.Geometry
 {
-    public interface IDrawingContext
+    public class RectangleGeometry : Geometry2D
     {
-        /// <summary>
-        /// Gets or Sets the current view transform.
-        /// </summary>
-        Matrix4 ViewTransform { get; set; }
+        private readonly Vertex2[] vertices = new Vertex2[4];
+        private float width, height;
 
-        /// <summary>
-        /// Gets the currently active shader
-        /// </summary>
-        ShaderProgram ActiveShader { get; }
+        public float Width
+        {
+            get => width;
+            set
+            {
+                if (MathF.Abs(value - width) <= float.Epsilon) return;
+                width = value;
+                Update();
+            }
+        }
 
-        /// <summary>
-        /// Gets the currently active texture
-        /// </summary>
-        Texture ActiveTexture { get; }
+        public float Height
+        {
+            get => height;
+            set
+            {
+                if (MathF.Abs(value - height) <= float.Epsilon) return;
+                height = value;
+                Update();
+            }
+        }
 
-        /// <summary>
-        /// Binds the specified shader to this target.
-        /// </summary>
-        /// <param name="shader">The shader to bind</param>
-        void UseShader(ShaderProgram shader);
+        protected override PrimitiveType PrimitiveType => PrimitiveType.TriangleFan;
 
-        /// <summary>
-        /// Binds the specified texture to this target.
-        /// </summary>
-        /// <param name="texture"></param>
-        void BindTexture(Texture texture);
+        protected override Vertex2[] GetVertices()
+        {
+            vertices[0] = new Vertex2(FillColor);
+            vertices[1] = new Vertex2(new Vector2(0f, height), FillColor);
+            vertices[2] = new Vertex2(new Vector2(width, height), FillColor);
+            vertices[3] = new Vertex2(new Vector2(width, 0f), FillColor);
+            return vertices;
+        }
 
-        /// <summary>
-        /// Draws the specified <see cref="IDrawable"/> in this context.
-        /// NOTE: This method will essentially call <see cref="IDrawable.Draw(IDrawingContext)"/> with this <see cref="IDrawingContext"/> as its argument
-        /// </summary>
-        /// <param name="drawable"></param>
-        void Draw(IDrawable drawable);
+        public RectangleGeometry(float width, float height, Color fillColor)
+            : base(fillColor, Color.Transparent, 0.0f, true, 4)
+        {
+            this.width = width;
+            this.height = height;
+            Update();
+        }
+
+        public RectangleGeometry(SizeF dimensions, Color color)
+            : this(dimensions.Width, dimensions.Height, color)
+        {
+
+        }
     }
 }

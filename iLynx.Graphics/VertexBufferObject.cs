@@ -29,7 +29,7 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Rendering
+namespace iLynx.Graphics
 {
     public class VertexBufferObject<TElement> : IDisposable where TElement : struct, IEquatable<TElement>
     {

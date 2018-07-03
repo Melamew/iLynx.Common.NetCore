@@ -27,8 +27,7 @@
 #endregion
 using System;
 using iLynx.Graphics;
-using iLynx.Graphics.Rendering;
-using iLynx.Graphics.Rendering.Geometry;
+using iLynx.Graphics.Geometry;
 using OpenTK;
 using RectangleGeometry = iLynx.Graphics.Geometry.RectangleGeometry;
 

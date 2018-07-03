@@ -25,61 +25,45 @@
  *
  */
 #endregion
-using System;
-using iLynx.Graphics.Rendering.Geometry;
+using iLynx.Graphics.shaders;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Geometry
+namespace iLynx.Graphics
 {
-    public class RectangleGeometry : Geometry2D
+    public class DrawingContext : IDrawingContext
     {
-        private readonly Vertex2[] vertices = new Vertex2[4];
-        private float width, height;
+        private Matrix4 viewTransform = Matrix4.Identity;
 
-        public float Width
+        public Matrix4 ViewTransform
         {
-            get => width;
+            get => viewTransform;
             set
             {
-                if (MathF.Abs(value - width) <= float.Epsilon) return;
-                width = value;
+                if (value == viewTransform) return;
+                viewTransform = value;
+                if (null == ActiveShader) return;
+                ActiveShader.ViewTransform = value;
             }
         }
 
-        public float Height
+        public ShaderProgram ActiveShader { get; private set; }
+        public Texture ActiveTexture { get; }
+
+        public void UseShader(ShaderProgram shader)
         {
-            get => height;
-            set
-            {
-                if (MathF.Abs(value - height) <= float.Epsilon) return;
-                height = value;
-            }
+            if (shader == ActiveShader || null == shader) return;
+            ActiveShader = shader;
+            ActiveShader.ViewTransform = ViewTransform;
+            ShaderProgram.Use(ActiveShader);
         }
 
-        protected override PrimitiveType PrimitiveType => PrimitiveType.TriangleFan;
-
-        protected override Vertex2[] GetVertices()
+        public void BindTexture(Texture texture)
         {
-            vertices[0] = new Vertex2(FillColor);
-            vertices[1] = new Vertex2(new Vector2(0f, 1f), FillColor);
-            vertices[2] = new Vertex2(new Vector2(1f, 1f), FillColor);
-            vertices[3] = new Vertex2(new Vector2(1f, 0f), FillColor);
-            return vertices;
         }
 
-        public RectangleGeometry(float width, float height, Color fillColor)
-            : base(fillColor, Color.Transparent, 0.0f, true, 4)
+        public void Draw(IDrawable drawable)
         {
-            this.width = width;
-            this.height = height;
-            Update();
-        }
-
-        public RectangleGeometry(SizeF dimensions, Color color)
-            : this(dimensions.Width, dimensions.Height, color)
-        {
-
+            drawable.Draw(this);
         }
     }
 }

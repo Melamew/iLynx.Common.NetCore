@@ -31,7 +31,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using iLynx.Graphics;
-using iLynx.Graphics.Rendering;
 using iLynx.UI.OpenGL.Controls;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;

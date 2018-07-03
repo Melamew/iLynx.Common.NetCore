@@ -25,47 +25,18 @@
  *
  */
 #endregion
-using System;
-using iLynx.Graphics.Rendering.Shaders;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
-
-namespace iLynx.Graphics.Rendering
+namespace iLynx.Graphics
 {
-    public class DrawingContext : IDrawingContext
+    /// <summary>
+    /// Base interface for drawable elements.
+    /// NOTE: A drawable must NOT call <see cref="IDrawingContext.Draw(IDrawable)"/>
+    /// </summary>
+    public interface IDrawable
     {
-        private Matrix4 viewTransform = Matrix4.Identity;
-
-        public Matrix4 ViewTransform
-        {
-            get => viewTransform;
-            set
-            {
-                if (value == viewTransform) return;
-                viewTransform = value;
-                if (null == ActiveShader) return;
-                ActiveShader.ViewTransform = value;
-            }
-        }
-
-        public ShaderProgram ActiveShader { get; private set; }
-        public Texture ActiveTexture { get; }
-
-        public void UseShader(ShaderProgram shader)
-        {
-            if (shader == ActiveShader || null == shader) return;
-            ActiveShader = shader;
-            ActiveShader.ViewTransform = ViewTransform;
-            ShaderProgram.Use(ActiveShader);
-        }
-
-        public void BindTexture(Texture texture)
-        {
-        }
-
-        public void Draw(IDrawable drawable)
-        {
-            drawable.Draw(this);
-        }
+        /// <summary>
+        /// Draws this <see cref="IDrawable"/> to the specified <see cref="IDrawingContext"/>
+        /// </summary>
+        /// <param name="target"></param>
+        void Draw(IDrawingContext target);
     }
 }

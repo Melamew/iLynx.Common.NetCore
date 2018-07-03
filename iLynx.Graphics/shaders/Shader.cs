@@ -25,13 +25,11 @@
  *
  */
 #endregion
-
 using System;
 using System.IO;
 using OpenTK.Graphics.OpenGL;
-using static iLynx.Graphics.GLCheck;
 
-namespace iLynx.Graphics.Rendering.Shaders
+namespace iLynx.Graphics.shaders
 {
     public class ShaderCompilationException : OpenGLException
     {
@@ -56,8 +54,8 @@ namespace iLynx.Graphics.Rendering.Shaders
             handle = GL.CreateShader(type);
             try
             {
-                Check(GL.ShaderSource, handle, shaderSource);
-                Check(GL.CompileShader, handle);
+                GLCheck.Check(GL.ShaderSource, handle, shaderSource);
+                GLCheck.Check(GL.CompileShader, handle);
             }
             catch (OpenGLCallException callException)
             {
@@ -89,7 +87,7 @@ namespace iLynx.Graphics.Rendering.Shaders
 
         public void AttachToProgram(int program)
         {
-            Check(GL.AttachShader, program, handle);
+            GLCheck.Check(GL.AttachShader, program, handle);
         }
     }
 }

@@ -25,22 +25,45 @@
  *
  */
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Text;
+using iLynx.Graphics.shaders;
+using OpenTK;
 
-namespace iLynx.Graphics.Rendering
+namespace iLynx.Graphics
 {
-    /// <summary>
-    /// Base interface for drawable elements.
-    /// NOTE: A drawable must NOT call <see cref="IDrawingContext.Draw(IDrawable)"/>
-    /// </summary>
-    public interface IDrawable
+    public interface IDrawingContext
     {
         /// <summary>
-        /// Draws this <see cref="IDrawable"/> to the specified <see cref="IDrawingContext"/>
+        /// Gets or Sets the current view transform.
         /// </summary>
-        /// <param name="target"></param>
-        void Draw(IDrawingContext target);
+        Matrix4 ViewTransform { get; set; }
+
+        /// <summary>
+        /// Gets the currently active shader
+        /// </summary>
+        ShaderProgram ActiveShader { get; }
+
+        /// <summary>
+        /// Gets the currently active texture
+        /// </summary>
+        Texture ActiveTexture { get; }
+
+        /// <summary>
+        /// Binds the specified shader to this target.
+        /// </summary>
+        /// <param name="shader">The shader to bind</param>
+        void UseShader(ShaderProgram shader);
+
+        /// <summary>
+        /// Binds the specified texture to this target.
+        /// </summary>
+        /// <param name="texture"></param>
+        void BindTexture(Texture texture);
+
+        /// <summary>
+        /// Draws the specified <see cref="IDrawable"/> in this context.
+        /// NOTE: This method will essentially call <see cref="IDrawable.Draw(IDrawingContext)"/> with this <see cref="IDrawingContext"/> as its argument
+        /// </summary>
+        /// <param name="drawable"></param>
+        void Draw(IDrawable drawable);
     }
 }

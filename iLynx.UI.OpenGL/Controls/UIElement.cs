@@ -32,7 +32,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using iLynx.Common;
 using iLynx.Graphics;
-using iLynx.Graphics.Rendering;
 using iLynx.UI.OpenGL.Input;
 using OpenTK;
 

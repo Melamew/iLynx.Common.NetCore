@@ -28,9 +28,8 @@
 using System;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
-using static iLynx.Graphics.GLCheck;
 
-namespace iLynx.Graphics.Rendering
+namespace iLynx.Graphics
 {
     public class VertexArrayObject<TVertex> : IDisposable where TVertex : struct, IEquatable<TVertex>, IVAOElement
     {
@@ -41,7 +40,7 @@ namespace iLynx.Graphics.Rendering
 
         public VertexArrayObject()
         {
-            handle = Check(GL.GenVertexArray);
+            handle = GLCheck.Check(GL.GenVertexArray);
         }
 
         ~VertexArrayObject()

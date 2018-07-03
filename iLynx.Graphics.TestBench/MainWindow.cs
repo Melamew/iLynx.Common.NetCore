@@ -25,10 +25,8 @@
  *
  */
 #endregion
-
 using System;
 using iLynx.Graphics.Geometry;
-using iLynx.Graphics.Rendering;
 using iLynx.UI.OpenGL.Animation;
 using OpenTK;
 using OpenTK.Graphics;
@@ -40,20 +38,31 @@ namespace iLynx.Graphics.TestBench
     {
         private readonly IDrawingContext target;
         private readonly RectangleGeometry geometry;
+        // ReSharper disable once InconsistentNaming
+        private const float PIOn180 = MathF.PI / 180f;
+
         public MainWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title, GameWindowFlags.Default, DisplayDevice.Default)
         {
             target = new DrawingContext();
-            geometry = new RectangleGeometry(360f, 720f, Color.Red);
-            //var from = 200f;
-            //var to = 700f;
-            
-            //Animator.Start(x => )
+            geometry = new RectangleGeometry(500f, 500f, Color.Red);
+            //geometry.Origin = new Vector3(250f, 250f, 0f);
+            var from = 0f;
+            var range = 500f;
+            //Animator.Start(x => geometry.Position = new Vector3((float)(@from + range * x), geometry.Position.Y, 0f), TimeSpan.FromSeconds(2.5), LoopMode.Reverse,
+            //    EasingFunctions.CubicInOut);
+            //Animator.Start(x => geometry.Position = new Vector3(geometry.Position.X, (float) (@from + range * x), 0f),
+            //    TimeSpan.FromSeconds(2.125), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
+
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            Animator.Start(x =>
+                geometry.Rotation = Quaternion.FromEulerAngles((float) (x * 360f * PIOn180), 0f, 0f)
+                ,
+                TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
         }
 
         protected override void OnResize(EventArgs e)
@@ -63,6 +72,7 @@ namespace iLynx.Graphics.TestBench
             Console.WriteLine($"Resize to: {ClientRectangle}");
             target.ViewTransform = Matrix4.CreateTranslation(-.5f * ClientRectangle.Width, -.5f * ClientRectangle.Height, 0f);
             target.ViewTransform *= Matrix4.CreateScale(1f / (ClientRectangle.Width / 2f), -1f / (ClientRectangle.Height / 2f), 1.0f);
+            geometry.Translation = new Vector3(ClientRectangle.Width / 2f, ClientRectangle.Height / 2f, 0f);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)

@@ -25,7 +25,7 @@
  *
  */
 #endregion
-namespace iLynx.Graphics.Rendering
+namespace iLynx.Graphics
 {
     // ReSharper disable once InconsistentNaming
     public interface IVAOElement

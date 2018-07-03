@@ -25,7 +25,7 @@
  *
  */
 #endregion
-using iLynx.Graphics.Rendering;
+using iLynx.Graphics;
 
 namespace iLynx.UI.OpenGL.Controls
 {

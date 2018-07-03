@@ -29,7 +29,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using iLynx.Graphics.Rendering.Geometry;
+using iLynx.Graphics.Geometry;
 using OpenTK;
 
 namespace iLynx.Graphics.TestBench
@@ -46,7 +46,7 @@ namespace iLynx.Graphics.TestBench
             win.Run(60d);
             //var arr = new Vertex2[1024];
             //RuinEverything(arr);
-            Console.ReadKey();
+            //Console.ReadKey();
         }
 
         private static void RuinEverything(Vertex2[] arr)

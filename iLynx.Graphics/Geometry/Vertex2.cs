@@ -29,10 +29,9 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
-using static iLynx.Graphics.GLCheck;
 using static OpenTK.Graphics.OpenGL.GL;
 
-namespace iLynx.Graphics.Rendering.Geometry
+namespace iLynx.Graphics.Geometry
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct Vertex2 : IEquatable<Vertex2>, IVAOElement
@@ -109,12 +108,12 @@ namespace iLynx.Graphics.Rendering.Geometry
         public void SetupVertexAttributePointers()
         {
             var size = Marshal.SizeOf<Vertex2>();
-            Check(EnableVertexAttribArray, 0);
-            Check(EnableVertexAttribArray, 1);
-            Check(EnableVertexAttribArray, 2);
-            Check(VertexAttribPointer, 0, 2, VertexAttribPointerType.Float, false, size, 0);
-            Check(VertexAttribPointer, 1, 2, VertexAttribPointerType.Float, false, size, Marshal.SizeOf<Vector2>());
-            Check(VertexAttribPointer, 2, 4, VertexAttribPointerType.UnsignedByte, true, size, Marshal.SizeOf<Vector2>() * 2);
+            GLCheck.Check(EnableVertexAttribArray, 0);
+            GLCheck.Check(EnableVertexAttribArray, 1);
+            GLCheck.Check(EnableVertexAttribArray, 2);
+            GLCheck.Check(VertexAttribPointer, 0, 2, VertexAttribPointerType.Float, false, size, 0);
+            GLCheck.Check(VertexAttribPointer, 1, 2, VertexAttribPointerType.Float, false, size, Marshal.SizeOf<Vector2>());
+            GLCheck.Check(VertexAttribPointer, 2, 4, VertexAttribPointerType.UnsignedByte, true, size, Marshal.SizeOf<Vector2>() * 2);
         }
     }
 }
