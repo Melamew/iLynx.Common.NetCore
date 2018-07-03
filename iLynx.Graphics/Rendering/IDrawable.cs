@@ -33,14 +33,14 @@ namespace iLynx.Graphics.Rendering
 {
     /// <summary>
     /// Base interface for drawable elements.
-    /// NOTE: A drawable must NOT call <see cref="IRenderTarget.Draw(IDrawable)"/>
+    /// NOTE: A drawable must NOT call <see cref="IDrawingContext.Draw(IDrawable)"/>
     /// </summary>
     public interface IDrawable
     {
         /// <summary>
-        /// Draws this <see cref="IDrawable"/> to the specified <see cref="IRenderTarget"/>
+        /// Draws this <see cref="IDrawable"/> to the specified <see cref="IDrawingContext"/>
         /// </summary>
         /// <param name="target"></param>
-        void Draw(IRenderTarget target);
+        void Draw(IDrawingContext target);
     }
 }

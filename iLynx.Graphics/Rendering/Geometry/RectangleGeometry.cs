@@ -61,19 +61,18 @@ namespace iLynx.Graphics.Geometry
 
         protected override Vertex2[] GetVertices()
         {
+            vertices[0] = new Vertex2(FillColor);
+            vertices[1] = new Vertex2(new Vector2(0f, height), FillColor);
+            vertices[2] = new Vertex2(new Vector2(width, height), FillColor);
+            vertices[3] = new Vertex2(new Vector2(width, 0f), FillColor);
             return vertices;
         }
 
         public RectangleGeometry(float width, float height, Color fillColor)
-            : base(true, 4)
+            : base(fillColor, Color.Transparent, 0.0f, true, 4)
         {
             this.width = width;
             this.height = height;
-            FillColor = fillColor;
-            vertices[0] = new Vertex2(Color.Red);
-            vertices[1] = new Vertex2(new Vector2(0f, height), Color.Lime);
-            vertices[2] = new Vertex2(new Vector2(width, height), Color.Blue);
-            vertices[3] = new Vertex2(new Vector2(width, 0f), Color.Yellow);
             Update();
         }
 

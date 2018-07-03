@@ -87,7 +87,7 @@ namespace iLynx.UI.OpenGL.Controls
             return finalRect;
         }
 
-        protected override void DrawLocked(IRenderTarget target)
+        protected override void DrawLocked(IDrawingContext target)
         {
             if (size == default(SizeF)) return;
             shape.FillColor = background;

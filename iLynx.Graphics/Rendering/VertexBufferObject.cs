@@ -67,7 +67,7 @@ namespace iLynx.Graphics.Rendering
             GL.BindBuffer(target, handle);
         }
 
-        public void UpdateGpuData()
+        private void UpdateGpuData()
         {
             if (0 == handle) return;
             Bind();
@@ -76,7 +76,7 @@ namespace iLynx.Graphics.Rendering
             Unbind();
         }
 
-        public void UpdateGpuSubData(int offset, int length)
+        private void UpdateGpuSubData(int offset, int length)
         {
             if (0 == handle) return;
             Bind();
@@ -118,6 +118,17 @@ namespace iLynx.Graphics.Rendering
         public void AddData(params TElement[] verts)
         {
             SetData(Length - 1, verts);
+        }
+
+        public delegate void ElementTransform(ref TElement element);
+
+        public void Transform(ElementTransform function, int startIndex = -1, int length = -1)
+        {
+            startIndex = -1 == startIndex ? 0 : startIndex;
+            length = -1 == length ? vertices.Length : length;
+            for (var i = startIndex; i < length; ++i)
+                function(ref vertices[i]);
+            UpdateGpuSubData(startIndex, length);
         }
 
         public TElement this[int index]

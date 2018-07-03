@@ -26,6 +26,7 @@
  */
 #endregion
 
+using System;
 using iLynx.Graphics.Geometry;
 using iLynx.Graphics.Rendering;
 using OpenTK;
@@ -36,14 +37,29 @@ namespace iLynx.Graphics.TestBench
 {
     public class MainWindow : GameWindow
     {
-        private readonly IRenderTarget target;
+        private readonly IDrawingContext target;
         private readonly RectangleGeometry geometry;
         public MainWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title, GameWindowFlags.Default, DisplayDevice.Default)
         {
-            target = new OpenGlRenderTarget();
+            target = new OpenGlDrawingContext();
             geometry = new RectangleGeometry(1f, 1f, Color.Red);
-            target.ViewTransform = Matrix4.CreateTranslation(new Vector3(-0.5f, -0.5f, 0.0f));
+            //target.ViewTransform = Matrix4.CreateTranslation(new Vector3(-0.5f, -0.5f, 0.0f));
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            // Set up the view projection
+            //var identity = Matrix4.Identity;
+            //GL.MatrixMode(MatrixMode.Projection);
+            //GL.LoadMatrix(ref identity);
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            GL.Viewport(ClientRectangle);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)

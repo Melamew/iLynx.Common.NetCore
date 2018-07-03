@@ -36,20 +36,26 @@ namespace iLynx.Graphics.Rendering.Geometry
 {
     public abstract class Geometry2D : IDrawable
     {
-        private readonly VertexArrayObject<Vertex2> vao = new VertexArrayObject<Vertex2>();
+        private readonly VertexArrayObject<Vertex2> fillVao = new VertexArrayObject<Vertex2>();
+        private readonly VertexArrayObject<Vertex2> outlineVao = new VertexArrayObject<Vertex2>();
+        private readonly VertexBufferObject<Vertex2> outlineBuffer;
         private readonly VertexBufferObject<Vertex2> fillBuffer;
         private readonly VertexBufferObject<uint> indexBuffer;
+        private readonly VertexBufferObject<uint> outlineIndexBuffer;
 
         private Color fillColor;
         //private readonly VertexBufferObject<Vertex2> outlineBuffer = new VertexBufferObject<Vertex2>(4) { PrimitiveType = PrimitiveType.LineLoop };
 
-        protected Geometry2D(bool isFixedSize = false, int length = 0)
+        protected Geometry2D(Color fillColor, Color borderColor, float borderThickness, bool isFixedSize = false, int length = 0)
         {
+            this.fillColor = fillColor;
+            BorderColor = borderColor;
+            BorderThickness = borderThickness;
             fillBuffer = isFixedSize
                 ? new VertexBufferObject<Vertex2>(length, BufferTarget.ArrayBuffer, BufferUsageHint.StaticDraw)
                 : new VertexBufferObject<Vertex2>(0, BufferTarget.ArrayBuffer, BufferUsageHint.StreamDraw);
             indexBuffer = new VertexBufferObject<uint>(0, BufferTarget.ElementArrayBuffer, BufferUsageHint.StaticDraw);
-            vao.AttachVertexBuffer(fillBuffer, indexBuffer);
+            fillVao.AttachVertexBuffer(fillBuffer, indexBuffer);
         }
 
         public Color FillColor
@@ -59,12 +65,7 @@ namespace iLynx.Graphics.Rendering.Geometry
             {
                 if (value == fillColor) return;
                 fillColor = value;
-                fillBuffer.BackingArray.Transform(x =>
-                {
-                    x.VertexColor = value;
-                    return x;
-                });
-                fillBuffer.UpdateGpuData();
+                fillBuffer.Transform((ref Vertex2 v) => v.VertexColor = value);
             }
         }
 
@@ -85,25 +86,27 @@ namespace iLynx.Graphics.Rendering.Geometry
 
         protected abstract Vertex2[] GetVertices();
 
-        protected virtual uint[] GetIndices()
+        private uint[] GetIndices()
         {
             return 0u.To((uint)fillBuffer.Length - 1);
         }
 
         public void Dispose()
         {
-            fillBuffer?.Dispose();
-            indexBuffer?.Dispose();
+            fillVao.Dispose();
+            outlineVao.Dispose();
+            //fillBuffer?.Dispose();
+            //indexBuffer?.Dispose();
         }
 
-        public void Draw(IRenderTarget target) 
+        public void Draw(IDrawingContext target) 
         {
             target.UseShader(Shader = Shader ?? target.ActiveShader);
             target.BindTexture(Texture);
             Shader?.SetTransform(Transform);
-            vao.Bind();
+            fillVao.Bind();
             GL.DrawElements(PrimitiveType, fillBuffer.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
-            vao.Unbind();
+            fillVao.Unbind();
             //var transformLocation = Shader.GetUniformLocation("transform");
             //var transform = Transform;
             //GL.UniformMatrix4(transformLocation, false, ref transform);

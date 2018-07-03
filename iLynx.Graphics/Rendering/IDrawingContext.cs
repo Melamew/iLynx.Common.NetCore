@@ -28,43 +28,43 @@
 using System;
 using iLynx.Graphics.Rendering.Shaders;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Rendering
 {
-    public class OpenGlRenderTarget : IRenderTarget
+    public interface IDrawingContext
     {
-        private Matrix4 viewTransform = Matrix4.Identity;
-        private ShaderProgram activeShader;
+        /// <summary>
+        /// Gets or Sets the current view transform.
+        /// </summary>
+        Matrix4 ViewTransform { get; set; }
 
-        public OpenGlRenderTarget()
-        {
-            Toolkit.Init();
-        }
+        /// <summary>
+        /// Gets the currently active shader
+        /// </summary>
+        ShaderProgram ActiveShader { get; }
 
-        public Matrix4 ViewTransform { get; set; } = Matrix4.Identity;
+        /// <summary>
+        /// Gets the currently active texture
+        /// </summary>
+        Texture ActiveTexture { get; }
 
-        public ShaderProgram ActiveShader => activeShader;
+        /// <summary>
+        /// Binds the specified shader to this target.
+        /// </summary>
+        /// <param name="shader">The shader to bind</param>
+        void UseShader(ShaderProgram shader);
 
-        public Texture ActiveTexture { get; }
+        /// <summary>
+        /// Binds the specified texture to this target.
+        /// </summary>
+        /// <param name="texture"></param>
+        void BindTexture(Texture texture);
 
-        public void UseShader(ShaderProgram shader)
-        {
-            if (shader == activeShader || null == shader) return;
-            activeShader = shader;
-            activeShader.ViewTransform = ViewTransform;
-            ShaderProgram.Use(activeShader);
-        }
-
-        public void BindTexture(Texture texture)
-        {
-        }
-
-        public void Draw(IDrawable drawable)
-        {
-            GL.ClearColor(Color.Black);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            drawable.Draw(this);
-        }
+        /// <summary>
+        /// Draws the specified <see cref="IDrawable"/> in this context.
+        /// NOTE: This method will essentially call <see cref="IDrawable.Draw(IDrawingContext)"/> with this <see cref="IDrawingContext"/> as its argument
+        /// </summary>
+        /// <param name="drawable"></param>
+        void Draw(IDrawable drawable);
     }
 }

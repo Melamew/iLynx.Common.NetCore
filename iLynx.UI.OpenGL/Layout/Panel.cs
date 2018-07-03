@@ -115,7 +115,7 @@ namespace iLynx.UI.OpenGL.Layout
             //throw new NotImplementedException();
         }
 
-        protected override void DrawLocked(IRenderTarget target)
+        protected override void DrawLocked(IDrawingContext target)
         {
             //var renderItems = GetRenderItems();
             //var t = renderItems.texture;
