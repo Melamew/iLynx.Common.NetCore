@@ -35,7 +35,7 @@ namespace iLynx.UI.OpenGL.Controls
     public abstract class Control : UIElement
     {
         private Color background = Color.Transparent;
-        private Func<SizeF, Geometry> backgroundShapeGenerator = size => new RectangleGeometry(size, Color.Transparent);
+        private Func<SizeF, Geometry> backgroundShapeGenerator = size => new RectangleGeometry(size, Color.Transparent, true);
         private Geometry shape;
         private SizeF size;
 

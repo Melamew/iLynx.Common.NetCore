@@ -38,17 +38,13 @@ namespace iLynx.Graphics.TestBench
     {
         private readonly IDrawingContext target;
         private readonly RectangleGeometry geometry;
-        private readonly DrawableText text = new DrawableText("./Text/fonts/OpenSans-Regular.ttf");
+        //private readonly DrawableText text = new DrawableText("./Text/fonts/OpenSans-Regular.ttf");
 
         public MainWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title, GameWindowFlags.Default, DisplayDevice.Default)
         {
             target = new DrawingContext();
-            geometry = new RectangleGeometry(1, 1, Color.Red)
-            {
-                Origin = new Vector3(.5f, .5f, 0f),
-                Size = new Vector3(500f, 500f, 1f)
-            };
+            geometry = new RectangleGeometry(500f, 500f, Color.Red, true);
             //var from = 0f;
             //var range = 500f;
             //Animator.Start(x => geometry.Position = new Vector3((float)(@from + range * x), geometry.Position.Y, 0f), TimeSpan.FromSeconds(2.5), LoopMode.Reverse,
@@ -61,11 +57,9 @@ namespace iLynx.Graphics.TestBench
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            Animator.Start(x =>
-                //geometry.Rotation = Quaternion.FromEulerAngles((float) (x * MathF.PI * 2f), 0f, 0f)
-                geometry.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float) (x * Math.PI * 2d))
-                ,
-                TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
+            Animator.Start(x => geometry.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)), TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
+            Animator.Start(x => geometry.Translation = (float)x * new Vector3(geometry.Width, geometry.Height, 1f) + new Vector3(ClientRectangle.Width / 4f, ClientRectangle.Height / 4f, 0f), TimeSpan.FromSeconds(2.5d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
+            Animator.Start(x => geometry.Origin = (float)x * new Vector3(geometry.Width * 2, geometry.Height * 2, 1f), TimeSpan.FromSeconds(2.5d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
         }
 
         protected override void OnResize(EventArgs e)

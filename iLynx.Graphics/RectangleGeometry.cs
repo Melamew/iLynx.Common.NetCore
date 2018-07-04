@@ -69,16 +69,16 @@ namespace iLynx.Graphics
             return vertices;
         }
 
-        public RectangleGeometry(float width, float height, Color fillColor)
-            : base(fillColor, Color.Transparent, 0.0f, true, 4)
+        public RectangleGeometry(float width, float height, Color fillColor, bool showOrigin = false)
+            : base(fillColor, Color.Transparent, 0.0f, true, 4, showOrigin)
         {
             this.width = width;
             this.height = height;
             Update();
         }
 
-        public RectangleGeometry(SizeF dimensions, Color color)
-            : this(dimensions.Width, dimensions.Height, color)
+        public RectangleGeometry(SizeF dimensions, Color color, bool showOrigin = false)
+            : this(dimensions.Width, dimensions.Height, color, showOrigin)
         {
 
         }

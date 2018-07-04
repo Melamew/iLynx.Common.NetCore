@@ -41,13 +41,17 @@ namespace iLynx.Graphics
         private readonly VertexBufferObject<Vertex> fillBuffer;
         private readonly VertexBufferObject<uint> indexBuffer;
         private readonly VertexBufferObject<uint> outlineIndexBuffer;
+        private readonly RectangleGeometry originRect;
 
         private Color fillColor;
+
+        private readonly bool showOrigin;
         //private readonly VertexBufferObject<Vertex> outlineBuffer = new VertexBufferObject<Vertex>(4) { PrimitiveType = PrimitiveType.LineLoop };
 
-        protected Geometry(Color fillColor, Color borderColor, float borderThickness, bool isFixedSize = false, int length = 0)
+        protected Geometry(Color fillColor, Color borderColor, float borderThickness, bool isFixedSize = false, int length = 0, bool showOrigin = false)
         {
             this.fillColor = fillColor;
+            this.showOrigin = showOrigin;
             BorderColor = borderColor;
             BorderThickness = borderThickness;
             fillBuffer = isFixedSize
@@ -55,6 +59,11 @@ namespace iLynx.Graphics
                 : new VertexBufferObject<Vertex>(0, BufferTarget.ArrayBuffer, BufferUsageHint.StreamDraw);
             indexBuffer = new VertexBufferObject<uint>(0, BufferTarget.ElementArrayBuffer, BufferUsageHint.StaticDraw);
             fillVao.AttachVertexBuffer(fillBuffer, indexBuffer);
+            if (showOrigin)
+            {
+                originRect = new RectangleGeometry(20f, 20f, Color.Lime, false);
+                originRect.Origin = new Vector3(originRect.Width / 2f, originRect.Height / 2f, 0f);
+            }
         }
 
         public Color FillColor
@@ -105,6 +114,14 @@ namespace iLynx.Graphics
             Shader?.SetTransform(Transform);
             fillVao.Bind();
             GL.DrawElements(PrimitiveType, fillBuffer.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            if (originRect != null && showOrigin)
+            {
+                //originRect.Transform = Transform.ClearScale();
+                originRect.Rotation = Rotation;
+                originRect.Translation = Translation;
+                originRect.Draw(target);
+            }
+
             fillVao.Unbind();
             //var transformLocation = Shader.GetUniformLocation("transform");
             //var transform = Transform;

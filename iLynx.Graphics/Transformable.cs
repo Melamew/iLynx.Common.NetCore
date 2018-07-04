@@ -108,14 +108,14 @@ namespace iLynx.Graphics
         public Matrix4 Transform
         {
             get => transform;
-            set
-            {
-                if (value == transform) return;
-                transform = value;
-                rotation = transform.ExtractRotation();
-                size = transform.ExtractScale();
-                translation = transform.ExtractTranslation();
-            }
+            //set
+            //{
+            //    if (value == transform) return;
+            //    transform = value;
+            //    rotation = transform.ExtractRotation();
+            //    size = transform.ExtractScale();
+            //    translation = transform.ExtractTranslation();
+            //}
         }
     }
 }
