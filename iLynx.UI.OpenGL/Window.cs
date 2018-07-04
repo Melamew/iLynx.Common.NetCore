@@ -49,7 +49,7 @@ namespace iLynx.UI.OpenGL
         private TimeSpan layoutTime;
         private readonly IBinding<TimeSpan> layoutTimeBinding;
 
-        private readonly IDrawingContext drawingContext = new DrawingContext();
+        //private readonly IView view = new View();
         //private readonly Thread renderThread;
 
         public Window(int width, int height, string title = "")
@@ -130,7 +130,7 @@ namespace iLynx.UI.OpenGL
             sw.Start();
             GL.ClearColor(Color.Lime);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            root.Draw(drawingContext);
+            //root.Draw(view);
             SwapBuffers();
             sw.Stop();
             FrameTime = sw.Elapsed;

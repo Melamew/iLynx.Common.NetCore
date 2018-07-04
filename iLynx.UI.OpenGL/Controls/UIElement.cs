@@ -32,6 +32,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using iLynx.Common;
 using iLynx.Graphics;
+using iLynx.Graphics.Shaders;
 using iLynx.UI.OpenGL.Input;
 using OpenTK;
 
@@ -358,7 +359,7 @@ namespace iLynx.UI.OpenGL.Controls
 
         public IRenderElement Parent { get; private set; }
 
-        public virtual void Draw(IDrawingContext target)
+        public virtual void Draw(IView target)
         {
             LayoutLock.EnterReadLock();
             try
@@ -420,11 +421,19 @@ namespace iLynx.UI.OpenGL.Controls
         {
         }
 
-        protected abstract void DrawLocked(IDrawingContext target);
+        protected abstract void DrawLocked(IView target);
 
         public void Dispose()
         {
             LayoutLock?.Dispose();
         }
+
+        public DrawCall<Vertex> CreateDrawCall()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Shader Shader { get; }
+        public Texture Texture { get; }
     }
 }

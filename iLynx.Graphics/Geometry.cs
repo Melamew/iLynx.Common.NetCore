@@ -27,7 +27,7 @@
 #endregion
 using System;
 using iLynx.Common;
-using iLynx.Graphics.shaders;
+using iLynx.Graphics.Shaders;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -94,10 +94,11 @@ namespace iLynx.Graphics
 
         protected abstract Vertex[] GetVertices();
 
-        private uint[] GetIndices()
-        {
-            return 0u.To((uint)fillBuffer.Length - 1);
-        }
+        protected abstract uint[] GetIndices();
+        //private uint[] GetIndices()
+        //{
+        //    return 0u.To((uint)fillBuffer.Length - 1);
+        //}
 
         public void Dispose()
         {
@@ -107,22 +108,26 @@ namespace iLynx.Graphics
             //indexBuffer?.Dispose();
         }
 
-        public void Draw(IDrawingContext target)
+        public DrawCall<Vertex> CreateDrawCall()
         {
-            target.UseShader(Shader = Shader ?? target.ActiveShader);
-            target.BindTexture(Texture);
-            Shader?.SetTransform(Transform);
-            fillVao.Bind();
-            GL.DrawElements(PrimitiveType, fillBuffer.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
-            if (originRect != null && showOrigin)
-            {
-                //originRect.Transform = Transform.ClearScale();
-                originRect.Rotation = Rotation;
-                originRect.Translation = Translation;
-                originRect.Draw(target);
-            }
+            return new DrawCall<Vertex>(Transform, PrimitiveType, fillVao, fillBuffer.Length);
+        }
 
-            fillVao.Unbind();
+        public void Draw(IView target)
+        {
+            //target.UseShader(Shader = Shader ?? target.ActiveShader);
+            //target.BindTexture(Texture);
+            //Shader?.Transform(Transform);
+            //fillVao.Bind();
+            //GL.DrawElements(PrimitiveType, fillBuffer.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            //if (originRect != null && showOrigin)
+            //{
+            //    originRect.Rotation = Rotation;
+            //    originRect.Translation = Translation;
+            //    originRect.Draw(target);
+            //}
+
+            //fillVao.Unbind();
             //var transformLocation = Shader.GetUniformLocation("transform");
             //var transform = Transform;
             //GL.UniformMatrix4(transformLocation, false, ref transform);

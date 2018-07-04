@@ -25,45 +25,64 @@
  *
  */
 #endregion
-using iLynx.Graphics.shaders;
+
+using System.Collections.Generic;
+using System.Linq;
+using iLynx.Graphics.Shaders;
 using OpenTK;
+using OpenTK.Graphics;
 
 namespace iLynx.Graphics
 {
-    public class DrawingContext : IDrawingContext
+    public class View : Transformable, IView
     {
-        private Matrix4 viewTransform = Matrix4.Identity;
+        private readonly IGraphicsContext context;
 
-        public Matrix4 ViewTransform
+        private readonly List<IDrawable> drawables = new List<IDrawable>();
+
+        private readonly List<RenderBatch> renderBatches = new List<RenderBatch>();
+
+        public View(IGraphicsContext context)
         {
-            get => viewTransform;
-            set
+            this.context = context;
+        }
+
+        public Matrix4 Projection { get; set; } = Matrix4.Identity;
+
+        public void PrepareRender()
+        {
+            // TODO: Only update when necessary, don't rebuild the entire thing.
+            renderBatches.Clear();
+            foreach (var drawable in drawables)
             {
-                if (value == viewTransform) return;
-                viewTransform = value;
-                if (null == ActiveShader) return;
-                ActiveShader.ViewTransform = value;
+                var call = drawable.CreateDrawCall();
+                var batch = renderBatches.FirstOrDefault(x =>
+                                x.Shader == drawable.Shader && x.Texture == drawable.Texture) ?? new RenderBatch
+                                {
+                                    Shader = drawable.Shader,
+                                    Texture = drawable.Texture
+                                };
+                batch.AddCall(call);
+                if (renderBatches.Contains(batch)) continue;
+                renderBatches.Add(batch);
             }
         }
 
-        public Shader ActiveShader { get; private set; }
-        public Texture ActiveTexture { get; }
-
-        public void UseShader(Shader shader)
+        public void Render()
         {
-            if (shader == ActiveShader || null == shader) return;
-            ActiveShader = shader;
-            ActiveShader.ViewTransform = ViewTransform;
-            ActiveShader?.Use();
+            foreach (var batch in renderBatches)
+                batch.Execute(Transform * Projection);
+            //throw new System.NotImplementedException();
         }
 
-        public void BindTexture(Texture texture)
+        public void AddDrawable(IDrawable drawable)
         {
+            drawables.Add(drawable);
         }
 
-        public void Draw(IDrawable drawable)
+        public void RemoveDrawable(IDrawable drawable)
         {
-            drawable.Draw(this);
+            throw new System.NotImplementedException();
         }
     }
 }

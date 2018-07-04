@@ -69,6 +69,11 @@ namespace iLynx.Graphics
             return vertices;
         }
 
+        protected override uint[] GetIndices()
+        {
+            return new[] { 0u, 1u, 2u, 3u };
+        }
+
         public RectangleGeometry(float width, float height, Color fillColor, bool showOrigin = false)
             : base(fillColor, Color.Transparent, 0.0f, true, 4, showOrigin)
         {

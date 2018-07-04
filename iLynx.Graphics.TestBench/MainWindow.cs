@@ -35,22 +35,23 @@ namespace iLynx.Graphics.TestBench
 {
     public class MainWindow : GameWindow
     {
-        private readonly IDrawingContext target;
-        private readonly RectangleGeometry geometry;
+        private IView view;
+        private RectangleGeometry geometry;
         //private readonly Text text = new Text("./Text/fonts/OpenSans-Regular.ttf");
 
         public MainWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title, GameWindowFlags.Default, DisplayDevice.Default)
         {
-            target = new DrawingContext();
-            geometry = new RectangleGeometry(500f, 500f, Color.Red, true);
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            Animator.Start(x => geometry.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)), TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
-            Animator.Start(x => geometry.Origin = (float)x * new Vector3(geometry.Width, geometry.Height, 1f), TimeSpan.FromSeconds(2.5d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
+            view = new View(Context);
+            geometry = new RectangleGeometry(500f, 500f, Color.Red, true);
+            view.AddDrawable(geometry);
+            //Animator.Start(x => geometry.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)), TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
+            //Animator.Start(x => geometry.Origin = (float)x * new Vector3(geometry.Width, geometry.Height, 1f), TimeSpan.FromSeconds(2.5d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
         }
 
         protected override void OnResize(EventArgs e)
@@ -58,21 +59,23 @@ namespace iLynx.Graphics.TestBench
             base.OnResize(e);
             GL.Viewport(ClientRectangle);
             Console.WriteLine($"Resize to: {ClientRectangle}");
-            target.ViewTransform = Matrix4.CreateTranslation(-.5f * ClientRectangle.Width, -.5f * ClientRectangle.Height, 0f);
-            target.ViewTransform *= Matrix4.CreateScale(1f / (ClientRectangle.Width / 2f), -1f / (ClientRectangle.Height / 2f), 1.0f);
+            view.Translation = new Vector3(-.5f * ClientRectangle.Width, -.5f * ClientRectangle.Height, 0f);
+            view.Size = new Vector3(1f / (ClientRectangle.Width / 2f), -1f / (ClientRectangle.Height / 2f), 1.0f);
             geometry.Translation = new Vector3(ClientRectangle.Width / 2f, ClientRectangle.Height / 2f, 0f);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             Animator.Tick();
+            view.PrepareRender();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.ClearColor(Color.Black);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            target.Draw(geometry);
+            view.Render();
+            //view.AddDrawable(geometry);
             SwapBuffers();
         }
     }

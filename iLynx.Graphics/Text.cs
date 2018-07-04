@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using iLynx.Graphics.Shaders;
+using OpenTK;
 
 namespace iLynx.Graphics
 {
@@ -13,7 +14,7 @@ namespace iLynx.Graphics
 
         public Color FillColor { get; set; }
 
-        public void Draw(IDrawingContext target)
+        public void Draw(IView target)
         {
             
         }
@@ -22,5 +23,13 @@ namespace iLynx.Graphics
         {
             return new Vector2(0);
         }
+
+        public DrawCall<Vertex> CreateDrawCall()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Shader Shader { get; }
+        public Texture Texture { get; }
     }
 }

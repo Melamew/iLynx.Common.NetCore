@@ -25,18 +25,31 @@
  *
  */
 #endregion
+
+using iLynx.Graphics.Shaders;
+
 namespace iLynx.Graphics
 {
     /// <summary>
     /// Base interface for drawable elements.
-    /// NOTE: A drawable must NOT call <see cref="IDrawingContext.Draw(IDrawable)"/>
+    /// NOTE: A drawable must NOT call <see cref="IView.AddDrawable"/>
     /// </summary>
     public interface IDrawable
     {
         /// <summary>
-        /// Draws this <see cref="IDrawable"/> to the specified <see cref="IDrawingContext"/>
+        /// Creates a <see cref="DrawCall{TVertex}"/> for this object
         /// </summary>
-        /// <param name="target"></param>
-        void Draw(IDrawingContext target);
+        /// <returns></returns>
+        DrawCall<Vertex> CreateDrawCall();
+
+        /// <summary>
+        /// Gets a reference to the <see cref="iLynx.Graphics.Shaders.Shader"/> to be used when rendering this <see cref="IDrawable"/>
+        /// </summary>
+        Shader Shader { get; }
+
+        /// <summary>
+        /// Gets a reference to the <see cref="iLynx.Graphics.Texture"/> that should be used when rendering this <see cref="IDrawable"/>
+        /// </summary>
+        Texture Texture { get; }
     }
 }

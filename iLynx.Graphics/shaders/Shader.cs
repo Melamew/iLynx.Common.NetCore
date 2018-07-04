@@ -30,7 +30,7 @@ using System.IO;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.shaders
+namespace iLynx.Graphics.Shaders
 {
     public class ShaderCompilationException : OpenGLException
     {
@@ -42,8 +42,8 @@ namespace iLynx.Graphics.shaders
     {
         private readonly int handle;
         private readonly bool isProgram;
-        public const string DefaultFragmentShaderRelPath = "shaders/default.frag";
-        public const string DefaultVertexShaderRelPath = "shaders/default.vert";
+        public const string DefaultFragmentShaderRelPath = "Shaders/default.frag";
+        public const string DefaultVertexShaderRelPath = "Shaders/default.vert";
         public const string TransformUniformName = "transform";
 
         public static Shader DefaultFragmentShader { get; } = FromFile(ShaderType.FragmentShader, DefaultFragmentShaderRelPath);
@@ -124,7 +124,7 @@ namespace iLynx.Graphics.shaders
             GL.UniformMatrix4(location, false, ref transform);
         }
 
-        public void Use()
+        public void Activate()
         {
             GLCheck.Check(GL.UseProgram, handle);
         }

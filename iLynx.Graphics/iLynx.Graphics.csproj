@@ -31,7 +31,7 @@
     <None Update="Shaders\default.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="shaders\default.vert">
+    <None Update="Shaders\default.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="fonts\Mechanical.otf">

@@ -41,7 +41,7 @@
 
 //        private readonly int handle;
 
-//        public Matrix4 ViewTransform { get; set; } = Matrix4.Identity;
+//        public Matrix4 Transform { get; set; } = Matrix4.Identity;
 
 //        public ShaderProgram(params Shader[] shaders)
 //        {
@@ -58,12 +58,12 @@
 //            }
 //        }
 
-//        public void SetTransform(Matrix4 transform)
+//        public void Transform(Matrix4 transform)
 //        {
 //            int location;
 //            if (0 == handle) throw new NotInitializedException();
 //            if ((location = GL.GetUniformLocation(handle, TransformUniformName)) == -1) return;
-//            transform *= ViewTransform;
+//            transform *= Transform;
 //            GL.UniformMatrix4(location, false, ref transform);
 //        }
 

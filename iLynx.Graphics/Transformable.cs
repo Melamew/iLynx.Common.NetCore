@@ -29,7 +29,7 @@ using OpenTK;
 
 namespace iLynx.Graphics
 {
-    public abstract class Transformable
+    public abstract class Transformable : ITransformable
     {
         private Vector3 size = new Vector3(1f);
         private Vector3 translation = new Vector3(0f);
@@ -105,17 +105,6 @@ namespace iLynx.Graphics
             }
         }
 
-        public Matrix4 Transform
-        {
-            get => transform;
-            //set
-            //{
-            //    if (value == transform) return;
-            //    transform = value;
-            //    rotation = transform.ExtractRotation();
-            //    size = transform.ExtractScale();
-            //    translation = transform.ExtractTranslation();
-            //}
-        }
+        public Matrix4 Transform => transform;
     }
 }
