@@ -37,7 +37,7 @@ namespace iLynx.Graphics.shaders
         private static ShaderProgram default2DShader;
 
         public static ShaderProgram Default2DShader => default2DShader ?? (default2DShader =
-                                                           new ShaderProgram(Shader.DefaultFragmentShader, Shader.Default2DVertexShader));
+                                                           new ShaderProgram(Shader.DefaultFragmentShader, Shader.DefaultVertexShader));
 
         private readonly int handle;
 

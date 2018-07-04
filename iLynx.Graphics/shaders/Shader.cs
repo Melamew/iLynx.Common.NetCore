@@ -40,14 +40,14 @@ namespace iLynx.Graphics.shaders
     public class Shader : IDisposable
     {
         private static Shader defaultFragmentShader;
-        private static Shader default2DVertexShader;
+        private static Shader defaultVertexShader;
         private readonly int handle;
         public const string DefaultFragmentShaderRelPath = "shaders/default.frag";
-        public const string Default2DVertexShaderRelPath = "shaders/default.vert";
+        public const string DefaultVertexShaderRelPath = "shaders/default.vert";
 
         public static Shader DefaultFragmentShader => defaultFragmentShader ?? (defaultFragmentShader = FromFile(ShaderType.FragmentShader, DefaultFragmentShaderRelPath));
 
-        public static Shader Default2DVertexShader => default2DVertexShader ?? (default2DVertexShader = FromFile(ShaderType.VertexShader, Default2DVertexShaderRelPath));
+        public static Shader DefaultVertexShader => defaultVertexShader ?? (defaultVertexShader = FromFile(ShaderType.VertexShader, DefaultVertexShaderRelPath));
 
         protected Shader(ShaderType type, string shaderSource)
         {
