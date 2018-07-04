@@ -31,7 +31,7 @@ using OpenTK;
 
 namespace iLynx.UI.OpenGL
 {
-    public interface IRenderElement : IBindingSource
+    public interface IRenderElement : IBindingSource, IDrawable
     {
         /// <summary>
         /// Gets the bounding box of this element

@@ -34,10 +34,10 @@
     <None Update="shaders\default.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Text\fonts\Mechanical.otf">
+    <None Update="fonts\Mechanical.otf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Text\fonts\OpenSans-Regular.ttf">
+    <None Update="fonts\OpenSans-Regular.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

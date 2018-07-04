@@ -88,7 +88,7 @@ namespace iLynx.UI.OpenGL.Controls
         {
             if (size == default(SizeF)) return;
             shape.FillColor = background;
-            //target.Draw(shape);
+            target.Draw(shape);
         }
 
         public override bool HitTest(PointF position, out IInputElement element)

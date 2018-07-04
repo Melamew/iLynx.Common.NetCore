@@ -33,7 +33,7 @@ namespace iLynx.UI.OpenGL.Controls
 {
     public class TextElement : Control
     {
-        private readonly Text renderable = new Text();
+        private readonly Text renderable = new Text("fonts/Mechanical.otf");
         private string text;
         private Color foreground;
         private uint fontSize = 24;

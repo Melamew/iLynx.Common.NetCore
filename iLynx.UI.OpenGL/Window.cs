@@ -29,6 +29,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using iLynx.Common;
+using iLynx.Graphics;
 using iLynx.Graphics.Animation;
 using iLynx.UI.OpenGL.Layout;
 using OpenTK;
@@ -47,6 +48,8 @@ namespace iLynx.UI.OpenGL
         private readonly IBinding<TimeSpan> frameTimeBinding;
         private TimeSpan layoutTime;
         private readonly IBinding<TimeSpan> layoutTimeBinding;
+
+        private readonly IDrawingContext drawingContext = new DrawingContext();
         //private readonly Thread renderThread;
 
         public Window(int width, int height, string title = "")
@@ -125,8 +128,9 @@ namespace iLynx.UI.OpenGL
         {
             var sw = new Stopwatch();
             sw.Start();
-            GL.ClearColor(Color.LimeGreen);
+            GL.ClearColor(Color.Lime);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            root.Draw(drawingContext);
             SwapBuffers();
             sw.Stop();
             FrameTime = sw.Elapsed;

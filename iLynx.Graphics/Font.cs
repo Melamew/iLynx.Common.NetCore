@@ -1,12 +1,7 @@
 ﻿using SharpFont;
 
-namespace iLynx.Graphics.Text
+namespace iLynx.Graphics
 {
-    public struct Glyph
-    {
-
-    }
-
     public class Font
     {
         private static readonly Library Library = new Library();
@@ -19,21 +14,6 @@ namespace iLynx.Graphics.Text
             stroker = new Stroker(Library);
             face.SelectCharmap(Encoding.Unicode);
             face.SetPixelSizes(0, fontSize);
-        }
-    }
-
-    public class DrawableText : IDrawable
-    {
-        private Font font;
-
-        public DrawableText(string fontFile)
-        {
-            font = new Font(fontFile);
-        }
-
-        public void Draw(IDrawingContext target)
-        {
-            
         }
     }
 }

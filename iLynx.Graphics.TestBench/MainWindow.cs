@@ -27,7 +27,6 @@
 #endregion
 using System;
 using iLynx.Graphics.Animation;
-using iLynx.Graphics.Text;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -38,7 +37,7 @@ namespace iLynx.Graphics.TestBench
     {
         private readonly IDrawingContext target;
         private readonly RectangleGeometry geometry;
-        //private readonly DrawableText text = new DrawableText("./Text/fonts/OpenSans-Regular.ttf");
+        //private readonly Text text = new Text("./Text/fonts/OpenSans-Regular.ttf");
 
         public MainWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title, GameWindowFlags.Default, DisplayDevice.Default)
