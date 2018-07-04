@@ -31,28 +31,28 @@ using iLynx.Graphics.shaders;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Geometry
+namespace iLynx.Graphics
 {
-    public abstract class Geometry2D : Transformable, IDrawable
+    public abstract class Geometry : Transformable, IDrawable
     {
-        private readonly VertexArrayObject<Vertex2> fillVao = new VertexArrayObject<Vertex2>();
-        private readonly VertexArrayObject<Vertex2> outlineVao = new VertexArrayObject<Vertex2>();
-        private readonly VertexBufferObject<Vertex2> outlineBuffer;
-        private readonly VertexBufferObject<Vertex2> fillBuffer;
+        private readonly VertexArrayObject<Vertex> fillVao = new VertexArrayObject<Vertex>();
+        private readonly VertexArrayObject<Vertex> outlineVao = new VertexArrayObject<Vertex>();
+        private readonly VertexBufferObject<Vertex> outlineBuffer;
+        private readonly VertexBufferObject<Vertex> fillBuffer;
         private readonly VertexBufferObject<uint> indexBuffer;
         private readonly VertexBufferObject<uint> outlineIndexBuffer;
 
         private Color fillColor;
-        //private readonly VertexBufferObject<Vertex2> outlineBuffer = new VertexBufferObject<Vertex2>(4) { PrimitiveType = PrimitiveType.LineLoop };
+        //private readonly VertexBufferObject<Vertex> outlineBuffer = new VertexBufferObject<Vertex>(4) { PrimitiveType = PrimitiveType.LineLoop };
 
-        protected Geometry2D(Color fillColor, Color borderColor, float borderThickness, bool isFixedSize = false, int length = 0)
+        protected Geometry(Color fillColor, Color borderColor, float borderThickness, bool isFixedSize = false, int length = 0)
         {
             this.fillColor = fillColor;
             BorderColor = borderColor;
             BorderThickness = borderThickness;
             fillBuffer = isFixedSize
-                ? new VertexBufferObject<Vertex2>(length, BufferTarget.ArrayBuffer, BufferUsageHint.StaticDraw)
-                : new VertexBufferObject<Vertex2>(0, BufferTarget.ArrayBuffer, BufferUsageHint.StreamDraw);
+                ? new VertexBufferObject<Vertex>(length, BufferTarget.ArrayBuffer, BufferUsageHint.StaticDraw)
+                : new VertexBufferObject<Vertex>(0, BufferTarget.ArrayBuffer, BufferUsageHint.StreamDraw);
             indexBuffer = new VertexBufferObject<uint>(0, BufferTarget.ElementArrayBuffer, BufferUsageHint.StaticDraw);
             fillVao.AttachVertexBuffer(fillBuffer, indexBuffer);
         }
@@ -64,7 +64,7 @@ namespace iLynx.Graphics.Geometry
             {
                 if (value == fillColor) return;
                 fillColor = value;
-                fillBuffer.Transform((ref Vertex2 v) => v.VertexColor = value);
+                fillBuffer.Transform((ref Vertex v) => v.VertexColor = value);
             }
         }
 
@@ -83,7 +83,7 @@ namespace iLynx.Graphics.Geometry
             indexBuffer.SetData(GetIndices());
         }
 
-        protected abstract Vertex2[] GetVertices();
+        protected abstract Vertex[] GetVertices();
 
         private uint[] GetIndices()
         {

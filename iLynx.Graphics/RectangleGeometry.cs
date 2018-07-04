@@ -29,11 +29,11 @@ using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Geometry
+namespace iLynx.Graphics
 {
-    public class RectangleGeometry : Geometry2D
+    public class RectangleGeometry : Geometry
     {
-        private readonly Vertex2[] vertices = new Vertex2[4];
+        private readonly Vertex[] vertices = new Vertex[4];
         private float width, height;
 
         public float Width
@@ -60,12 +60,12 @@ namespace iLynx.Graphics.Geometry
 
         protected override PrimitiveType PrimitiveType => PrimitiveType.TriangleFan;
 
-        protected override Vertex2[] GetVertices()
+        protected override Vertex[] GetVertices()
         {
-            vertices[0] = new Vertex2(FillColor);
-            vertices[1] = new Vertex2(new Vector2(0f, height), FillColor);
-            vertices[2] = new Vertex2(new Vector2(width, height), FillColor);
-            vertices[3] = new Vertex2(new Vector2(width, 0f), FillColor);
+            vertices[0] = new Vertex(FillColor);
+            vertices[1] = new Vertex(new Vector3(0f, height, 0f), FillColor);
+            vertices[2] = new Vertex(new Vector3(width, height, 0f), FillColor);
+            vertices[3] = new Vertex(new Vector3(width, 0f, 0f), FillColor);
             return vertices;
         }
 

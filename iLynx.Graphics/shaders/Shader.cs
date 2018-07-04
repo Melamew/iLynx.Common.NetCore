@@ -43,7 +43,7 @@ namespace iLynx.Graphics.shaders
         private static Shader default2DVertexShader;
         private readonly int handle;
         public const string DefaultFragmentShaderRelPath = "shaders/default.frag";
-        public const string Default2DVertexShaderRelPath = "shaders/default2d.vert";
+        public const string Default2DVertexShaderRelPath = "shaders/default.vert";
 
         public static Shader DefaultFragmentShader => defaultFragmentShader ?? (defaultFragmentShader = FromFile(ShaderType.FragmentShader, DefaultFragmentShaderRelPath));
 

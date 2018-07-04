@@ -29,7 +29,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using iLynx.Graphics.Geometry;
 using OpenTK;
 
 namespace iLynx.Graphics.TestBench
@@ -38,18 +37,18 @@ namespace iLynx.Graphics.TestBench
     {
         private static void Main(string[] args)
         {
-            Console.WriteLine($"SizeOf<Vertex2>(): {Marshal.SizeOf<Vertex2>()}");
+            Console.WriteLine($"SizeOf<Vertex>(): {Marshal.SizeOf<Vertex>()}");
             var win = new MainWindow(1280, 720, "Test")
             {
                 Location = new Point(0,0)
             };
             win.Run(60d);
-            //var arr = new Vertex2[1024];
+            //var arr = new Vertex[1024];
             //RuinEverything(arr);
             //Console.ReadKey();
         }
 
-        private static void RuinEverything(Vertex2[] arr)
+        private static void RuinEverything(Vertex[] arr)
         {
             var rnd = new Random();
             var cumulativeSkipTake = new TimeSpan();
@@ -66,7 +65,7 @@ namespace iLynx.Graphics.TestBench
                 var result = arr.Skip(start).Take(length).ToArray();
                 sw.Stop();
                 cumulativeSkipTake += sw.Elapsed;
-                var segment = new ArraySegment<Vertex2>(arr, start, length);
+                var segment = new ArraySegment<Vertex>(arr, start, length);
                 sw.Reset();
                 sw.Start();
                 result = segment.ToArray();
@@ -74,7 +73,7 @@ namespace iLynx.Graphics.TestBench
                 cumulativeArraySegment += sw.Elapsed;
                 sw.Reset();
                 sw.Start();
-                result = new Vertex2[length];
+                result = new Vertex[length];
                 Array.Copy(arr, start, result, 0, length);
                 sw.Stop();
                 cumulativeArrayCopy += sw.Elapsed;

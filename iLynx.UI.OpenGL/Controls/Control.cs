@@ -27,9 +27,7 @@
 #endregion
 using System;
 using iLynx.Graphics;
-using iLynx.Graphics.Geometry;
 using OpenTK;
-using RectangleGeometry = iLynx.Graphics.Geometry.RectangleGeometry;
 
 namespace iLynx.UI.OpenGL.Controls
 {
@@ -37,11 +35,11 @@ namespace iLynx.UI.OpenGL.Controls
     public abstract class Control : UIElement
     {
         private Color background = Color.Transparent;
-        private Func<SizeF, Geometry2D> backgroundShapeGenerator = size => new RectangleGeometry(size, Color.Transparent);
-        private Geometry2D shape;
+        private Func<SizeF, Geometry> backgroundShapeGenerator = size => new RectangleGeometry(size, Color.Transparent);
+        private Geometry shape;
         private SizeF size;
 
-        public Func<SizeF, Geometry2D> BackgroundShapeGenerator
+        public Func<SizeF, Geometry> BackgroundShapeGenerator
         {
             get => backgroundShapeGenerator;
             set

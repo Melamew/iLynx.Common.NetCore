@@ -27,7 +27,7 @@
 #endregion
 using OpenTK;
 
-namespace iLynx.Graphics.Geometry
+namespace iLynx.Graphics
 {
     public abstract class Transformable
     {

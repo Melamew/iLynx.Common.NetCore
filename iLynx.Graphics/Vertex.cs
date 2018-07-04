@@ -31,54 +31,54 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using static OpenTK.Graphics.OpenGL.GL;
 
-namespace iLynx.Graphics.Geometry
+namespace iLynx.Graphics
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct Vertex2 : IEquatable<Vertex2>, IVAOElement
+    public struct Vertex : IEquatable<Vertex>, IVAOElement
     {
-        public Vector2 Position;
+        public Vector3 Position;
         public Vector2 TexCoord;
         public Color VertexColor;
         
-        public Vertex2(Vector2 position, Color vertexColor, Vector2 texCoord)
+        public Vertex(Vector3 position, Color vertexColor, Vector2 texCoord)
         {
             Position = position;
             VertexColor = vertexColor;
             TexCoord = texCoord;
         }
 
-        public Vertex2(Vector2 position, Color vertexColor)
+        public Vertex(Vector3 position, Color vertexColor)
         {
             Position = position;
             TexCoord = new Vector2();
             VertexColor = vertexColor;
         }
 
-        public Vertex2(Vector2 position)
+        public Vertex(Vector3 position)
         {
             Position = position;
             TexCoord = new Vector2();
             VertexColor = Color.Transparent;
         }
 
-        public Vertex2(Color color)
+        public Vertex(Color color)
         {
-            Position = new Vector2();
+            Position = new Vector3();
             TexCoord = new Vector2();
             VertexColor = color;
         }
 
-        public static bool operator ==(Vertex2 left, Vertex2 right)
+        public static bool operator ==(Vertex left, Vertex right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(Vertex2 left, Vertex2 right)
+        public static bool operator !=(Vertex left, Vertex right)
         {
             return !left.Equals(right);
         }
 
-        public bool Equals(Vertex2 other)
+        public bool Equals(Vertex other)
         {
             return Position == other.Position && VertexColor == other.VertexColor && TexCoord == other.TexCoord;
         }
@@ -86,7 +86,7 @@ namespace iLynx.Graphics.Geometry
         public override bool Equals(object obj)
         {
             if (obj is null) return false;
-            return obj is Vertex2 vertex && Equals(vertex);
+            return obj is Vertex vertex && Equals(vertex);
         }
 
         public override int GetHashCode()
@@ -107,13 +107,13 @@ namespace iLynx.Graphics.Geometry
 
         public void SetupVertexAttributePointers()
         {
-            var size = Marshal.SizeOf<Vertex2>();
+            var size = Marshal.SizeOf<Vertex>();
             GLCheck.Check(EnableVertexAttribArray, 0);
             GLCheck.Check(EnableVertexAttribArray, 1);
             GLCheck.Check(EnableVertexAttribArray, 2);
             GLCheck.Check(VertexAttribPointer, 0, 2, VertexAttribPointerType.Float, false, size, 0);
-            GLCheck.Check(VertexAttribPointer, 1, 2, VertexAttribPointerType.Float, false, size, Marshal.SizeOf<Vector2>());
-            GLCheck.Check(VertexAttribPointer, 2, 4, VertexAttribPointerType.UnsignedByte, true, size, Marshal.SizeOf<Vector2>() * 2);
+            GLCheck.Check(VertexAttribPointer, 1, 2, VertexAttribPointerType.Float, false, size, Marshal.SizeOf<Vector3>());
+            GLCheck.Check(VertexAttribPointer, 2, 4, VertexAttribPointerType.UnsignedByte, true, size, Marshal.SizeOf<Vector3>() + Marshal.SizeOf<Vector2>());
         }
     }
 }
