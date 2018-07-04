@@ -28,7 +28,6 @@
 using System;
 using System.Threading;
 using iLynx.UI.OpenGL;
-using iLynx.UI.OpenGL.Animation;
 using iLynx.UI.OpenGL.Controls;
 using iLynx.UI.OpenGL.Layout;
 using OpenTK;

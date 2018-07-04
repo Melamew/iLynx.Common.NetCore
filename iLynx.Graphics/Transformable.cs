@@ -31,19 +31,19 @@ namespace iLynx.Graphics
 {
     public abstract class Transformable
     {
-        private Vector3 scale = new Vector3(1f);
+        private Vector3 size = new Vector3(1f);
         private Vector3 translation = new Vector3(0f);
         private Quaternion rotation = Quaternion.Identity;
         private Vector3 origin;
         private Matrix4 transform = Matrix4.Identity;
 
-        public Vector3 Scale
+        public Vector3 Size
         {
-            get => scale;
+            get => size;
             set
             {
-                if (value == scale) return;
-                scale = value;
+                if (value == size) return;
+                size = value;
                 Update();
             }
         }
@@ -68,7 +68,7 @@ namespace iLynx.Graphics
             transform =
                 Matrix4.CreateTranslation(-origin) *
                 Matrix4.CreateFromQuaternion(rotation) *
-                Matrix4.CreateScale(scale);
+                Matrix4.CreateScale(size);
             transform *= Matrix4.CreateTranslation(translation);
         }
 
@@ -113,7 +113,7 @@ namespace iLynx.Graphics
                 if (value == transform) return;
                 transform = value;
                 rotation = transform.ExtractRotation();
-                scale = transform.ExtractScale();
+                size = transform.ExtractScale();
                 translation = transform.ExtractTranslation();
             }
         }

@@ -25,9 +25,10 @@
  *
  */
 #endregion
+
 using System;
 
-namespace iLynx.UI.OpenGL.Animation
+namespace iLynx.Graphics.Animation
 {
     public class CallbackAnimation : Animation
     {

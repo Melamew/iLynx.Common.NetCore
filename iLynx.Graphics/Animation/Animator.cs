@@ -25,13 +25,13 @@
  *
  */
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using iLynx.Common.Threading;
 
-namespace iLynx.UI.OpenGL.Animation
+namespace iLynx.Graphics.Animation
 {
     public static class Animator
     {

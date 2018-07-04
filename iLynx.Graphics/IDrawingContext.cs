@@ -40,7 +40,7 @@ namespace iLynx.Graphics
         /// <summary>
         /// Gets the currently active shader
         /// </summary>
-        ShaderProgram ActiveShader { get; }
+        Shader ActiveShader { get; }
 
         /// <summary>
         /// Gets the currently active texture
@@ -51,7 +51,7 @@ namespace iLynx.Graphics
         /// Binds the specified shader to this target.
         /// </summary>
         /// <param name="shader">The shader to bind</param>
-        void UseShader(ShaderProgram shader);
+        void UseShader(Shader shader);
 
         /// <summary>
         /// Binds the specified texture to this target.

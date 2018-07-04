@@ -28,10 +28,8 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading;
 using iLynx.Common;
-using iLynx.Graphics;
-using iLynx.UI.OpenGL.Animation;
+using iLynx.Graphics.Animation;
 using iLynx.UI.OpenGL.Layout;
 using OpenTK;
 using OpenTK.Graphics;

@@ -46,15 +46,15 @@ namespace iLynx.Graphics
             }
         }
 
-        public ShaderProgram ActiveShader { get; private set; }
+        public Shader ActiveShader { get; private set; }
         public Texture ActiveTexture { get; }
 
-        public void UseShader(ShaderProgram shader)
+        public void UseShader(Shader shader)
         {
             if (shader == ActiveShader || null == shader) return;
             ActiveShader = shader;
             ActiveShader.ViewTransform = ViewTransform;
-            ShaderProgram.Use(ActiveShader);
+            ActiveShader?.Use();
         }
 
         public void BindTexture(Texture texture)

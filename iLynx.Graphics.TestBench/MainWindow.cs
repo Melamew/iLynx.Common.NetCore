@@ -26,7 +26,7 @@
  */
 #endregion
 using System;
-using iLynx.UI.OpenGL.Animation;
+using iLynx.Graphics.Animation;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -44,10 +44,13 @@ namespace iLynx.Graphics.TestBench
             : base(width, height, GraphicsMode.Default, title, GameWindowFlags.Default, DisplayDevice.Default)
         {
             target = new DrawingContext();
-            geometry = new RectangleGeometry(500f, 500f, Color.Red);
-            //geometry.Origin = new Vector3(250f, 250f, 0f);
-            var from = 0f;
-            var range = 500f;
+            geometry = new RectangleGeometry(1, 1, Color.Red)
+            {
+                Origin = new Vector3(.5f, .5f, 0f),
+                Size = new Vector3(500f, 500f, 1f)
+            };
+            //var from = 0f;
+            //var range = 500f;
             //Animator.Start(x => geometry.Position = new Vector3((float)(@from + range * x), geometry.Position.Y, 0f), TimeSpan.FromSeconds(2.5), LoopMode.Reverse,
             //    EasingFunctions.CubicInOut);
             //Animator.Start(x => geometry.Position = new Vector3(geometry.Position.X, (float) (@from + range * x), 0f),
@@ -59,7 +62,8 @@ namespace iLynx.Graphics.TestBench
         {
             base.OnLoad(e);
             Animator.Start(x =>
-                geometry.Rotation = Quaternion.FromEulerAngles((float) (x * 360f * PIOn180), 0f, 0f)
+                //geometry.Rotation = Quaternion.FromEulerAngles((float) (x * MathF.PI * 2f), 0f, 0f)
+                geometry.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float) (x * Math.PI * 2d))
                 ,
                 TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
         }

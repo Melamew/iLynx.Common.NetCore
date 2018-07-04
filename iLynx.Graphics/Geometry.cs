@@ -71,7 +71,7 @@ namespace iLynx.Graphics
         public Color BorderColor { get; set; }
         public float BorderThickness { get; set; }
         public Texture Texture { get; set; }
-        public ShaderProgram Shader { get; set; } = ShaderProgram.Default2DShader;
+        public Shader Shader { get; set; } = Shader.DefaultShaderProgram;
         //public Matrix4 Transform { get; set; } = Matrix4.Identity;
         protected abstract PrimitiveType PrimitiveType { get; }
 

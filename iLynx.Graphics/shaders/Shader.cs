@@ -27,6 +27,7 @@
 #endregion
 using System;
 using System.IO;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.shaders
@@ -39,17 +40,19 @@ namespace iLynx.Graphics.shaders
 
     public class Shader : IDisposable
     {
-        private static Shader defaultFragmentShader;
-        private static Shader defaultVertexShader;
         private readonly int handle;
+        private readonly bool isProgram;
         public const string DefaultFragmentShaderRelPath = "shaders/default.frag";
         public const string DefaultVertexShaderRelPath = "shaders/default.vert";
+        public const string TransformUniformName = "transform";
 
-        public static Shader DefaultFragmentShader => defaultFragmentShader ?? (defaultFragmentShader = FromFile(ShaderType.FragmentShader, DefaultFragmentShaderRelPath));
+        public static Shader DefaultFragmentShader { get; } = FromFile(ShaderType.FragmentShader, DefaultFragmentShaderRelPath);
 
-        public static Shader DefaultVertexShader => defaultVertexShader ?? (defaultVertexShader = FromFile(ShaderType.VertexShader, DefaultVertexShaderRelPath));
+        public static Shader DefaultVertexShader { get; } = FromFile(ShaderType.VertexShader, DefaultVertexShaderRelPath);
 
-        protected Shader(ShaderType type, string shaderSource)
+        public static Shader DefaultShaderProgram { get; } = new Shader(DefaultFragmentShader, DefaultVertexShader);
+
+        private Shader(ShaderType type, string shaderSource)
         {
             handle = GL.CreateShader(type);
             try
@@ -82,12 +85,48 @@ namespace iLynx.Graphics.shaders
 
         public void Dispose()
         {
-            GL.DeleteShader(handle);
+            if (isProgram)
+                GL.DeleteProgram(handle);
+            else
+                GL.DeleteShader(handle);
         }
 
-        public void AttachToProgram(int program)
+        private void AttachToProgram(int program)
         {
             GLCheck.Check(GL.AttachShader, program, handle);
+        }
+
+        public Matrix4 ViewTransform { get; set; } = Matrix4.Identity;
+
+        public Shader(params Shader[] shaders)
+        {
+            isProgram = true;
+            try
+            {
+                handle = GLCheck.Check(GL.CreateProgram);
+                foreach (var shader in shaders)
+                    shader.AttachToProgram(handle);
+                GLCheck.Check(GL.LinkProgram, handle);
+            }
+            catch (OpenGLCallException e)
+            {
+                throw new ShaderCompilationException("", e);
+            }
+        }
+
+        public void SetTransform(Matrix4 transform)
+        {
+            if (!isProgram) throw new InvalidOperationException("This shader has not been linked to a program");
+            int location;
+            if (0 == handle) throw new NotInitializedException();
+            if ((location = GL.GetUniformLocation(handle, TransformUniformName)) == -1) return;
+            transform *= ViewTransform;
+            GL.UniformMatrix4(location, false, ref transform);
+        }
+
+        public void Use()
+        {
+            GLCheck.Check(GL.UseProgram, handle);
         }
     }
 }
