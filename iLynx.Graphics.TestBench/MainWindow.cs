@@ -45,21 +45,13 @@ namespace iLynx.Graphics.TestBench
         {
             target = new DrawingContext();
             geometry = new RectangleGeometry(500f, 500f, Color.Red, true);
-            //var from = 0f;
-            //var range = 500f;
-            //Animator.Start(x => geometry.Position = new Vector3((float)(@from + range * x), geometry.Position.Y, 0f), TimeSpan.FromSeconds(2.5), LoopMode.Reverse,
-            //    EasingFunctions.CubicInOut);
-            //Animator.Start(x => geometry.Position = new Vector3(geometry.Position.X, (float) (@from + range * x), 0f),
-            //    TimeSpan.FromSeconds(2.125), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
-
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
             Animator.Start(x => geometry.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)), TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
-            Animator.Start(x => geometry.Translation = (float)x * new Vector3(geometry.Width, geometry.Height, 1f) + new Vector3(ClientRectangle.Width / 4f, ClientRectangle.Height / 4f, 0f), TimeSpan.FromSeconds(2.5d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
-            Animator.Start(x => geometry.Origin = (float)x * new Vector3(geometry.Width * 2, geometry.Height * 2, 1f), TimeSpan.FromSeconds(2.5d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
+            Animator.Start(x => geometry.Origin = (float)x * new Vector3(geometry.Width, geometry.Height, 1f), TimeSpan.FromSeconds(2.5d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
         }
 
         protected override void OnResize(EventArgs e)
