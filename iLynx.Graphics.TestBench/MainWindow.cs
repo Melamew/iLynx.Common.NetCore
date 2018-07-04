@@ -27,6 +27,7 @@
 #endregion
 using System;
 using iLynx.Graphics.Animation;
+using iLynx.Graphics.Text;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -37,8 +38,7 @@ namespace iLynx.Graphics.TestBench
     {
         private readonly IDrawingContext target;
         private readonly RectangleGeometry geometry;
-        // ReSharper disable once InconsistentNaming
-        private const float PIOn180 = MathF.PI / 180f;
+        private readonly DrawableText text = new DrawableText("./Text/fonts/OpenSans-Regular.ttf");
 
         public MainWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title, GameWindowFlags.Default, DisplayDevice.Default)
