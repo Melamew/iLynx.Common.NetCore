@@ -111,7 +111,7 @@ namespace iLynx.Graphics
             GLCheck.Check(EnableVertexAttribArray, 0);
             GLCheck.Check(EnableVertexAttribArray, 1);
             GLCheck.Check(EnableVertexAttribArray, 2);
-            GLCheck.Check(VertexAttribPointer, 0, 2, VertexAttribPointerType.Float, false, size, 0);
+            GLCheck.Check(VertexAttribPointer, 0, 3, VertexAttribPointerType.Float, false, size, 0);
             GLCheck.Check(VertexAttribPointer, 1, 2, VertexAttribPointerType.Float, false, size, Marshal.SizeOf<Vector3>());
             GLCheck.Check(VertexAttribPointer, 2, 4, VertexAttribPointerType.UnsignedByte, true, size, Marshal.SizeOf<Vector3>() + Marshal.SizeOf<Vector2>());
         }
