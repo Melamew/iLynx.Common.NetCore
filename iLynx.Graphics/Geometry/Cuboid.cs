@@ -6,7 +6,7 @@ namespace iLynx.Graphics.Geometry
     public class Cuboid : GeometryBase
     {
         private readonly Vector3 dimensions;
-        private static readonly uint[] Indices = { 0, 1, 2, 3,  };
+        private static readonly uint[] Indices = { 0, 1, 2, 3, 6, 7, 5, 4 };
         private readonly Vertex[] vertices = new Vertex[8];
 
         public Cuboid(Color fillColor, Vector3 dimensions, bool showOrigin = false) : base(fillColor, true, 8, showOrigin)
@@ -23,10 +23,10 @@ namespace iLynx.Graphics.Geometry
 
         protected override Vertex[] GetVertices()
         {
-            vertices[0] = new Vertex(new Vector3(0f, 0f, 0f), Color.Red);
-            vertices[1] = new Vertex(new Vector3(0f, dimensions.Y, 0f), Color.Green);
-            vertices[2] = new Vertex(new Vector3(dimensions.X, dimensions.Y, 0f), Color.Cyan);
-            vertices[3] = new Vertex(new Vector3(dimensions.X, 0f, 0f), Color.Blue);
+            vertices[0] = new Vertex(new Vector3(0f, dimensions.Y, 0f), Color.Red);
+            vertices[1] = new Vertex(new Vector3(0f, 0f, 0f), Color.Green);
+            vertices[2] = new Vertex(new Vector3(dimensions.X, dimensions.Y, 0f), Color.Blue);
+            vertices[3] = new Vertex(new Vector3(dimensions.X, 0f, 0f), Color.Cyan);
 
             vertices[4] = new Vertex(new Vector3(0f, 0f, dimensions.Z), Color.Magenta);
             vertices[5] = new Vertex(new Vector3(0f, dimensions.Y, dimensions.Z), Color.Yellow);
