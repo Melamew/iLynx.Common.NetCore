@@ -39,6 +39,7 @@ namespace iLynx.Graphics.Shaders
         public const string DefaultFragmentShaderRelPath = "Shaders/default.frag";
         public const string DefaultVertexShaderRelPath = "Shaders/default.vert";
         public const string TransformUniformName = "transform";
+        private readonly int transformId;
 
         public static Shader DefaultFragmentShader { get; } = FromFile(ShaderType.FragmentShader, DefaultFragmentShaderRelPath);
 
@@ -101,6 +102,7 @@ namespace iLynx.Graphics.Shaders
                 foreach (var shader in shaders)
                     shader.AttachToProgram(handle);
                 GLCheck.Check(GL.LinkProgram, handle);
+                transformId = GLCheck.Check(GL.GetUniformLocation, handle, TransformUniformName);
             }
             catch (OpenGLCallException e)
             {
@@ -111,11 +113,9 @@ namespace iLynx.Graphics.Shaders
         public void SetTransform(Matrix4 transform)
         {
             if (!isProgram) throw new InvalidOperationException("This shader has not been linked to a program");
-            int location;
             if (0 == handle) throw new NotInitializedException();
-            if ((location = GL.GetUniformLocation(handle, TransformUniformName)) == -1) return;
             transform *= ViewTransform;
-            GL.UniformMatrix4(location, false, ref transform);
+            GL.UniformMatrix4(transformId, false, ref transform);
         }
 
         public void Activate()
