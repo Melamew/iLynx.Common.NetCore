@@ -90,7 +90,7 @@ namespace iLynx.Graphics.Geometry
 
         public DrawCall<Vertex> CreateDrawCall()
         {
-            return new DrawCall<Vertex>(Transform, PrimitiveType, fillVao, fillBuffer.Length);
+            return new DrawCall<Vertex>(Transform, PrimitiveType, fillVao, indexBuffer.Length);
         }
     }
 }
