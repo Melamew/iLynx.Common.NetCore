@@ -27,6 +27,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using iLynx.Graphics.Geometry;
 using OpenTK;
 
 namespace iLynx.Graphics.Maths
@@ -123,7 +124,7 @@ namespace iLynx.Graphics.Maths
             return new Vector2(vector.X * scalar.X, vector.Y * scalar.Y);
         }
 
-        public static bool HitTest(this Geometry geometry, Vector2 point)
+        public static bool HitTest(this IGeometry geometry, Vector2 point)
         {
             return false;
             //var boundingBox = s.GetLocalBounds();

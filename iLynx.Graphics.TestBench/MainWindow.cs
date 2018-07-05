@@ -27,6 +27,7 @@
 #endregion
 using System;
 using iLynx.Graphics.Animation;
+using iLynx.Graphics.Geometry;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -36,10 +37,10 @@ namespace iLynx.Graphics.TestBench
     public class MainWindow : GameWindow
     {
         private IView view2D;
-        //private IView view3D;
+        private IView view3D;
 
-        private RectangleGeometry geometry;
-        //private readonly Text text = new Text("./Text/fonts/OpenSans-Regular.ttf");
+        private RectangleGeometry rectangle;
+        private Cuboid cuboid;
 
         public MainWindow(int width, int height, string title)
             : base(width, height, GraphicsMode.Default, title, GameWindowFlags.Default, DisplayDevice.Default)
@@ -50,14 +51,16 @@ namespace iLynx.Graphics.TestBench
         {
             base.OnLoad(e);
             view2D = new View(Context);
-            //view3D = new View(Context);
-            
-            geometry = new RectangleGeometry(500f, 500f, Color.Red, true);
-            geometry.Origin = new Vector3(geometry.Width * .5f, geometry.Height * .5f, 0f);
-            view2D.AddDrawable(geometry);
-            
-            Animator.Start(x => geometry.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)), TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
-            Animator.Start(x => geometry.Origin = (float)x * new Vector3(geometry.Width, geometry.Height, 0f), TimeSpan.FromSeconds(2.5d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
+            view3D = new View(Context);
+
+            rectangle = new RectangleGeometry(500f, 500f, Color.Red, true);
+            rectangle.Origin = new Vector3(rectangle.Width * .5f, rectangle.Height * .5f, 0f);
+            cuboid = new Cuboid(Color.Lime, 1f, 1f, 1f);
+            view2D.AddDrawable(rectangle);
+            view3D.AddDrawable(cuboid);
+
+            Animator.Start(x => rectangle.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)), TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
+            Animator.Start(x => rectangle.Origin = (float)x * new Vector3(rectangle.Width, rectangle.Height, 0f), TimeSpan.FromSeconds(2.5d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
         }
 
         protected override void OnResize(EventArgs e)
@@ -66,21 +69,29 @@ namespace iLynx.Graphics.TestBench
             GL.Viewport(ClientRectangle);
             Console.WriteLine($"Resize to: {ClientRectangle}");
             view2D.Projection = Matrix4.CreateOrthographicOffCenter(0f, ClientRectangle.Width, ClientRectangle.Height, 0f, -1f, 1f);
-            geometry.Translation = new Vector3(ClientRectangle.Width * .5f, ClientRectangle.Height * .5f, 0f);
+            //view3D.Projection = view2D.Projection;
+            view3D.Projection = Matrix4.CreatePerspectiveFieldOfView(70f * (MathF.PI / 180),
+                (float)ClientRectangle.Width / (float)ClientRectangle.Height, 10f, 25f);
+            view3D.Scale = new Vector3(1f, 1f, -1f);
+            //view3D.Origin = new Vector3(0f, 0f, 20f);
+            //view3D.Translate(new Vector3(0f, 0f, 20f));
+            cuboid.Translation = new Vector3(-5f, -5f, 10f);
+            rectangle.Translation = new Vector3(ClientRectangle.Width * .5f, ClientRectangle.Height * .5f, 0f);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             Animator.Tick();
             view2D.PrepareRender();
+            view3D.PrepareRender();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.ClearColor(Color.Black);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            view3D.Render();
             view2D.Render();
-            //view.AddDrawable(geometry);
             SwapBuffers();
         }
     }

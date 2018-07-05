@@ -45,7 +45,7 @@ namespace iLynx.Graphics
 
         private Matrix4 projection = Matrix4.Identity;
         private Matrix4 viewTransform = Matrix4.Identity;
-        private Shader activeShader;
+        private static Shader activeShader;
 
         public View(IGraphicsContext context)
         {
@@ -59,13 +59,13 @@ namespace iLynx.Graphics
             {
                 if (value == projection) return;
                 projection = value;
-                viewTransform = projection * Transform;
+                viewTransform = Transform * projection;
             }
         }
 
         protected override void OnTransformChanged()
         {
-            viewTransform = projection * Transform;
+            viewTransform = Transform * projection;
         }
 
         public void PrepareRender()
@@ -96,8 +96,8 @@ namespace iLynx.Graphics
                 {
                     batch.Shader.Activate();
                     activeShader = batch.Shader;
-                    activeShader.ViewTransform = viewTransform;
                 }
+                activeShader.ViewTransform = viewTransform;
                 batch.Execute();
             }
         }

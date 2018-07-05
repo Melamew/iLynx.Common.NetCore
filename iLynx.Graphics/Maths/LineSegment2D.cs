@@ -31,29 +31,29 @@ using OpenTK;
 namespace iLynx.Graphics.Maths
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct LineSegment
+    public struct LineSegment2D
     {
         public readonly Vector2 P1;
         public readonly Vector2 P2;
         public readonly Vector2 Normal;
 
-        public LineSegment(Vector2 p1, Vector2 p2)
+        public LineSegment2D(Vector2 p1, Vector2 p2)
         {
             P1 = p1;
             P2 = p2;
             Normal = new Vector2(P1.Y - P2.Y, P2.X - P1.X).Normalized();
         }
 
-        public LineSegment(float x1, float y1, float x2, float y2)
+        public LineSegment2D(float x1, float y1, float x2, float y2)
             : this(new Vector2(x1, y1), new Vector2(x2, y2)) { }
 
-        public LineSegment(float x1, float y1, Vector2 p2)
+        public LineSegment2D(float x1, float y1, Vector2 p2)
             : this(new Vector2(x1, y1), p2) { }
 
-        public LineSegment(Vector2 p1, float x2, float y2)
+        public LineSegment2D(Vector2 p1, float x2, float y2)
             : this(p1, new Vector2(x2, y2)) { }
 
-        public Intersect Intersects(LineSegment other)
+        public Intersect Intersects(LineSegment2D other)
         {
             return Math2D.AreIntersecting(this, other);
         }

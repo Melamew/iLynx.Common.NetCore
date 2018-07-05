@@ -9,23 +9,23 @@ namespace iLynx.Graphics
     {
         private readonly Matrix4 transform;
         private readonly VertexArrayObject<TVertex> vertexArrayObject;
-        private readonly int vertexCount;
+        private readonly int elementCount;
         private readonly PrimitiveType primitiveType;
 
         public DrawCall(Matrix4 transform, PrimitiveType primitiveType, VertexArrayObject<TVertex> vertexArrayObject,
-            int vertexCount)
+            int elementCount)
         {
             this.transform = transform;
             this.primitiveType = primitiveType;
             this.vertexArrayObject = vertexArrayObject;
-            this.vertexCount = vertexCount;
+            this.elementCount = elementCount;
         }
 
         public void Execute(Shader shader)
         {
             vertexArrayObject.Bind();
             shader.SetTransform(transform);
-            GL.DrawElements(primitiveType, vertexCount, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            GL.DrawElements(primitiveType, elementCount, DrawElementsType.UnsignedInt, IntPtr.Zero);
             vertexArrayObject.Unbind();
         }
     }

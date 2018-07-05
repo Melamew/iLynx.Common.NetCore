@@ -48,9 +48,9 @@ namespace iLynx.Graphics.Shaders
 
         private Shader(ShaderType type, string shaderSource)
         {
-            handle = GL.CreateShader(type);
             try
             {
+                handle = GLCheck.Check(GL.CreateShader, type);
                 GLCheck.Check(GL.ShaderSource, handle, shaderSource);
                 GLCheck.Check(GL.CompileShader, handle);
             }

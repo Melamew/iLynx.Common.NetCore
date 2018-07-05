@@ -25,16 +25,18 @@
  *
  */
 #endregion
+
 using System;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics
+namespace iLynx.Graphics.Geometry
 {
-    public class RectangleGeometry : Geometry
+    public class RectangleGeometry : GeometryBase
     {
         private readonly Vertex[] vertices = new Vertex[4];
         private float width, height;
+        private static readonly uint[] Indices = {0u, 1u, 2u, 3u};
 
         public float Width
         {
@@ -71,11 +73,11 @@ namespace iLynx.Graphics
 
         protected override uint[] GetIndices()
         {
-            return new[] { 0u, 1u, 2u, 3u };
+            return Indices;
         }
 
         public RectangleGeometry(float width, float height, Color fillColor, bool showOrigin = false)
-            : base(fillColor, Color.Transparent, 0.0f, true, 4, showOrigin)
+            : base(fillColor, true, 4, showOrigin)
         {
             this.width = width;
             this.height = height;

@@ -32,7 +32,7 @@ namespace iLynx.Graphics.Maths
     public static class Math2D
     {
         // Thanks to Mecki at https://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-point-is-within-a-polygon
-        public static Intersect AreIntersecting(LineSegment line1, LineSegment line2)
+        public static Intersect AreIntersecting(LineSegment2D line1, LineSegment2D line2)
         {
             // Convert vector 1 to a line (line 1) of infinite length.
             // We want the line in linear equation standard form: A*x + B*y + C = 0
