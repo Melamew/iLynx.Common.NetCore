@@ -4,7 +4,7 @@ using System.Text;
 
 namespace iLynx.Graphics
 {
-    class Cuboid
+    public class Cuboid
     {
     }
 }

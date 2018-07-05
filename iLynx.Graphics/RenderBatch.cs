@@ -22,11 +22,11 @@ namespace iLynx.Graphics
             drawCalls.Remove(call);
         }
 
-        public void Execute(Matrix4 viewTransform)
+        public void Execute(/*Matrix4 viewTransform*/)
         {
             if (null == Shader) throw new InvalidOperationException("Cannot draw anything without a shader");
-            Shader.ViewTransform = viewTransform;
-            Shader.Activate();
+            //Shader.ViewTransform = viewTransform;
+            //Shader.Activate();
             foreach (var call in drawCalls)
                 call.Execute(Shader);
         }

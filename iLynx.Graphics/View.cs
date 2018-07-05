@@ -26,6 +26,7 @@
  */
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using iLynx.Graphics.Shaders;
@@ -42,12 +43,30 @@ namespace iLynx.Graphics
 
         private readonly List<RenderBatch> renderBatches = new List<RenderBatch>();
 
+        private Matrix4 projection = Matrix4.Identity;
+        private Matrix4 viewTransform = Matrix4.Identity;
+        private Shader activeShader;
+
         public View(IGraphicsContext context)
         {
             this.context = context;
         }
 
-        public Matrix4 Projection { get; set; } = Matrix4.Identity;
+        public Matrix4 Projection
+        {
+            get => projection;
+            set
+            {
+                if (value == projection) return;
+                projection = value;
+                viewTransform = projection * Transform;
+            }
+        }
+
+        protected override void OnTransformChanged()
+        {
+            viewTransform = projection * Transform;
+        }
 
         public void PrepareRender()
         {
@@ -70,8 +89,17 @@ namespace iLynx.Graphics
 
         public void Render()
         {
+            if (!context.IsCurrent) throw new InvalidOperationException("Context is not active");
             foreach (var batch in renderBatches)
-                batch.Execute(Transform);
+            {
+                if (batch.Shader != activeShader)
+                {
+                    batch.Shader.Activate();
+                    activeShader = batch.Shader;
+                    activeShader.ViewTransform = viewTransform;
+                }
+                batch.Execute();
+            }
         }
 
         public void AddDrawable(IDrawable drawable)
@@ -81,7 +109,6 @@ namespace iLynx.Graphics
 
         public void RemoveDrawable(IDrawable drawable)
         {
-            throw new System.NotImplementedException();
         }
     }
 }

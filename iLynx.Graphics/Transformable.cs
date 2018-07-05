@@ -37,7 +37,7 @@ namespace iLynx.Graphics
         private Vector3 origin;
         private Matrix4 transform = Matrix4.Identity;
 
-        public Vector3 Size
+        public Vector3 Scale
         {
             get => size;
             set
@@ -70,7 +70,10 @@ namespace iLynx.Graphics
                 Matrix4.CreateFromQuaternion(rotation) *
                 Matrix4.CreateScale(size);
             transform *= Matrix4.CreateTranslation(translation);
+            OnTransformChanged();
         }
+
+        protected virtual void OnTransformChanged() { }
 
         public Vector3 Translation
         {
