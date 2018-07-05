@@ -10,6 +10,7 @@ namespace iLynx.Graphics
         Vector3 Origin { get; set; }
         Matrix4 Transform { get; }
         void Translate(Vector3 direction);
+        void Translate(float x, float y, float z);
         void RotateAround(Vector3 axis, float angle);
     }
 }

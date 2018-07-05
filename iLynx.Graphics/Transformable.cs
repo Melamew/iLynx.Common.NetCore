@@ -55,12 +55,21 @@ namespace iLynx.Graphics
 
         public void Translate(Vector3 direction)
         {
-            transform *= Matrix4.CreateTranslation(direction);
+            //transform *= Matrix4.CreateTranslation(direction);
+            translation += direction;
+            Update();
+        }
+
+        public void Translate(float x, float y, float z)
+        {
+            Translate(new Vector3(x, y, z));
         }
 
         public void RotateAround(Vector3 axis, float angle)
         {
-            transform *= Matrix4.CreateFromAxisAngle(axis, angle);
+            rotation *= Quaternion.FromAxisAngle(axis, angle);
+            Update();
+            //transform *= Matrix4.CreateFromAxisAngle(axis, angle);
         }
 
         private void Update()
