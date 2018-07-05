@@ -122,21 +122,6 @@ namespace iLynx.Graphics
     }
 
     // ReSharper disable once InconsistentNaming
-    public class OpenGLCallException : OpenGLException
-    {
-        public OpenGLCallException(Delegate action, ErrorCode error)
-            : base($"{action.Target}.{action.Method} failed with error: {error}")
-        {
-        }
-    }
 
     // ReSharper disable once InconsistentNaming
-    public abstract class OpenGLException : Exception
-    {
-        protected OpenGLException() { }
-
-        protected OpenGLException(string message) : base(message) { }
-
-        protected OpenGLException(string message, Exception innerException) : base(message, innerException) { }
-    }
 }

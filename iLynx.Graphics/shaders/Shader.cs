@@ -32,12 +32,6 @@ using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Shaders
 {
-    public class ShaderCompilationException : OpenGLException
-    {
-        public ShaderCompilationException(string errorMessage, Exception innerException)
-            : base($"Shader compilation failed with error: {errorMessage}", innerException) { }
-    }
-
     public class Shader : IDisposable
     {
         private readonly int handle;

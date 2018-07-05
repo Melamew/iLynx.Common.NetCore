@@ -154,8 +154,4 @@ namespace iLynx.Graphics
 
         public int Length => vertices.Length;
     }
-
-    public class NotInitializedException : Exception
-    {
-    }
 }

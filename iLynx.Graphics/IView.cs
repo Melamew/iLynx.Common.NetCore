@@ -26,66 +26,10 @@
  */
 #endregion
 
-using System;
-using System.Collections.Generic;
-using iLynx.Graphics.Shaders;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics
 {
-    public class RenderBatch
-    {
-        private readonly List<DrawCall<Vertex>> drawCalls = new List<DrawCall<Vertex>>();
-        public Texture Texture { get; set; }
-
-        public Shader Shader { get; set; }
-
-        public void AddCall(DrawCall<Vertex> call)
-        {
-            drawCalls.Add(call);
-        }
-
-        public void RermoveCall(DrawCall<Vertex> call)
-        {
-            drawCalls.Remove(call);
-        }
-
-        public void Execute(Matrix4 viewTransform)
-        {
-            if (null == Shader) throw new InvalidOperationException("Cannot draw anything without a shader");
-            Shader.ViewTransform = viewTransform;
-            Shader.Activate();
-            foreach (var call in drawCalls)
-                call.Execute(Shader);
-        }
-    }
-
-    public class DrawCall<TVertex> where TVertex : struct, IVAOElement, IEquatable<TVertex>
-    {
-        private readonly Matrix4 transform;
-        private readonly VertexArrayObject<TVertex> vertexArrayObject;
-        private readonly int vertexCount;
-        private readonly PrimitiveType primitiveType;
-
-        public DrawCall(Matrix4 transform, PrimitiveType primitiveType, VertexArrayObject<TVertex> vertexArrayObject,
-            int vertexCount)
-        {
-            this.transform = transform;
-            this.primitiveType = primitiveType;
-            this.vertexArrayObject = vertexArrayObject;
-            this.vertexCount = vertexCount;
-        }
-
-        public void Execute(Shader shader)
-        {
-            vertexArrayObject.Bind();
-            shader.SetTransform(transform);
-            GL.DrawElements(primitiveType, vertexCount, DrawElementsType.UnsignedInt, IntPtr.Zero);
-            vertexArrayObject.Unbind();
-        }
-    }
-
     public interface IView : ITransformable
     {
         /// <summary>

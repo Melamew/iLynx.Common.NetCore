@@ -71,8 +71,7 @@ namespace iLynx.Graphics
         public void Render()
         {
             foreach (var batch in renderBatches)
-                batch.Execute(Transform * Projection);
-            //throw new System.NotImplementedException();
+                batch.Execute(Transform);
         }
 
         public void AddDrawable(IDrawable drawable)
