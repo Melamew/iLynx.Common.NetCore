@@ -18,11 +18,29 @@ namespace iLynx.Graphics.Geometry
             fillColor, new Vector3(width, height, depth), showOrigin)
         { }
 
-        protected override PrimitiveType PrimitiveType => PrimitiveType.TriangleStrip;
+        protected override PrimitiveType PrimitiveType => PrimitiveType.Triangles;
 
-        private static readonly uint[] Indices = {
-            3, 2, 1, 0,
-            5, 4, 6, 0, 2 };
+        private static readonly uint[] Indices =
+        {
+            // Front Face
+            0, 1, 3,
+            3, 2, 0,
+            // Left Face
+            0, 2, 6,
+            6, 4, 0,
+            // Bottom Face
+            4, 5, 1,
+            1, 0, 4,
+            // Back Face
+            4, 6, 7,
+            7, 5, 4,
+            // Top Face
+            7, 6, 2,
+            2, 3, 7,
+            // Right Face
+            7, 3, 1,
+            1, 5, 7
+        };
         protected override Vertex[] GetVertices()
         {
             vertices[0] = new Vertex(new Vector3(0f, 0f, 0f), Color.Red); // Front Bottom Left
