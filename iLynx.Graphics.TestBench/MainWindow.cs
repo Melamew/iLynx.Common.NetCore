@@ -54,10 +54,9 @@ namespace iLynx.Graphics.TestBench
         {
             base.OnLoad(e);
             GLCheck.Check(GL.Enable, EnableCap.Blend);
-            //GLCheck.Check(GL.Enable, EnableCap.FramebufferSrgb);
             GLCheck.Check(GL.BlendFunc, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Back);
+            GLCheck.Check(GL.Enable, EnableCap.CullFace);
+            GLCheck.Check(GL.CullFace, CullFaceMode.Back);
             view2D = new View(Context);
             view3D = new View(Context);
 
@@ -68,7 +67,7 @@ namespace iLynx.Graphics.TestBench
             view3D.AddDrawable(cuboid);
 
             Animator.Start(x => rectangle.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)), TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
-            Animator.Start(x => rectangle.Origin = (float)x * new Vector3(rectangle.Width, rectangle.Height, 0f), TimeSpan.FromSeconds(5d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
+            Animator.Start(x => rectangle.Origin = (float)x * new Vector3(rectangle.Width, rectangle.Height, 0f), TimeSpan.FromSeconds(3.33d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
             //Animator.Start(
             //    x => cuboid.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 1f, 0f), (float) x * MathF.PI * 2f),
             //    TimeSpan.FromSeconds(2.5d), LoopMode.Restart);
@@ -86,7 +85,7 @@ namespace iLynx.Graphics.TestBench
                 (float)ClientRectangle.Width / (float)ClientRectangle.Height, 0.01f, 2000f);
             //view3D.Projection *= Matrix4.CreateScale(new Vector3(1f, 1f, -1f));
             view3D.Scale = new Vector3(1f, 1f, -1f);
-            //cuboid.Translation = new Vector3(-5f, -5f, 0f);
+            cuboid.Translation = new Vector3(0f, 0f, 2f);
             rectangle.Translation = new Vector3(ClientRectangle.Width * .5f, ClientRectangle.Height * .5f, 0f);
         }
 
@@ -95,39 +94,40 @@ namespace iLynx.Graphics.TestBench
             base.OnKeyDown(e);
             switch (e.Key)
             {
+                case Key.Escape:
+                case Key.F4 when e.Modifiers.HasFlag(KeyModifiers.Alt):
+                case Key.Q when e.Modifiers.HasFlag(KeyModifiers.Control):
+                case Key.W when e.Modifiers.HasFlag(KeyModifiers.Control):
+                case Key.X when e.Modifiers.HasFlag(KeyModifiers.Control):
+                    Close();
+                    return;
                 case Key.Up:
                 case Key.W:
-                    cuboid.Translate(0f, 0f, 1f);
-                    //view3D.Translate(0f, 0f, 1f);
-                    //view3D.Origin += new Vector3(0f, 0f, 1f);
+                    cuboid.Translate(0f, 0f, .1f);
                     break;
                 case Key.Down:
                 case Key.S:
-                    cuboid.Translate(0f, 0f, -1f);
-                    //view3D.Translate(0f, 0, -1f);
-                    //view3D.Origin += new Vector3(0f, 0f, -1f);
+                    cuboid.Translate(0f, 0f, -.1f);
                     break;
                 case Key.Left:
                 case Key.A:
-                    cuboid.Translate(-1f, 0f, 0f);
-                    //view3D.Translate(1f, 0f, 0f);
-                    //view3D.Origin += new Vector3(-1f, 0f, 0f);
+                    cuboid.Translate(-.1f, 0f, 0f);
                     break;
                 case Key.Right:
                 case Key.D:
-                    cuboid.Translate(1f, 0f, 0f);
-                    //view3D.Translate(-1f, 0f, 0f);
-                    //view3D.Origin += new Vector3(1f, 0f, 0f);
+                    cuboid.Translate(.1f, 0f, 0f);
                     break;
-                case Key.Space:
-                    cuboid.Translate(0f, 1f, 0f);
-                    //view3D.Translate(0f, -1f, 0f);
-                    //view3D.Origin += new Vector3(0f, 1f, 0f);
+                case Key.Q:
+                    cuboid.Translate(0f, .1f, 0f);
                     break;
-                case Key.ControlLeft:
-                    cuboid.Translate(0f, -1f, 0f);
-                    //view3D.Translate(0f, 1f, 0f);
-                    //view3D.Origin += new Vector3(0f, -1f, 0f);
+                case Key.Z:
+                    cuboid.Translate(0f, -.1f, 0f);
+                    break;
+                case Key.KeypadAdd when e.Modifiers.HasFlag(KeyModifiers.Shift):
+                    cuboid.Scale += new Vector3(0.1f);
+                    break;
+                case Key.KeypadSubtract when e.Modifiers.HasFlag(KeyModifiers.Shift):
+                    cuboid.Scale -= new Vector3(0.1f);
                     break;
                 case Key.KeypadAdd:
                     view3D.Scale += new Vector3(0.1f);
@@ -135,29 +135,49 @@ namespace iLynx.Graphics.TestBench
                 case Key.KeypadSubtract:
                     view3D.Scale -= new Vector3(0.1f);
                     break;
-                case Key.Keypad4:
-                    //view3D.RotateAround(new Vector3(0f, 1f, 0f), 1f * (MathF.PI / 180f));
+                case Key.Keypad4 when e.Modifiers.HasFlag(KeyModifiers.Alt):
                     cuboid.RotateAround(new Vector3(0f, 1f, 0f), 1f * (MathF.PI / 180f));
                     break;
-                case Key.Keypad6:
-                    //view3D.RotateAround(new Vector3(0f, 1f, 0f), -1f * (MathF.PI / 180f));
+                case Key.Keypad6 when e.Modifiers.HasFlag(KeyModifiers.Alt):
                     cuboid.RotateAround(new Vector3(0f, 1f, 0f), -1f * (MathF.PI / 180f));
                     break;
-                case Key.Keypad8:
-                    //view3D.RotateAround(new Vector3(1f, 0f, 0f), 1f * (MathF.PI / 180f));
-                    cuboid.RotateAround(new Vector3(1f, 0f, 0f), 1f * (MathF.PI / 180f));
-                    break;
-                case Key.Keypad2:
-                    //view3D.RotateAround(new Vector3(1f, 0f, 0f), -1f * (MathF.PI / 180f));
+                case Key.Keypad2 when e.Modifiers.HasFlag(KeyModifiers.Alt):
                     cuboid.RotateAround(new Vector3(1f, 0f, 0f), -1f * (MathF.PI / 180f));
                     break;
-                case Key.F4 when e.Modifiers.HasFlag(KeyModifiers.Alt):
-                    Close();
-                    return;
+                case Key.Keypad8 when e.Modifiers.HasFlag(KeyModifiers.Alt):
+                    cuboid.RotateAround(new Vector3(1f, 0f, 0f), 1f * (MathF.PI / 180f));
+                    break;
+                case Key.Keypad7 when e.Modifiers.HasFlag(KeyModifiers.Alt):
+                    cuboid.RotateAround(new Vector3(0f, 0f, 1f), 1f * (MathF.PI / 180f));
+                    break;
+                case Key.Keypad9 when e.Modifiers.HasFlag(KeyModifiers.Alt):
+                    cuboid.RotateAround(new Vector3(0f, 0f, 1f), -1f * (MathF.PI / 180f));
+                    break;
+                case Key.Keypad4:
+                    cuboid.RotateAroundGlobal(new Vector3(0f, 1f, 0f), -1f * (MathF.PI / 180f));
+                    break;
+                case Key.Keypad6:
+                    cuboid.RotateAroundGlobal(new Vector3(0f, 1f, 0f), 1f * (MathF.PI / 180f));
+                    break;
+                case Key.Keypad2:
+                    cuboid.RotateAroundGlobal(new Vector3(1f, 0f, 0f), -1f * (MathF.PI / 180f));
+                    break;
+                case Key.Keypad8:
+                    cuboid.RotateAroundGlobal(new Vector3(1f, 0f, 0f), 1f * (MathF.PI / 180f));
+                    break;
+                case Key.Keypad7:
+                    cuboid.RotateAroundGlobal(new Vector3(0f, 0f, 1f), 1f * (MathF.PI / 180f));
+                    break;
+                case Key.Keypad9:
+                    cuboid.RotateAroundGlobal(new Vector3(0f, 0f, 1f), -1f * (MathF.PI / 180f));
+                    break;
                 default: return;
             }
-            Console.WriteLine($"3D view origin:      {view3D.Origin}");
-            Console.WriteLine($"3D view translation: {view3D.Translation}");
+
+            Console.WriteLine($"Key: {e.Key} Modifiers: {e.Modifiers}");
+            cuboid.Rotation.ToAxisAngle(out var axis, out var angle);
+            Console.WriteLine($"Cuboid position: {cuboid.Translation}");
+            Console.WriteLine($"Cuboid rotation: {axis} by {angle}");
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
