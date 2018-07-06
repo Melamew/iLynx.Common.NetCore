@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 /*
  * Copyright 2018 Melanie Hjorth
  *
@@ -24,19 +25,26 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
 #endregion
+
 using OpenTK;
 
 namespace iLynx.Graphics
 {
     public abstract class Transformable : ITransformable
     {
+        private Vector3 origin;
+        private Quaternion rotation = Quaternion.Identity;
         private Vector3 size = new Vector3(1f);
         private Vector3 translation = new Vector3(0f);
-        private Quaternion rotation = Quaternion.Identity;
-        private Vector3 origin;
-        private Matrix4 transform = Matrix4.Identity;
 
+        protected Transformable()
+        {
+            Update();
+        }
+
+        /// <inheritdoc/>
         public Vector3 Scale
         {
             get => size;
@@ -48,42 +56,27 @@ namespace iLynx.Graphics
             }
         }
 
-        protected Transformable()
-        {
-            Update();
-        }
-
+        /// <inheritdoc/>
         public void Translate(Vector3 direction)
         {
-            //transform *= Matrix4.CreateTranslation(direction);
             translation += direction;
             Update();
         }
 
+        /// <inheritdoc/>
         public void Translate(float x, float y, float z)
         {
             Translate(new Vector3(x, y, z));
         }
 
+        /// <inheritdoc/>
         public void RotateAround(Vector3 axis, float angle)
         {
             rotation *= Quaternion.FromAxisAngle(axis, angle);
             Update();
-            //transform *= Matrix4.CreateFromAxisAngle(axis, angle);
         }
 
-        private void Update()
-        {
-            transform =
-                Matrix4.CreateTranslation(-origin) *
-                Matrix4.CreateFromQuaternion(rotation) *
-                Matrix4.CreateScale(size);
-            transform *= Matrix4.CreateTranslation(translation);
-            OnTransformChanged();
-        }
-
-        protected virtual void OnTransformChanged() { }
-
+        /// <inheritdoc/>
         public Vector3 Translation
         {
             get => translation;
@@ -95,6 +88,7 @@ namespace iLynx.Graphics
             }
         }
 
+        /// <inheritdoc/>
         public Quaternion Rotation
         {
             get => rotation;
@@ -106,6 +100,7 @@ namespace iLynx.Graphics
             }
         }
 
+        /// <inheritdoc/>
         public Vector3 Origin
         {
             get => origin;
@@ -117,6 +112,32 @@ namespace iLynx.Graphics
             }
         }
 
-        public Matrix4 Transform => transform;
+        /// <inheritdoc/>
+        public Matrix4 Transform { get; private set; } = Matrix4.Identity;
+
+
+        /// <inheritdoc/>
+        public void RotateAroundGlobal(Vector3 axis, float angle)
+        {
+            rotation = Quaternion.FromAxisAngle(axis, angle) * rotation;
+            Update();
+        }
+
+        private void Update()
+        {
+            Transform = Matrix4.Identity;
+            Transform *= Matrix4.CreateTranslation(-origin);
+            Transform *= Matrix4.CreateFromQuaternion(rotation);
+            Transform *= Matrix4.CreateScale(size);
+            Transform *= Matrix4.CreateTranslation(translation);
+            OnTransformChanged();
+        }
+
+        /// <summary>
+        /// Called whenever the final transform of the object has changed (<see cref="Transform"/>)
+        /// </summary>
+        protected virtual void OnTransformChanged()
+        {
+        }
     }
 }
