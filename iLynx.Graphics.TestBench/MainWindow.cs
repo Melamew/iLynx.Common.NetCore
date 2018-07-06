@@ -40,37 +40,32 @@ namespace iLynx.Graphics.TestBench
         private IView view2D;
         private IView view3D;
 
-        private RectangleGeometry rectangle;
+        private RectangleGeometry topLeft, topRight, bottomLeft, bottomRight;
         private Cuboid cuboid;
+        private IRenderContext renderContext;
 
         public MainWindow(int width, int height, string title)
-            : base(width, height, GraphicsMode.Default, title, GameWindowFlags.Default, DisplayDevice.Default)
+            : base(width, height, new GraphicsMode(new ColorFormat(32, 32, 32, 32), 32, 32), title, GameWindowFlags.Default, DisplayDevice.Default)
         {
-            //WindowBorder = WindowBorder.Hidden;
-            //base.WindowState = WindowState.
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            GLCheck.Check(GL.Enable, EnableCap.Blend);
-            GLCheck.Check(GL.BlendFunc, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GLCheck.Check(GL.Enable, EnableCap.CullFace);
-            GLCheck.Check(GL.CullFace, CullFaceMode.Back);
-            view2D = new View(Context);
-            view3D = new View(Context);
+            renderContext = new RenderContext(Context, WindowInfo);
+            view2D = new View(renderContext);
+            view3D = new View(renderContext);
 
-            rectangle = new RectangleGeometry(500f, 500f, new Color(255, 0, 0, 128), true);
-            rectangle.Origin = new Vector3(rectangle.Width * .5f, rectangle.Height * .5f, 0f);
+            topLeft = new RectangleGeometry(250f, 250f, new Color(255, 0, 0, 128)) { Origin = new Vector3(125f, 125f, 0f) };
+            topRight = new RectangleGeometry(250f, 250f, new Color(255, 0, 0, 128)) { Origin = new Vector3(125f, 125f, 0f) };
+            bottomLeft = new RectangleGeometry(250f, 250f, new Color(255, 0, 0, 128)) { Origin = new Vector3(125f, 125f, 0f) };
+            bottomRight = new RectangleGeometry(250f, 250f, new Color(255, 0, 0, 128)) { Origin = new Vector3(125f, 125f, 0f) };
             cuboid = new Cuboid(Color.Lime, 1f, 1f, 1f) { Origin = new Vector3(0.5f) };
-            view2D.AddDrawable(rectangle);
+            view2D.AddDrawable(topLeft);
             view3D.AddDrawable(cuboid);
 
-            Animator.Start(x => rectangle.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)), TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
-            Animator.Start(x => rectangle.Origin = (float)x * new Vector3(rectangle.Width, rectangle.Height, 0f), TimeSpan.FromSeconds(3.33d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
-            //Animator.Start(
-            //    x => cuboid.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 1f, 0f), (float) x * MathF.PI * 2f),
-            //    TimeSpan.FromSeconds(2.5d), LoopMode.Restart);
+            Animator.Start(x => topLeft.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)), TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
+            Animator.Start(x => topLeft.Origin = (float)x * new Vector3(topLeft.Width, topLeft.Height, 0f), TimeSpan.FromSeconds(3.33d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
         }
 
         protected override void OnResize(EventArgs e)
@@ -79,14 +74,12 @@ namespace iLynx.Graphics.TestBench
             GL.Viewport(ClientRectangle);
             Console.WriteLine($"Resize to: {ClientRectangle}");
             view2D.Projection = Matrix4.CreateOrthographicOffCenter(0f, ClientRectangle.Width, ClientRectangle.Height, 0f, -1f, 1f);
-
             //view3D.Projection = Matrix4.CreateOrthographic(ClientRectangle.Width / 1000f, ClientRectangle.Height / 1000f, 0f, 10f);
-            view3D.Projection = Matrix4.CreatePerspectiveFieldOfView(70f * (MathF.PI / 180),
-                (float)ClientRectangle.Width / (float)ClientRectangle.Height, 0.01f, 2000f);
-            //view3D.Projection *= Matrix4.CreateScale(new Vector3(1f, 1f, -1f));
+            view3D.Projection = Matrix4.CreatePerspectiveFieldOfView(30f * (MathF.PI / 180),
+                (float)ClientRectangle.Width / (float)ClientRectangle.Height, 1f, 1000f);
             view3D.Scale = new Vector3(1f, 1f, -1f);
-            cuboid.Translation = new Vector3(0f, 0f, 2f);
-            rectangle.Translation = new Vector3(ClientRectangle.Width * .5f, ClientRectangle.Height * .5f, 0f);
+            cuboid.Translation = new Vector3(0f, 0f, 10f);
+            topLeft.Translation = new Vector3(topLeft.Width, topLeft.Height, 0f);
         }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)

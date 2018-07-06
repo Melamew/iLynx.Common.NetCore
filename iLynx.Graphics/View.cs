@@ -32,13 +32,57 @@ using System.Linq;
 using iLynx.Graphics.Shaders;
 using OpenTK;
 using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Platform;
 
 namespace iLynx.Graphics
 {
+    public interface IRenderContext
+    {
+        IGraphicsContext GraphicsContext { get; }
+        IWindowInfo Window { get; }
+        bool IsCurrent { get; }
+        void MakeCurrent();
+        bool IsInitialized { get; }
+        void Initialize();
+    }
+
+    public class RenderContext : IRenderContext
+    {
+        public RenderContext(IGraphicsContext graphicsContext, IWindowInfo window)
+        {
+            GraphicsContext = graphicsContext;
+            Window = window;
+        }
+
+        public IGraphicsContext GraphicsContext { get; }
+        public IWindowInfo Window { get; }
+        public bool IsCurrent => GraphicsContext.IsCurrent;
+        public void MakeCurrent()
+        {
+            GraphicsContext.MakeCurrent(Window);
+        }
+
+        public bool IsInitialized { get; private set; }
+
+        public void Initialize()
+        {
+            if (IsInitialized) return;
+            if (!GraphicsContext.IsCurrent)
+                GraphicsContext.MakeCurrent(Window);
+            GLCheck.Check(GL.Enable, EnableCap.Blend);
+            GLCheck.Check(GL.BlendFunc, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GLCheck.Check(GL.Enable, EnableCap.CullFace);
+            GLCheck.Check(GL.CullFace, CullFaceMode.Back);
+            GLCheck.Check(GL.Enable, EnableCap.DepthTest);
+            GLCheck.Check(GL.DepthFunc, DepthFunction.Less);
+            IsInitialized = true;
+        }
+    }
+
     public class View : Transformable, IView
     {
-        private readonly IGraphicsContext context;
-
+        private readonly IRenderContext context;
         private readonly List<IDrawable> drawables = new List<IDrawable>();
 
         private readonly List<RenderBatch> renderBatches = new List<RenderBatch>();
@@ -47,9 +91,11 @@ namespace iLynx.Graphics
         private Matrix4 viewTransform = Matrix4.Identity;
         private static Shader activeShader;
 
-        public View(IGraphicsContext context)
+        public View(IRenderContext context)
         {
             this.context = context;
+            if (!context.IsInitialized)
+                context.Initialize();
         }
 
         public Matrix4 Projection
