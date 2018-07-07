@@ -144,9 +144,9 @@ namespace iLynx.UI.OpenGL.Controls
             //}, caretTransitionDuration, easingFunction: EasingFunctions.QuadraticOut);
         }
 
-        protected override void DrawLocked(IView target)
+        protected override void DrawLocked(IRenderContext context)
         {
-            base.DrawLocked(target);
+            base.DrawLocked(context);
             //if (!HasFocus) return;
             //caretLock.EnterReadLock();
             //target.Draw(caret);

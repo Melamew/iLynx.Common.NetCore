@@ -148,12 +148,12 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected override void DrawLocked(IView target)
+        protected override void DrawLocked(IRenderContext context)
         {
-            base.DrawLocked(target);
+            base.DrawLocked(context);
             //textStates.Transform.Translate(-renderable.GetLocalBounds().Position());
             renderable.FillColor = foreground;
-            renderable.Draw(target);
+            renderable.Draw(context);
             //target.Draw(renderable);
         }
 

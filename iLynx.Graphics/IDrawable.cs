@@ -36,10 +36,9 @@ namespace iLynx.Graphics
     public interface IDrawable
     {
         /// <summary>
-        /// Creates a <see cref="DrawCall{TVertex}"/> for this object
+        /// Draws this drawable in the currently active context
         /// </summary>
-        /// <returns></returns>
-        DrawCall<Vertex> CreateDrawCall();
+        void Draw(IRenderContext context);
 
         /// <summary>
         /// Gets a reference to the <see cref="iLynx.Graphics.Shaders.Shader"/> to be used when rendering this <see cref="IDrawable"/>

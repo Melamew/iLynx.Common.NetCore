@@ -29,6 +29,9 @@ namespace iLynx.Graphics
 {
     public class Texture
     {
-
+        public void Bind()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

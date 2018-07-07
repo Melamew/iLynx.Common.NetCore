@@ -41,7 +41,7 @@ namespace iLynx.Graphics
 
         public Color FillColor { get; set; }
 
-        public void Draw(IView target)
+        public void Draw(IRenderContext context)
         {
             
         }

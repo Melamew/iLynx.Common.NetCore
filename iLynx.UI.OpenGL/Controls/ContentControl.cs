@@ -70,9 +70,9 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        protected override void DrawLocked(IView target)
+        protected override void DrawLocked(IRenderContext context)
         {
-            base.DrawLocked(target);
+            base.DrawLocked(context);
             //content?.Draw(target, states);
         }
 

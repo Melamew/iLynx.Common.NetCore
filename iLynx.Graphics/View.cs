@@ -38,28 +38,45 @@ namespace iLynx.Graphics
 {
     public interface IRenderContext
     {
-        IGraphicsContext GraphicsContext { get; }
-        IWindowInfo Window { get; }
         bool IsCurrent { get; }
-        void MakeCurrent();
+        bool MakeCurrent();
         bool IsInitialized { get; }
         void Initialize();
+
+        Shader Shader { get; set; }
+        Texture Texture { get; set; }
+        Matrix4 ViewTransform { get; set; }
+        void ApplyTransform(Matrix4 transform);
     }
 
     public class RenderContext : IRenderContext
     {
+        private Shader activeShader;
+        private Texture activeTexture;
+        private readonly IWindowInfo window;
+        private readonly IGraphicsContext graphicsContext;
+        private Matrix4 viewTransform = Matrix4.Identity;
+
         public RenderContext(IGraphicsContext graphicsContext, IWindowInfo window)
         {
-            GraphicsContext = graphicsContext;
-            Window = window;
+            this.graphicsContext = graphicsContext;
+            this.window = window;
         }
 
-        public IGraphicsContext GraphicsContext { get; }
-        public IWindowInfo Window { get; }
-        public bool IsCurrent => GraphicsContext.IsCurrent;
-        public void MakeCurrent()
+        public bool IsCurrent => graphicsContext.IsCurrent;
+
+        public bool MakeCurrent()
         {
-            GraphicsContext.MakeCurrent(Window);
+            try
+            {
+                graphicsContext.MakeCurrent(window);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed to make current context active: {e}");
+                return false;
+            }
         }
 
         public bool IsInitialized { get; private set; }
@@ -67,8 +84,8 @@ namespace iLynx.Graphics
         public void Initialize()
         {
             if (IsInitialized) return;
-            if (!GraphicsContext.IsCurrent)
-                GraphicsContext.MakeCurrent(Window);
+            if (!graphicsContext.IsCurrent)
+                graphicsContext.MakeCurrent(window);
             GLCheck.Check(GL.Enable, EnableCap.Blend);
             GLCheck.Check(GL.BlendFunc, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GLCheck.Check(GL.Enable, EnableCap.CullFace);
@@ -77,18 +94,63 @@ namespace iLynx.Graphics
             GLCheck.Check(GL.DepthFunc, DepthFunction.Less);
             IsInitialized = true;
         }
+
+        public Shader Shader
+        {
+            get => activeShader;
+            set
+            {
+                if (value == activeShader) return;
+                EnsureActive();
+                activeShader = value;
+                value.ViewTransform = viewTransform;
+                value.Activate();
+            }
+        }
+
+        public Texture Texture
+        {
+            get => activeTexture;
+            set
+            {
+                if (value == activeTexture) return;
+                EnsureActive();
+                activeTexture = value;
+                value.Bind();
+            }
+        }
+        public Matrix4 ViewTransform
+        {
+            get => viewTransform;
+            set
+            {
+                if (value == viewTransform) return;
+                EnsureActive();
+                viewTransform = value;
+                if (null == activeShader) return;
+                activeShader.ViewTransform = value;
+            }
+        }
+
+        public void ApplyTransform(Matrix4 transform)
+        {
+            activeShader?.SetTransform(transform);
+        }
+
+        private void EnsureActive()
+        {
+            if (!IsCurrent && !MakeCurrent())
+                throw new InvalidOperationException("Unable to activate context for shader activation");
+        }
     }
 
     public class View : Transformable, IView
     {
         private readonly IRenderContext context;
-        private readonly List<IDrawable> drawables = new List<IDrawable>();
-
-        private readonly List<RenderBatch> renderBatches = new List<RenderBatch>();
+        private List<IDrawable> drawables = new List<IDrawable>();
 
         private Matrix4 projection = Matrix4.Identity;
         private Matrix4 viewTransform = Matrix4.Identity;
-        private static Shader activeShader;
 
         public View(IRenderContext context)
         {
@@ -115,35 +177,16 @@ namespace iLynx.Graphics
 
         public void PrepareRender()
         {
-            // TODO: Only update when necessary, don't rebuild the entire thing.
-            renderBatches.Clear();
-            foreach (var drawable in drawables)
-            {
-                var call = drawable.CreateDrawCall();
-                var batch = renderBatches.FirstOrDefault(x =>
-                                x.Shader == drawable.Shader && x.Texture == drawable.Texture) ?? new RenderBatch
-                                {
-                                    Shader = drawable.Shader,
-                                    Texture = drawable.Texture
-                                };
-                batch.AddCall(call);
-                if (renderBatches.Contains(batch)) continue;
-                renderBatches.Add(batch);
-            }
+            drawables = drawables.OrderBy(x => x.Shader).ThenBy(x => x.Texture).ToList();
         }
 
         public void Render()
         {
-            if (!context.IsCurrent) throw new InvalidOperationException("Context is not active");
-            foreach (var batch in renderBatches)
+            if (!context.IsCurrent && !context.MakeCurrent()) throw new InvalidOperationException("Context is not active");
+            foreach (var drawable in drawables)
             {
-                if (batch.Shader != activeShader)
-                {
-                    batch.Shader.Activate();
-                    activeShader = batch.Shader;
-                }
-                activeShader.ViewTransform = viewTransform;
-                batch.Execute();
+                context.ViewTransform = viewTransform;
+                drawable.Draw(context);
             }
         }
 
@@ -154,6 +197,7 @@ namespace iLynx.Graphics
 
         public void RemoveDrawable(IDrawable drawable)
         {
+            drawables.Remove(drawable);
         }
     }
 }

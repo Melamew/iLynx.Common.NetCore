@@ -25,6 +25,8 @@
  *
  */
 #endregion
+
+using System;
 using iLynx.Graphics.Shaders;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -69,7 +71,7 @@ namespace iLynx.Graphics.Geometry
         }
 
         public Texture Texture { get; set; }
-        public Shader Shader { get; set; } = Shader.DefaultShaderProgram;
+        public Shader Shader { get; set; } = Shader.DefaultShader;
         protected abstract PrimitiveType PrimitiveType { get; }
 
         protected void Update()
@@ -87,9 +89,24 @@ namespace iLynx.Graphics.Geometry
             fillVao.Dispose();
         }
 
-        public DrawCall<Vertex> CreateDrawCall()
+        public void Draw(IRenderContext context)
         {
-            return new DrawCall<Vertex>(Transform, PrimitiveType, fillVao, indexBuffer.Length);
+            context.Shader = Shader;
+            context.Texture = Texture;
+            context.ApplyTransform(Transform);
+            DoDraw();
         }
+
+        protected virtual void DoDraw()
+        {
+            fillVao.Bind();
+            GL.DrawElements(PrimitiveType, indexBuffer.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            fillVao.Unbind();
+        }
+
+        //public DrawCall<Vertex> CreateDrawCall()
+        //{
+        //    return new DrawCall<Vertex>(Transform, PrimitiveType, fillVao, indexBuffer.Length);
+        //}
     }
 }

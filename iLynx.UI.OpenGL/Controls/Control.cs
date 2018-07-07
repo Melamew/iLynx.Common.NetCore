@@ -85,11 +85,11 @@ namespace iLynx.UI.OpenGL.Controls
             return finalRect;
         }
 
-        protected override void DrawLocked(IView target)
+        protected override void DrawLocked(IRenderContext context)
         {
             if (size == default(SizeF)) return;
             shape.FillColor = background;
-            target.AddDrawable(shape);
+            shape.Draw(context);
         }
 
         public override bool HitTest(PointF position, out IInputElement element)

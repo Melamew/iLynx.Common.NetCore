@@ -36,8 +36,8 @@ namespace iLynx.Graphics.Shaders
     {
         private readonly int handle;
         private readonly bool isProgram;
-        public const string DefaultFragmentShaderRelPath = "Shaders/default.frag";
-        public const string DefaultVertexShaderRelPath = "Shaders/default.vert";
+        protected const string DefaultFragmentShaderRelPath = "Shaders/default.frag";
+        protected const string DefaultVertexShaderRelPath = "Shaders/default.vert";
         public const string TransformUniformName = "transform";
         private readonly int transformId;
 
@@ -45,7 +45,7 @@ namespace iLynx.Graphics.Shaders
 
         public static Shader DefaultVertexShader { get; } = FromFile(ShaderType.VertexShader, DefaultVertexShaderRelPath);
 
-        public static Shader DefaultShaderProgram { get; } = new Shader(DefaultFragmentShader, DefaultVertexShader);
+        public static Shader DefaultShader { get; } = new Shader(DefaultFragmentShader, DefaultVertexShader);
 
         private Shader(ShaderType type, string shaderSource)
         {
@@ -62,6 +62,12 @@ namespace iLynx.Graphics.Shaders
             }
         }
 
+        /// <summary>
+        /// Loads the contents of the specified file and creates a shader of the specified type
+        /// </summary>
+        /// <param name="type">The <see cref="ShaderType"/> type of the shader</param>
+        /// <param name="fileName">The path to the file containing the source code of the shader</param>
+        /// <returns></returns>
         public static Shader FromFile(ShaderType type, string fileName)
         {
             if (!File.Exists(fileName)) throw new FileNotFoundException();
@@ -73,6 +79,12 @@ namespace iLynx.Graphics.Shaders
             return new Shader(type, source);
         }
 
+        /// <summary>
+        /// Creates a shader of the specified type from the specified source
+        /// </summary>
+        /// <param name="type">The <see cref="ShaderType"/> type of the shader</param>
+        /// <param name="source">The source code for the shader</param>
+        /// <returns></returns>
         public static Shader FromSource(ShaderType type, string source)
         {
             return new Shader(type, source);
@@ -91,8 +103,16 @@ namespace iLynx.Graphics.Shaders
             GLCheck.Check(GL.AttachShader, program, handle);
         }
 
+        /// <summary>
+        /// Gets or Sets the view transform for this shader
+        /// </summary>
         public Matrix4 ViewTransform { get; set; } = Matrix4.Identity;
 
+        /// <summary>
+        /// Creates a new shader program with the specified shaders
+        /// (GL.LinkProgram)
+        /// </summary>
+        /// <param name="shaders"></param>
         public Shader(params Shader[] shaders)
         {
             isProgram = true;
@@ -110,14 +130,23 @@ namespace iLynx.Graphics.Shaders
             }
         }
 
+        /// <summary>
+        /// Sets the transform on the GPU for this shader (The final transform set is: transform * ViewTransform)
+        /// (GL.UniformMatrix4)
+        /// </summary>
+        /// <param name="transform"></param>
         public void SetTransform(Matrix4 transform)
         {
             if (!isProgram) throw new InvalidOperationException("This shader has not been linked to a program");
             if (0 == handle) throw new NotInitializedException();
-            transform *= ViewTransform;
+            if (transformId == -1) throw new InvalidOperationException("The specified shader does not have a transform input (uniform)");
+            transform = transform * ViewTransform;
             GL.UniformMatrix4(transformId, false, ref transform);
         }
 
+        /// <summary>
+        /// Activates this shader (GL.UseProgram)
+        /// </summary>
         public void Activate()
         {
             GLCheck.Check(GL.UseProgram, handle);
