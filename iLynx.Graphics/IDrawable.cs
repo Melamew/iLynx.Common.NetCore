@@ -25,7 +25,6 @@
  *
  */
 #endregion
-
 using iLynx.Graphics.Shaders;
 
 namespace iLynx.Graphics
