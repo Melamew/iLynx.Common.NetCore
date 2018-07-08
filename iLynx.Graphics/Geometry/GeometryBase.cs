@@ -27,7 +27,6 @@
 #endregion
 using System;
 using iLynx.Graphics.Shaders;
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Geometry
@@ -38,10 +37,10 @@ namespace iLynx.Graphics.Geometry
         private readonly VertexBufferObject<Vertex> fillBuffer;
         private readonly VertexBufferObject<uint> indexBuffer;
         //private readonly RectangleGeometry originRect;
-        private Color fillColor;
+        private Color32 fillColor;
         private readonly bool showOrigin;
 
-        protected GeometryBase(Color fillColor, bool isFixedSize = false, int vertexCount = 0, bool showOrigin = false)
+        protected GeometryBase(Color32 fillColor, bool isFixedSize = false, int vertexCount = 0, bool showOrigin = false)
         {
             this.fillColor = fillColor;
             this.showOrigin = showOrigin;
@@ -58,7 +57,7 @@ namespace iLynx.Graphics.Geometry
             //}
         }
 
-        public Color FillColor
+        public Color32 FillColor
         {
             get => fillColor;
             set

@@ -27,6 +27,7 @@
 #endregion
 using System;
 using System.Runtime.InteropServices;
+using ImageMagick;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using static OpenTK.Graphics.OpenGL.GL;
@@ -38,16 +39,16 @@ namespace iLynx.Graphics
     {
         public Vector3 Position;
         public Vector2 TexCoord;
-        public Color VertexColor;
+        public Color32 VertexColor;
         
-        public Vertex(Vector3 position, Color vertexColor, Vector2 texCoord)
+        public Vertex(Vector3 position, Color32 vertexColor, Vector2 texCoord)
         {
             Position = position;
             VertexColor = vertexColor;
             TexCoord = texCoord;
         }
 
-        public Vertex(Vector3 position, Color vertexColor)
+        public Vertex(Vector3 position, Color32 vertexColor)
         {
             Position = position;
             TexCoord = new Vector2();
@@ -58,10 +59,10 @@ namespace iLynx.Graphics
         {
             Position = position;
             TexCoord = new Vector2();
-            VertexColor = Color.Transparent;
+            VertexColor = MagickColors.Transparent;
         }
 
-        public Vertex(Color color)
+        public Vertex(Color32 color)
         {
             Position = new Vector3();
             TexCoord = new Vector2();
@@ -113,7 +114,7 @@ namespace iLynx.Graphics
             GLCheck.Check(EnableVertexAttribArray, 2);
             GLCheck.Check(VertexAttribPointer, 0, 3, VertexAttribPointerType.Float, false, size, 0);
             GLCheck.Check(VertexAttribPointer, 1, 2, VertexAttribPointerType.Float, false, size, Marshal.SizeOf<Vector3>());
-            GLCheck.Check(VertexAttribPointer, 2, 4, VertexAttribPointerType.UnsignedByte, true, size, Marshal.SizeOf<Vector3>() + Marshal.SizeOf<Vector2>());
+            GLCheck.Check(VertexAttribPointer, 2, 4, VertexAttribPointerType.Float, false, size, Marshal.SizeOf<Vector3>() + Marshal.SizeOf<Vector2>());
         }
     }
 }

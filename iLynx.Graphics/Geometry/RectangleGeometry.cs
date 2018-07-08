@@ -75,7 +75,7 @@ namespace iLynx.Graphics.Geometry
             return Indices;
         }
 
-        public RectangleGeometry(float width, float height, Color fillColor, bool showOrigin = false)
+        public RectangleGeometry(float width, float height, Color32 fillColor, bool showOrigin = false)
             : base(fillColor, true, 4, showOrigin)
         {
             this.width = width;
@@ -83,7 +83,7 @@ namespace iLynx.Graphics.Geometry
             Update();
         }
 
-        public RectangleGeometry(SizeF dimensions, Color color, bool showOrigin = false)
+        public RectangleGeometry(SizeF dimensions, Color32 color, bool showOrigin = false)
             : this(dimensions.Width, dimensions.Height, color, showOrigin)
         {
 
