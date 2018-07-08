@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using ImageMagick;
 using OpenTK;
@@ -6,6 +7,7 @@ using OpenTK;
 namespace iLynx.Graphics
 {
     [StructLayout(LayoutKind.Sequential)]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public struct Color32 : IComparable<Color32>
     {
         public bool Equals(Color32 other)
@@ -66,6 +68,87 @@ namespace iLynx.Graphics
         }
 
         /// <summary>
+        /// Normalizes this <see cref="Color32"/> to a range within -1 to +1
+        /// <see cref="Normalize(Color32)"/>
+        /// <seealso cref="NormalizeRGB()"/>
+        /// <seealso cref="NormalizeRGB(Color32)"/>
+        /// </summary>
+        /// <returns></returns>
+        public Color32 Normalize()
+        {
+            return Normalize(this);
+        }
+
+        /// <summary>
+        /// Normalizes the specified <see cref="Color32"/> to a range within -1 to +1
+        /// <seealso cref="NormalizeRGB()"/>
+        /// <seealso cref="NormalizeRGB(Color32)"/>
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        public static Color32 Normalize(Color32 color)
+        {
+            var cA = Absolute(color);
+            var max = Max(cA);
+            return color / max;
+        }
+
+        /// <summary>
+        /// Normalizes the Red Green and Blue components of this <see cref="Color32"/> (NOT including the Alpha component).
+        /// <see cref="NormalizeRGB(Color32)"/>
+        /// <seealso cref="Normalize()"/>
+        /// <seealso cref="Normalize(Color32)"/>
+        /// </summary>
+        /// <returns></returns>
+        public Color32 NormalizeRGB()
+        {
+            return NormalizeRGB(this);
+        }
+        /// <summary>
+        /// Normalizes the Red Green and Blue components of the specified color (NOT including the Alpha component).
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        public static Color32 NormalizeRGB(Color32 color)
+        {
+            var maxRGB = MaxRGB(color);
+            return new Color32(color.R / maxRGB, color.G / maxRGB, color.B / maxRGB, color.A);
+        }
+
+        /// <summary>
+        /// Returns the maximum value of the "color" (RGB) components of the specified <see cref="Color32"/>.
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        public static float MaxRGB(Color32 color)
+        {
+            var max = MathF.Max(color.R, color.G);
+            return MathF.Max(max, color.B);
+        }
+
+        /// <summary>
+        /// Returns the maximum value of the R, G, B and A components of the specified color
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        public static float Max(Color32 color)
+        {
+            var max = MathF.Max(color.R, color.G);
+            max = MathF.Max(max, color.B);
+            return MathF.Max(max, color.A);
+        }
+
+        /// <summary>
+        /// Returns the absolute values of the specified color
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns>An instance of <see cref="Color32"/> with all its values equal to the absolute of the specified color</returns>
+        public static Color32 Absolute(Color32 color)
+        {
+            return new Color32(MathF.Abs(color.R), MathF.Abs(color.G), MathF.Abs(color.B), MathF.Abs(color.A));
+        }
+
+        /// <summary>
         /// Returns a new <see cref="Color32"/> instance with the values of the specified <see cref="MagickColor"/>
         /// </summary>
         /// <param name="color"></param>
@@ -92,12 +175,56 @@ namespace iLynx.Graphics
             return new Vector4(color.R, color.G, color.B, color.A);
         }
 
+        /// <summary>
+        /// Divides the components of the specified  color by the specified value
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static Color32 operator /(Color32 left, float right)
+        {
+            return new Color32(left.R / right, left.G / right, left.B / right, left.A / right);
+        }
 
+        /// <summary>
+        /// Returns a Color32 with value / right.RGBA values
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static Color32 operator /(float left, Color32 right)
+        {
+            return new Color32(left / right.R, left / right.G, left / right.B, left / right.A);
+        }
+
+        /// <summary>
+        /// Multiplies the specified color by the specified value
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static Color32 operator *(Color32 left, float right)
+        {
+            return new Color32(left.R * right, left.G * right, left.B * right, left.A * right);
+        }
+
+        /// <summary>
+        /// Compares two colors and returns a value indicating wether or not they are equal
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static bool operator ==(Color32 left, Color32 right)
         {
             return Equals(right.R, left.R) && Equals(right.G, left.G) && Equals(right.B, left.B) && Equals(right.A, left.A);
         }
 
+        /// <summary>
+        /// Compares two colors and returns a value indicating wether or not they are NOT equal
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static bool operator !=(Color32 left, Color32 right)
         {
             return !Equals(right.R, left.R) && !Equals(right.G, left.G) && !Equals(right.B, left.B) && !Equals(right.A, left.A);
@@ -108,6 +235,12 @@ namespace iLynx.Graphics
             return $"rgba({R:F2},{G:F2},{B:F2},{A:F2})";
         }
 
+        /// <summary>
+        /// Compares the values of this color to the values of the specified <see cref="Color32"/>
+        /// Comparison occurs in the following order: R, G, B, A.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public int CompareTo(Color32 other)
         {
             if (R < other.R)
@@ -125,13 +258,8 @@ namespace iLynx.Graphics
             if (A < other.A)
                 return -1;
             return A > other.A ? 1 : 0;
-            //var rComparison = R.CompareTo(other.R);
-            //if (rComparison != 0) return rComparison;
-            //var gComparison = G.CompareTo(other.G);
-            //if (gComparison != 0) return gComparison;
-            //var bComparison = B.CompareTo(other.B);
-            //if (bComparison != 0) return bComparison;
-            //return A.CompareTo(other.A);
         }
+
+        public static Color32 Lime => new Color32(0f, 1f, 0f, 1f);
     }
 }

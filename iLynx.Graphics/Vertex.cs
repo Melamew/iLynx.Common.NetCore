@@ -37,9 +37,9 @@ namespace iLynx.Graphics
     [StructLayout(LayoutKind.Sequential)]
     public struct Vertex : IEquatable<Vertex>, IVAOElement
     {
-        public Vector3 Position;
-        public Vector2 TexCoord;
-        public Color32 VertexColor;
+        public readonly Vector3 Position;
+        public readonly Vector2 TexCoord;
+        public readonly Color32 VertexColor;
         
         public Vertex(Vector3 position, Color32 vertexColor, Vector2 texCoord)
         {
@@ -60,6 +60,13 @@ namespace iLynx.Graphics
             Position = position;
             TexCoord = new Vector2();
             VertexColor = MagickColors.Transparent;
+        }
+
+        public Vertex(Vertex copy)
+        {
+            Position = copy.Position;
+            TexCoord = copy.TexCoord;
+            VertexColor = copy.VertexColor;
         }
 
         public Vertex(Color32 color)

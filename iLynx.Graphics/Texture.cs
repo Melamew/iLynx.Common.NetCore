@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 /*
  * Copyright 2018 Melanie Hjorth
  *
@@ -24,14 +25,67 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
 #endregion
+
+using System;
+using System.IO;
+using System.Linq;
+using ImageMagick;
+using OpenTK.Graphics.OpenGL;
+
 namespace iLynx.Graphics
 {
     public class Texture
     {
+        private readonly int m_handle;
+
+        public static Texture FromFile(string filePath)
+        {
+            using (var stream = File.OpenRead(filePath))
+                return FromStream(stream);
+        }
+
+        public static Texture FromStream(Stream stream)
+        {
+            return FromImage(new MagickImage(stream));
+        }
+
+        public static Texture FromImage(IMagickImage image)
+        {
+            return new Texture(
+                image.GetPixelsUnsafe().Select(x => (Color32) x.ToColor()).ToArray(),
+                image.Width,
+                image.Height
+            );
+        }
+
+        public Texture(
+            Color32[] data,
+            int width,
+            int height,
+            TextureWrapMode horizontalWrapMode = TextureWrapMode.Repeat,
+            TextureWrapMode verticalWrapMode = TextureWrapMode.Repeat
+        )
+        {
+            var hmode = (uint) horizontalWrapMode;
+            var vmode = (uint) verticalWrapMode;
+            var magMode = (uint) TextureMagFilter.Linear;
+            var minMode = (uint) TextureMinFilter.LinearMipmapLinear;
+            m_handle = GLCheck.Check(GL.GenTexture);
+            GLCheck.Check(() => GL.BindTexture(TextureTarget.Texture2D, m_handle));
+            GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, ref hmode));
+            GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, ref vmode));
+            GLCheck.Check(() => GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new[] {0f, 0f, 0f, 0f}));
+            GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, ref magMode));
+            GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, ref minMode));
+            GLCheck.Check(() => GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, (int) width, (int) height, 0, PixelFormat.Rgba, PixelType.Float, data));
+            GLCheck.Check(() => GL.BindTexture(TextureTarget.Texture2D, 0));
+        }
+
         public void Bind()
         {
-            throw new System.NotImplementedException();
+            GLCheck.Check(() => GL.BindTexture(TextureTarget.Texture2D, m_handle));
         }
     }
 }

@@ -32,11 +32,11 @@ namespace iLynx.Graphics
 {
     public class Text : IDrawable
     {
-        private Font font;
+        private Font m_font;
 
         public Text(string fontFile)
         {
-            font = new Font(fontFile);
+            m_font = new Font(fontFile);
         }
 
         public Color FillColor { get; set; }
@@ -51,12 +51,7 @@ namespace iLynx.Graphics
             return new Vector2(0);
         }
 
-        public DrawCall<Vertex> CreateDrawCall()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Shader Shader { get; }
-        public Texture Texture { get; }
+        public Shader Shader { get; set; } = Shader.DefaultShader;
+        public Texture Texture { get; set; }
     }
 }
