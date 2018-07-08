@@ -11,7 +11,7 @@ out vec4 fragColor;
 out vec2 textureCoordinate;
 
 void main(void){
-	fragColor = col;
-	textureCoordinate = texCoord;
-	gl_Position = transform * vec4(pos, 1.0);
+    fragColor = col;
+    textureCoordinate = texCoord;
+    gl_Position = transform * vec4(pos, 1.0);
 }

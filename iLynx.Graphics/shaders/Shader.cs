@@ -34,16 +34,16 @@ namespace iLynx.Graphics.Shaders
 {
     public class Shader : IDisposable
     {
-        private readonly int handle;
-        private readonly bool isProgram;
-        protected const string DefaultFragmentShaderRelPath = "Shaders/default.frag";
-        protected const string DefaultVertexShaderRelPath = "Shaders/default.vert";
-        public const string TransformUniformName = "transform";
-        private readonly int transformId;
+        private readonly int m_handle;
+        private readonly bool m_isProgram;
+        protected const string DEFAULT_FRAGMENT_SHADER_REL_PATH = "Shaders/default.frag";
+        protected const string DEFAULT_VERTEX_SHADER_REL_PATH = "Shaders/default.vert";
+        public const string TRANSFORM_UNIFORM_NAME = "transform";
+        private readonly int m_transformId;
 
-        public static Shader DefaultFragmentShader { get; } = FromFile(ShaderType.FragmentShader, DefaultFragmentShaderRelPath);
+        public static Shader DefaultFragmentShader { get; } = FromFile(ShaderType.FragmentShader, DEFAULT_FRAGMENT_SHADER_REL_PATH);
 
-        public static Shader DefaultVertexShader { get; } = FromFile(ShaderType.VertexShader, DefaultVertexShaderRelPath);
+        public static Shader DefaultVertexShader { get; } = FromFile(ShaderType.VertexShader, DEFAULT_VERTEX_SHADER_REL_PATH);
 
         public static Shader DefaultShader { get; } = new Shader(DefaultFragmentShader, DefaultVertexShader);
 
@@ -51,13 +51,13 @@ namespace iLynx.Graphics.Shaders
         {
             try
             {
-                handle = GLCheck.Check(GL.CreateShader, type);
-                GLCheck.Check(GL.ShaderSource, handle, shaderSource);
-                GLCheck.Check(GL.CompileShader, handle);
+                m_handle = GLCheck.Check(GL.CreateShader, type);
+                GLCheck.Check(GL.ShaderSource, m_handle, shaderSource);
+                GLCheck.Check(GL.CompileShader, m_handle);
             }
             catch (OpenGLCallException callException)
             {
-                var error = GL.GetShaderInfoLog(handle);
+                var error = GL.GetShaderInfoLog(m_handle);
                 throw new ShaderCompilationException(error, callException);
             }
         }
@@ -92,15 +92,15 @@ namespace iLynx.Graphics.Shaders
 
         public void Dispose()
         {
-            if (isProgram)
-                GL.DeleteProgram(handle);
+            if (m_isProgram)
+                GL.DeleteProgram(m_handle);
             else
-                GL.DeleteShader(handle);
+                GL.DeleteShader(m_handle);
         }
 
         private void AttachToProgram(int program)
         {
-            GLCheck.Check(GL.AttachShader, program, handle);
+            GLCheck.Check(GL.AttachShader, program, m_handle);
         }
 
         /// <summary>
@@ -115,14 +115,14 @@ namespace iLynx.Graphics.Shaders
         /// <param name="shaders"></param>
         public Shader(params Shader[] shaders)
         {
-            isProgram = true;
+            m_isProgram = true;
             try
             {
-                handle = GLCheck.Check(GL.CreateProgram);
+                m_handle = GLCheck.Check(GL.CreateProgram);
                 foreach (var shader in shaders)
-                    shader.AttachToProgram(handle);
-                GLCheck.Check(GL.LinkProgram, handle);
-                transformId = GLCheck.Check(GL.GetUniformLocation, handle, TransformUniformName);
+                    shader.AttachToProgram(m_handle);
+                GLCheck.Check(GL.LinkProgram, m_handle);
+                m_transformId = GLCheck.Check(GL.GetUniformLocation, m_handle, TRANSFORM_UNIFORM_NAME);
             }
             catch (OpenGLCallException e)
             {
@@ -137,11 +137,11 @@ namespace iLynx.Graphics.Shaders
         /// <param name="transform"></param>
         public void SetTransform(Matrix4 transform)
         {
-            if (!isProgram) throw new InvalidOperationException("This shader has not been linked to a program");
-            if (0 == handle) throw new NotInitializedException();
-            if (transformId == -1) throw new InvalidOperationException("The specified shader does not have a transform input (uniform)");
+            if (!m_isProgram) throw new InvalidOperationException("This shader has not been linked to a program");
+            if (0 == m_handle) throw new NotInitializedException();
+            if (m_transformId == -1) throw new InvalidOperationException("The specified shader does not have a transform input (uniform)");
             transform = transform * ViewTransform;
-            GL.UniformMatrix4(transformId, false, ref transform);
+            GL.UniformMatrix4(m_transformId, false, ref transform);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace iLynx.Graphics.Shaders
         /// </summary>
         public void Activate()
         {
-            GLCheck.Check(GL.UseProgram, handle);
+            GLCheck.Check(GL.UseProgram, m_handle);
         }
     }
 }

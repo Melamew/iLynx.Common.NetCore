@@ -64,7 +64,7 @@ namespace iLynx.Graphics.Geometry
             {
                 if (value == fillColor) return;
                 fillColor = value;
-                fillBuffer.Transform((ref Vertex v) => v.VertexColor = value);
+                fillBuffer.Transform((ref Vertex v) => v = new Vertex(v.Position, value, v.TexCoord));
             }
         }
 
