@@ -38,9 +38,12 @@ namespace iLynx.Graphics.TestBench
         private static void Main(string[] args)
         {
             Console.WriteLine($"SizeOf<Vertex>(): {Marshal.SizeOf<Vertex>()}");
+            var col = new Color32(1, 2, 3, 4);
+            var col2 = new Color32(4, 3, 2, 1);
+            Console.WriteLine(col.CompareTo(col2));
             var win = new MainWindow(1280, 720, "Test")
             {
-                Location = new Point(0,0)
+                Location = new Point(0, 0)
             };
             win.Run(60d);
             //var arr = new Vertex[1024];

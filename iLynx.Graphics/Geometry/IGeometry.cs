@@ -31,6 +31,6 @@ namespace iLynx.Graphics.Geometry
 {
     public interface IGeometry : IDrawable, ITransformable
     {
-        Color FillColor { get; set; }
+        Color32 FillColor { get; set; }
     }
 }

@@ -35,7 +35,7 @@ namespace iLynx.UI.OpenGL.Controls
     // ReSharper disable once InconsistentNaming
     public abstract class Control : UIElement
     {
-        private Color background = Color.Transparent;
+        private Color32 background = Color.Transparent;
         private Func<SizeF, IGeometry> backgroundShapeGenerator = size => new RectangleGeometry(size, Color.Transparent, true);
         private IGeometry shape;
         private SizeF size;
@@ -65,7 +65,7 @@ namespace iLynx.UI.OpenGL.Controls
             shape.FillColor = background;
         }
 
-        public Color Background
+        public Color32 Background
         {
             get => background;
             set
