@@ -96,11 +96,6 @@ namespace iLynx.Graphics
         /// Renders all the views contained in this context
         /// </summary>
         void Render();
-        /// <summary>
-        /// Renders the view with the specified id
-        /// </summary>
-        /// <param name="viewId">The id of the view to render</param>
-        void Render(uint viewId);
     }
 
     /// <summary>

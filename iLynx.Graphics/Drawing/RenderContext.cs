@@ -125,6 +125,9 @@ namespace iLynx.Graphics.Drawing
         public void Update()
         {
             m_animator.Tick();
+            ProcessSyncQueue(5);
+            if (m_pendingActions.Count > 10)
+                ProcessSyncQueue();
             // TODO: See if there are any optimizations to rendering we can do here
         }
 
@@ -136,12 +139,7 @@ namespace iLynx.Graphics.Drawing
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             foreach (var view in m_views.OrderBy(x => x.Key).Select(x => x.Value))
                 view.Render(m_renderStates);
-            //m_graphicsContext.SwapBuffers();
-        }
-
-        /// <inheritdoc />
-        public void Render(uint viewId)
-        {
+            m_graphicsContext.SwapBuffers();
         }
 
         private void EnsureActive()

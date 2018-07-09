@@ -201,14 +201,12 @@ namespace iLynx.Graphics.TestBench
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            m_renderContext.ProcessSyncQueue();
             m_renderContext.Update();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             m_renderContext.Render();
-            SwapBuffers();
         }
     }
 }
