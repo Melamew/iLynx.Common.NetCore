@@ -30,13 +30,26 @@
 
 using System;
 using System.IO;
+using System.Text;
 using JetBrains.Annotations;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Shaders
 {
-    public partial class Shader : IDisposable
+    /// <summary>
+    /// Interface defining a simple method to get an info log
+    /// </summary>
+    public interface IProvideInfoLog
+    {
+        /// <summary>
+        /// Gets the info log for this object
+        /// </summary>
+        /// <returns></returns>
+        string GetInfoLog();
+    }
+
+    public partial class Shader : IDisposable, IProvideInfoLog
     {
         protected const string DEFAULT_FRAGMENT_SHADER_REL_PATH = "Shaders/default.frag";
         protected const string DEFAULT_VERTEX_SHADER_REL_PATH = "Shaders/default.vert";
@@ -85,8 +98,18 @@ namespace iLynx.Graphics.Shaders
             }
             catch (OpenGLCallException e)
             {
-                throw new ShaderCompilationException("", e);
+                var builder = new StringBuilder();
+                builder.AppendLine(GetInfoLog());
+                foreach (var shader in shaders)
+                    builder.AppendLine(shader.GetInfoLog());
+                throw new ShaderCompilationException(builder.ToString(), e);
             }
+        }
+
+        /// <inheritdoc/>
+        public string GetInfoLog()
+        {
+            return GLCheck.Check(GL.GetProgramInfoLog, m_handle);
         }
 
         /// <summary>
@@ -116,7 +139,7 @@ namespace iLynx.Graphics.Shaders
         }
     }
 
-    public partial class Shader
+    public partial class Shader : IDisposable, IProvideInfoLog
     {
         /// <summary>
         /// The default fragment shader included in <see cref="iLynx.Graphics"/>
@@ -174,11 +197,12 @@ namespace iLynx.Graphics.Shaders
                 : base(ShaderType.VertexShader, file) { }
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="IDisposable"/>
+        /// <inheritdoc cref="IProvideInfoLog"/>
         /// <summary>
         /// Represents a generic GL shader object
         /// </summary>
-        public abstract class PartialShader : IDisposable
+        public abstract class PartialShader : IDisposable, IProvideInfoLog
         {
             private readonly int m_handle;
 
@@ -191,6 +215,12 @@ namespace iLynx.Graphics.Shaders
             {
                 Type = type;
                 m_handle = GLCheck.Check(GL.CreateShader, type);
+            }
+
+            /// <inheritdoc/>
+            public string GetInfoLog()
+            {
+                return GLCheck.Check(GL.GetShaderInfoLog, m_handle);
             }
 
             /// <inheritdoc />

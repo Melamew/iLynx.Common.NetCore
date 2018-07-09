@@ -43,5 +43,15 @@ namespace iLynx.Graphics
         {
             return new PointF(vector.X, vector.Y);
         }
+
+        public static void QueueForSync(this IRenderContext context, Action action)
+        {
+            context.QueueForSync(action);
+        }
+
+        public static void QueueForSync<T>(this IRenderContext context, Action<T> action, T parameter)
+        {
+            context.QueueForSync(action, parameter);
+        }
     }
 }

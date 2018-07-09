@@ -26,7 +26,10 @@
  */
 #endregion
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using iLynx.Graphics.Shaders;
+using JetBrains.Annotations;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -36,13 +39,20 @@ namespace iLynx.Graphics
 {
     public class RenderContext : IRenderContext
     {
-        private Shader m_activeShader;
-        private Texture m_activeTexture;
+        [NotNull]
+        private Shader m_activeShader = Shader.DefaultShader;
+
+        [NotNull]
+        private Texture m_activeTexture = Texture.DefaultTexture;
+
+        [NotNull]
+        private readonly Queue<(Delegate Method, object[] Parameters)> m_pendingActions = new Queue<(Delegate, object[])>();
+
         private readonly IWindowInfo m_window;
         private readonly IGraphicsContext m_graphicsContext;
         private Matrix4 m_viewTransform = Matrix4.Identity;
 
-        public RenderContext(IGraphicsContext graphicsContext, IWindowInfo window)
+        public RenderContext([NotNull]IGraphicsContext graphicsContext, [NotNull]IWindowInfo window)
         {
             m_graphicsContext = graphicsContext;
             m_window = window;
@@ -77,34 +87,46 @@ namespace iLynx.Graphics
             GLCheck.Check(GL.CullFace, CullFaceMode.Back);
             GLCheck.Check(GL.Enable, EnableCap.DepthTest);
             GLCheck.Check(GL.DepthFunc, DepthFunction.Less);
+            Shader.Activate(m_activeShader);
+            Texture.Bind(m_activeTexture);
             IsInitialized = true;
         }
 
+        /// <summary>
+        /// Gets or Sets the currently active shader program
+        /// </summary>
         public Shader Shader
         {
             get => m_activeShader;
-            set
-            {
-                if (value == m_activeShader) return;
-                EnsureActive();
-                m_activeShader = value;
-                if (null != value)
-                    value.ViewTransform = m_viewTransform;
-                Shader.Activate(value);
-            }
+            set => SetShader(value ?? Shader.DefaultShader);
         }
 
+        private void SetShader([NotNull]Shader shader)
+        {
+            if (shader == m_activeShader) return;
+            EnsureActive();
+            m_activeShader = shader;
+            shader.ViewTransform = m_viewTransform;
+            Shader.Activate(shader);
+        }
+
+        /// <summary>
+        /// Gets or Sets the currently active texture
+        /// </summary>
         public Texture Texture
         {
             get => m_activeTexture;
-            set
-            {
-                if (value == m_activeTexture) return;
-                EnsureActive();
-                m_activeTexture = value;
-                Texture.Bind(value);
-            }
+            set => SetTexture(value ?? Texture.DefaultTexture);
         }
+
+        private void SetTexture([NotNull]Texture texture)
+        {
+            if (texture == m_activeTexture) return;
+            EnsureActive();
+            m_activeTexture = texture;
+            Texture.Bind(texture);
+        }
+
         public Matrix4 ViewTransform
         {
             get => m_viewTransform;
@@ -113,14 +135,28 @@ namespace iLynx.Graphics
                 if (value == m_viewTransform) return;
                 EnsureActive();
                 m_viewTransform = value;
-                if (null == m_activeShader) return;
                 m_activeShader.ViewTransform = value;
+            }
+        }
+
+        public void QueueForSync(Delegate method, params object[] parameters)
+        {
+            m_pendingActions.Enqueue((method, parameters));
+        }
+
+        public void ProcessSyncQueue(uint maxCalls = 0)
+        {
+            var calls = 0;
+            while (m_pendingActions.TryDequeue(out var result) && (maxCalls == 0 || calls < maxCalls))
+            {
+                ++calls;
+                result.Method.DynamicInvoke(result.Parameters);
             }
         }
 
         public void ApplyTransform(Matrix4 transform)
         {
-            m_activeShader?.SetTransform(transform);
+            m_activeShader.SetTransform(transform);
         }
 
         private void EnsureActive()
