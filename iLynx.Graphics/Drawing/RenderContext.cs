@@ -25,17 +25,16 @@
  *
  */
 #endregion
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using iLynx.Graphics.Shaders;
 using JetBrains.Annotations;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 
-namespace iLynx.Graphics
+namespace iLynx.Graphics.Drawing
 {
     public class RenderContext : IRenderContext
     {

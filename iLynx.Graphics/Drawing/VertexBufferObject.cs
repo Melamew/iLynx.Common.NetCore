@@ -25,11 +25,12 @@
  *
  */
 #endregion
+
 using System;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics
+namespace iLynx.Graphics.Drawing
 {
     public class VertexBufferObject<TElement> : IDisposable where TElement : struct, IEquatable<TElement>
     {

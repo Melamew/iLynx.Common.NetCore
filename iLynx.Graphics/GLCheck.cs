@@ -36,6 +36,10 @@ namespace iLynx.Graphics
     {
         public delegate void RefAction<T>(ref T arg);
 
+        public delegate void Ref3Action<in T1, in T2, T3>(T1 t1, T2 t2, ref T3 t3);
+
+        public delegate void Ref2Action<in T1, T2>(T1 t1, ref T2 t2);
+
         public static void Check<T>(RefAction<T> action, ref T arg)
         {
             try
@@ -44,12 +48,48 @@ namespace iLynx.Graphics
             }
             finally
             {
-                Console.WriteLine($"{action.Target}.{action.Method}");
-                Console.WriteLine($"{arg}");
-                var error = GL.GetError();
-                if (error != ErrorCode.NoError)
-                    throw new OpenGLCallException(action, error);
+                WriteDebug(action, arg);
+                ThrowIfError(action);
             }
+        }
+
+        public static void Check<T1, T2>(Ref2Action<T1, T2> action, T1 t1, ref T2 t2)
+        {
+            try
+            {
+                action.Invoke(t1, ref t2);
+            }
+            finally
+            {
+                WriteDebug(action, t1, t2);
+                ThrowIfError(action);
+            }
+        }
+
+        public static void Check<T1, T2, T3>(Ref3Action<T1, T2, T3> action, T1 t1, T2 t2, ref T3 t3)
+        {
+            try
+            {
+                action.Invoke(t1, t2, ref t3);
+            }
+            finally
+            {
+                WriteDebug(action, t1, t2, t3);
+                ThrowIfError(action);
+            }
+        }
+
+        private static void WriteDebug(Delegate method, params object[] arguments)
+        {
+            Console.WriteLine($"{method.Target}.{method.Method}");
+            Console.WriteLine($"{arguments.ToString(", ")}");
+        }
+
+        private static void ThrowIfError(Delegate method)
+        {
+            var error = GL.GetError();
+            if (error != ErrorCode.NoError)
+                throw new OpenGLCallException(method, error);
         }
 
         public static void Check(Action a)
@@ -75,8 +115,7 @@ namespace iLynx.Graphics
             }
             finally
             {
-                Console.WriteLine($"{method.Target}.{method.Method}");
-                Console.WriteLine($"{arguments.ToString(", ")}");
+                WriteDebug(method, arguments);
                 var error = GL.GetError();
                 if (error != ErrorCode.NoError)
                     throw new OpenGLCallException(method, error);
@@ -113,6 +152,25 @@ namespace iLynx.Graphics
             T5 t5, T6 t6)
         {
             Check((Delegate)target, t1, t2, t3, t4, t5, t6);
+        }
+
+        public static void Check<T1, T2, T3, T4, T5, T6, T7>(Action<T1, T2, T3, T4, T5, T6, T7> target, T1 t1, T2 t2, T3 t3, T4 t4,
+            T5 t5, T6 t6, T7 t7)
+        {
+            Check((Delegate)target, t1, t2, t3, t4, t5, t6, t7);
+        }
+        public static void Check<T1, T2, T3, T4, T5, T6, T7, T8>(Action<T1, T2, T3, T4, T5, T6, T7, T8> target, T1 t1, T2 t2, T3 t3, T4 t4,
+            T5 t5, T6 t6, T7 t7, T8 t8)
+        {
+         
+            Check((Delegate)target, t1, t2, t3, t4, t5, t6, t7, t8);
+        }
+
+        public static void Check<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> target, T1 t1, T2 t2, T3 t3, T4 t4,
+            T5 t5, T6 t6, T7 t7, T8 t8, T9 t9)
+        {
+         
+            Check((Delegate)target, t1, t2, t3, t4, t5, t6, t7, t8, t9);
         }
 
         public static TResult Check<T1, T2, TResult>(Func<T1, T2, TResult> func, T1 argument1, T2 argument2)

@@ -25,9 +25,10 @@
  *
  */
 #endregion
+
 using System;
 
-namespace iLynx.Graphics.Shaders
+namespace iLynx.Graphics.Drawing
 {
     public class ShaderCompilationException : OpenGLException
     {

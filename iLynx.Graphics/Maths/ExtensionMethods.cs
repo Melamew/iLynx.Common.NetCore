@@ -27,7 +27,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
-using iLynx.Graphics.Geometry;
+using iLynx.Graphics.Drawing;
 using OpenTK;
 
 namespace iLynx.Graphics.Maths

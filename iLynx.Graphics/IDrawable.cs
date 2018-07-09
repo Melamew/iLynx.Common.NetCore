@@ -25,7 +25,8 @@
  *
  */
 #endregion
-using iLynx.Graphics.Shaders;
+
+using iLynx.Graphics.Drawing;
 
 namespace iLynx.Graphics
 {
@@ -41,12 +42,12 @@ namespace iLynx.Graphics
         void Draw(IRenderContext context);
 
         /// <summary>
-        /// Gets a reference to the <see cref="iLynx.Graphics.Shaders.Shader"/> to be used when rendering this <see cref="IDrawable"/>
+        /// Gets a reference to the <see cref="Drawing.Shader"/> to be used when rendering this <see cref="IDrawable"/>
         /// </summary>
         Shader Shader { get; }
 
         /// <summary>
-        /// Gets a reference to the <see cref="iLynx.Graphics.Texture"/> that should be used when rendering this <see cref="IDrawable"/>
+        /// Gets a reference to the <see cref="Drawing.Texture"/> that should be used when rendering this <see cref="IDrawable"/>
         /// </summary>
         Texture Texture { get; }
     }

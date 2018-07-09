@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using iLynx.Graphics.Animation;
-using iLynx.Graphics.Geometry;
+using iLynx.Graphics.Drawing;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;

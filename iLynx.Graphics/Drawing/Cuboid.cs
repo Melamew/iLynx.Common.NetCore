@@ -25,10 +25,11 @@
  *
  */
 #endregion
+
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Geometry
+namespace iLynx.Graphics.Drawing
 {
     public class Cuboid : GeometryBase
     {

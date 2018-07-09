@@ -27,6 +27,7 @@
 #endregion
 using System.Linq;
 using iLynx.Graphics;
+using iLynx.Graphics.Drawing;
 using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls

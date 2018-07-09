@@ -25,68 +25,68 @@
  *
  */
 #endregion
+
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Geometry
+namespace iLynx.Graphics.Drawing
 {
-    public class RectangleGeometry : GeometryBase
+    public class View : Transformable, IView
     {
-        private readonly Vertex[] m_vertices = new Vertex[4];
-        private float m_width, m_height;
-        private static readonly uint[] Indices = {0u, 1u, 2u, 3u};
+        private readonly IRenderContext context;
+        private List<IDrawable> drawables = new List<IDrawable>();
 
-        public float Width
+        private Matrix4 projection = Matrix4.Identity;
+        private Matrix4 viewTransform = Matrix4.Identity;
+
+        public View(IRenderContext context)
         {
-            get => m_width;
+            this.context = context;
+            if (!context.IsInitialized)
+                context.Initialize();
+        }
+
+        public Matrix4 Projection
+        {
+            get => projection;
             set
             {
-                if (MathF.Abs(value - m_width) <= float.Epsilon) return;
-                m_width = value;
-                Update();
+                if (value == projection) return;
+                projection = value;
+                viewTransform = Transform * projection;
             }
         }
 
-        public float Height
+        protected override void OnTransformChanged()
         {
-            get => m_height;
-            set
+            viewTransform = Transform * projection;
+        }
+
+        public void PrepareRender()
+        {
+            drawables = drawables.OrderBy(x => x.Shader).ThenBy(x => x.Texture).ToList();
+        }
+
+        public void Render()
+        {
+            if (!context.IsCurrent && !context.MakeCurrent()) throw new InvalidOperationException("Context is not active");
+            foreach (var drawable in drawables)
             {
-                if (MathF.Abs(value - m_height) <= float.Epsilon) return;
-                m_height = value;
-                Update();
+                context.ViewTransform = viewTransform;
+                drawable.Draw(context);
             }
         }
 
-        protected override PrimitiveType PrimitiveType => PrimitiveType.TriangleFan;
-
-        protected override Vertex[] GetVertices()
+        public void AddDrawable(IDrawable drawable)
         {
-            m_vertices[0] = new Vertex(Vector3.Zero, FillColor, Vector2.Zero);
-            m_vertices[1] = new Vertex(new Vector3(0f, m_height, 0f), FillColor, Vector2.UnitY);
-            m_vertices[2] = new Vertex(new Vector3(m_width, m_height, 0f), FillColor, Vector2.One);
-            m_vertices[3] = new Vertex(new Vector3(m_width, 0f, 0f), FillColor, Vector2.UnitX);
-            return m_vertices;
+            drawables.Add(drawable);
         }
 
-        protected override uint[] GetIndices()
+        public void RemoveDrawable(IDrawable drawable)
         {
-            return Indices;
-        }
-
-        public RectangleGeometry(float width, float height, Color32 fillColor, bool showOrigin = false)
-            : base(fillColor, true, 4, showOrigin)
-        {
-            m_width = width;
-            m_height = height;
-            Update();
-        }
-
-        public RectangleGeometry(SizeF dimensions, Color32 color, bool showOrigin = false)
-            : this(dimensions.Width, dimensions.Height, color, showOrigin)
-        {
-
+            drawables.Remove(drawable);
         }
     }
 }

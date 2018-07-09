@@ -25,12 +25,33 @@
  *
  */
 #endregion
+
 using OpenTK;
 
-namespace iLynx.Graphics.Geometry
+namespace iLynx.Graphics.Drawing
 {
-    public interface IGeometry : IDrawable, ITransformable
+    public class Text : IDrawable
     {
-        Color32 FillColor { get; set; }
+        private Font m_font;
+
+        public Text(string fontFile)
+        {
+            m_font = new Font(fontFile);
+        }
+
+        public Color FillColor { get; set; }
+
+        public void Draw(IRenderContext context)
+        {
+            
+        }
+
+        public Vector2 FindCharacterPos(uint index)
+        {
+            return new Vector2(0);
+        }
+
+        public Shader Shader { get; set; } = Shader.DefaultShader;
+        public Texture Texture { get; set; }
     }
 }

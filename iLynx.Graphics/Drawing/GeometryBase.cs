@@ -25,11 +25,11 @@
  *
  */
 #endregion
+
 using System;
-using iLynx.Graphics.Shaders;
 using OpenTK.Graphics.OpenGL;
 
-namespace iLynx.Graphics.Geometry
+namespace iLynx.Graphics.Drawing
 {
     public abstract class GeometryBase : Transformable, IGeometry
     {
