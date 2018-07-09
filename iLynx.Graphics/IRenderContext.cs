@@ -27,6 +27,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using iLynx.Graphics.Animation;
 using iLynx.Graphics.Drawing;
 using JetBrains.Annotations;
 using OpenTK;
@@ -48,14 +49,6 @@ namespace iLynx.Graphics
         /// <returns></returns>
         bool MakeCurrent();
         /// <summary>
-        /// Gets a value indicating whether or not this context has been initialized (Meaning all the initial OpenGL set-up has been completed).
-        /// </summary>
-        bool IsInitialized { get; }
-        /// <summary>
-        /// Initializes this context
-        /// </summary>
-        void Initialize();
-        /// <summary>
         /// Enqueues the specified method (with parameters) in the synchronization queue for this context
         /// </summary>
         /// <param name="method"></param>
@@ -69,17 +62,20 @@ namespace iLynx.Graphics
         void ProcessSyncQueue(uint maxCalls = 0);
         /// <summary>
         /// Adds a view to be rendered in this context
+        /// <remarks>Note that views are rendered in the order they are added</remarks>
         /// </summary>
         /// <param name="view"></param>
-        /// <returns>A <see cref="UInt32"/> that can be used to identify the view within this context</returns>
+        /// <returns>A <see cref="uint"/> that can be used to identify the view within this context</returns>
         uint AddView(IView view);
         /// <summary>
         /// Removes a view from this context
+        /// <remarks>Note that views are rendered in the order they are added</remarks>
         /// </summary>
         /// <param name="view"></param>
         void RemoveView(IView view);
         /// <summary>
         /// Removes the view with the specified id from this context
+        /// <remarks>Note that views are rendered in the order they are added</remarks>
         /// </summary>
         /// <param name="viewId"></param>
         void RemoveView(uint viewId);
@@ -88,9 +84,14 @@ namespace iLynx.Graphics
         /// </summary>
         IReadOnlyCollection<IView> Views { get; }
         /// <summary>
+        /// Gets the <see cref="IAnimator"/> associated with this context.
+        /// <remarks>The animator will be called whenever <see cref="Update"/> is called on this <see cref="IRenderContext"/></remarks>
+        /// </summary>
+        IAnimator Animator { get; }
+        /// <summary>
         /// Prepares this view for rendering
         /// </summary>
-        void PrepareRender();
+        void Update();
         /// <summary>
         /// Renders all the views contained in this context
         /// </summary>
@@ -132,15 +133,46 @@ namespace iLynx.Graphics
         private Texture m_activeTexture = Texture.DefaultTexture;
         private Matrix4 m_viewTransform = Matrix4.Identity;
 
-        public RenderStates() { }
+        public RenderStates()
+        {
+            Init();
+        }
 
         public RenderStates(Shader shader, Texture texture, Matrix4 viewTransform)
         {
-            //m_activeShader = shader;
-            //m_activeTexture = texture;
+            m_activeShader = shader;
+            m_activeTexture = texture;
+            m_viewTransform = viewTransform;
+            Init();
+        }
+
+        public RenderStates(Shader shader, Texture texture)
+        {
+            m_activeShader = shader;
+            m_activeTexture = texture;
+            Init();
+        }
+
+        public RenderStates(Shader shader)
+        {
+            m_activeShader = shader;
+            Init();
+        }
+
+        public RenderStates(IRenderStates states)
+        {
+            m_activeShader = states.Shader;
+            m_activeTexture = states.Texture;
+            m_viewTransform = states.ViewTransform;
+            Init();
+        }
+
+        private void Init()
+        {
             Shader.Activate(m_activeShader);
             Texture.Bind(m_activeTexture);
         }
+
         /// <summary>
         /// Gets or Sets the currently active shader program
         /// </summary>

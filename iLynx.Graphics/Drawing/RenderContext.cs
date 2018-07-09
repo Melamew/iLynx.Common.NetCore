@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using iLynx.Graphics.Animation;
 using JetBrains.Annotations;
 using OpenTK;
 using OpenTK.Graphics;
@@ -39,11 +40,12 @@ namespace iLynx.Graphics.Drawing
     public class RenderContext : IRenderContext
     {
         private readonly Queue<(Delegate Method, object[] Parameters)> m_pendingActions = new Queue<(Delegate, object[])>();
-        private readonly Dictionary<uint, IView> m_Views = new Dictionary<uint, IView>(10);
-
+        private readonly Dictionary<uint, IView> m_views = new Dictionary<uint, IView>(10);
+        private readonly IAnimator m_animator = new Animator();
         private readonly IWindowInfo m_window;
         private readonly IGraphicsContext m_graphicsContext;
-        private IRenderStates m_renderStates = new RenderStates();
+        private readonly IRenderStates m_renderStates = new RenderStates();
+
         private uint m_currentId = 1;
         private uint NextId => m_currentId++;
 
@@ -51,6 +53,14 @@ namespace iLynx.Graphics.Drawing
         {
             m_graphicsContext = graphicsContext;
             m_window = window;
+            if (!m_graphicsContext.IsCurrent)
+                m_graphicsContext.MakeCurrent(m_window);
+            GLCheck.Check(GL.Enable, EnableCap.Blend);
+            GLCheck.Check(GL.BlendFunc, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GLCheck.Check(GL.Enable, EnableCap.CullFace);
+            GLCheck.Check(GL.CullFace, CullFaceMode.Back);
+            GLCheck.Check(GL.Enable, EnableCap.DepthTest);
+            GLCheck.Check(GL.DepthFunc, DepthFunction.Less);
         }
 
         public bool IsCurrent => m_graphicsContext.IsCurrent;
@@ -69,21 +79,7 @@ namespace iLynx.Graphics.Drawing
             }
         }
 
-        public bool IsInitialized { get; private set; }
-
-        public void Initialize()
-        {
-            if (IsInitialized) return;
-            if (!m_graphicsContext.IsCurrent)
-                m_graphicsContext.MakeCurrent(m_window);
-            GLCheck.Check(GL.Enable, EnableCap.Blend);
-            GLCheck.Check(GL.BlendFunc, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GLCheck.Check(GL.Enable, EnableCap.CullFace);
-            GLCheck.Check(GL.CullFace, CullFaceMode.Back);
-            GLCheck.Check(GL.Enable, EnableCap.DepthTest);
-            GLCheck.Check(GL.DepthFunc, DepthFunction.Less);
-            IsInitialized = true;
-        }
+        public IAnimator Animator => m_animator;
 
         public void QueueForSync(Delegate method, params object[] parameters)
         {
@@ -104,37 +100,43 @@ namespace iLynx.Graphics.Drawing
         public uint AddView(IView view)
         {
             var key = NextId;
-            m_Views.Add(key, view);
+            m_views.Add(key, view);
             return key;
         }
 
         /// <inheritdoc />
         public void RemoveView(IView view)
         {
-            var kvp = m_Views.FirstOrDefault(x => x.Value == view);
+            var kvp = m_views.FirstOrDefault(x => x.Value == view);
             if (kvp.Value != view) return;
-            m_Views.Remove(kvp.Key);
+            m_views.Remove(kvp.Key);
         }
 
         /// <inheritdoc />
         public void RemoveView(uint viewId)
         {
-            m_Views.Remove(viewId);
+            m_views.Remove(viewId);
         }
 
         /// <inheritdoc />
-        public IReadOnlyCollection<IView> Views => m_Views.Values;
+        public IReadOnlyCollection<IView> Views => m_views.Values;
 
         /// <inheritdoc />
-        public void PrepareRender()
+        public void Update()
         {
+            m_animator.Tick();
             // TODO: See if there are any optimizations to rendering we can do here
         }
 
         /// <inheritdoc />
         public void Render()
         {
-            var states = new RenderStates();
+            EnsureActive();
+            GL.ClearColor(Color.Black);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            foreach (var view in m_views.OrderBy(x => x.Key).Select(x => x.Value))
+                view.Render(m_renderStates);
+            //m_graphicsContext.SwapBuffers();
         }
 
         /// <inheritdoc />

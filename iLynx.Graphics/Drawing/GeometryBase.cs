@@ -86,11 +86,11 @@ namespace iLynx.Graphics.Drawing
             m_fillVao.Dispose();
         }
 
-        public void Draw(IRenderContext context)
+        public void Draw(IRenderStates states)
         {
-            context.Shader = Shader;
-            context.Texture = Texture;
-            context.ApplyTransform(Transform);
+            states.Shader = Shader;
+            states.Texture = Texture;
+            states.ApplyTransform(Transform);
             DoDraw();
         }
 

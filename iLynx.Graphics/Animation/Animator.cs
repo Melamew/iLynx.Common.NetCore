@@ -32,90 +32,106 @@ using System.Threading;
 
 namespace iLynx.Graphics.Animation
 {
-    public static class Animator
+    /// <summary>
+    /// Defines a method for animating various things
+    /// </summary>
+    public interface IAnimator
     {
-        private static readonly Dictionary<IAnimation, DateTime> Animations = new Dictionary<IAnimation, DateTime>();
-        private static readonly ReaderWriterLockSlim Rwl = new ReaderWriterLockSlim();
-        //private static readonly CallbackTicker Ticker = new CallbackTicker();
+        /// <summary>
+        /// Adds the specified <see cref="IAnimation"/> to this <see cref="IAnimator"/>.
+        /// </summary>
+        /// <param name="animation">The animation to add</param>
+        /// <returns></returns>
+        IAnimation AddAnimation(IAnimation animation);
+        /// <summary>
+        /// Removes the specified <see cref="IAnimation"/> from this <see cref="IAnimator"/>
+        /// </summary>
+        /// <param name="animation"></param>
+        /// <returns></returns>
+        IAnimation RemoveAnimation(IAnimation animation);
+        /// <summary>
+        /// Processes one "tick" - All animations will be invoked once with this call.
+        /// </summary>
+        void Tick();
+        /// <summary>
+        /// Stops the specified <see cref="IAnimation"/> and removes it from this <see cref="IAnimator"/>
+        /// </summary>
+        /// <param name="animation"></param>
+        void Stop(IAnimation animation);
+    }
 
-        static Animator()
+    public static class ExtensionMethods
+    {
+        public static IAnimation Start(this IAnimator animator, Action<double> callback, TimeSpan duration, LoopMode loopMode = LoopMode.None, Func<double, double> easingFunction = null)
         {
-            //StartAnimationThread();
+            return animator.AddAnimation(new CallbackAnimation(callback, duration, loopMode, easingFunction));
         }
+    }
 
-        //public static void StartAnimationThread()
-        //{
-        //    Ticker.Start(Tick);
-        //}
+    public class Animator : IAnimator
+    {
+        private readonly Dictionary<IAnimation, DateTime> m_animations = new Dictionary<IAnimation, DateTime>();
+        private readonly ReaderWriterLockSlim m_rwl = new ReaderWriterLockSlim();
 
-        //public static void StopAnimationThread()
-        //{
-        //    Ticker.Stop();
-        //}
-
-        public static IAnimation AddAnimation(IAnimation animation)
+        public IAnimation AddAnimation(IAnimation animation)
         {
             try
             {
-                Rwl.EnterWriteLock();
-                Animations.Add(animation, DateTime.Now);
+                m_rwl.EnterWriteLock();
+                m_animations.Add(animation, DateTime.Now);
                 return animation;
             }
             finally
             {
-                Rwl.ExitWriteLock();
+                m_rwl.ExitWriteLock();
             }
         }
 
-        public static IAnimation RemoveAnimation(IAnimation animation)
+        public IAnimation RemoveAnimation(IAnimation animation)
         {
             try
             {
-                Rwl.EnterWriteLock();
-                return Animations.Remove(animation) ? animation : null;
+                m_rwl.EnterWriteLock();
+                return m_animations.Remove(animation) ? animation : null;
             }
             finally
             {
-                Rwl.ExitWriteLock();
+                m_rwl.ExitWriteLock();
             }
         }
 
-        public static void Tick()
+        public void Tick()
         {
             KeyValuePair<IAnimation, DateTime>[] anims;
             try
             {
-                Rwl.EnterReadLock();
-                anims = Animations.ToArray();
+                m_rwl.EnterReadLock();
+                anims = m_animations.ToArray();
             }
             finally
             {
-                Rwl.ExitReadLock();
+                m_rwl.ExitReadLock();
             }
 
             foreach (var animation in anims)
             {
                 if (animation.Key.IsFinished)
                 {
-                    Rwl.EnterWriteLock();
-                    Animations.Remove(animation.Key);
-                    Rwl.ExitWriteLock();
+                    m_rwl.EnterWriteLock();
+                    m_animations.Remove(animation.Key);
+                    m_rwl.ExitWriteLock();
                     continue;
                 }
                 animation.Key.Tick(DateTime.Now - animation.Value);
             }
         }
 
-        public static IAnimation Start(Action<double> callback, TimeSpan duration, LoopMode loopMode = LoopMode.None, Func<double, double> easingFunction = null)
-        {
-            return AddAnimation(new CallbackAnimation(callback, duration, loopMode, easingFunction));
-        }
-
-        public static void Stop(IAnimation animation)
+        /// <inheritdoc/>
+        public void Stop(IAnimation animation)
         {
             if (null == animation) return;
             animation.Cancel();
-            while (Animations.ContainsKey(animation))
+            while (m_animations.ContainsKey(animation))
                 Thread.CurrentThread.Join(1);
             animation.Tick(animation.Duration);
         }

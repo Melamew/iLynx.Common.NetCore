@@ -120,7 +120,7 @@ namespace iLynx.UI.OpenGL
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            Animator.Tick();
+            //Animator.Tick();
             root?.Update();
         }
 

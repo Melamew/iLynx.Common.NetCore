@@ -26,6 +26,8 @@
  */
 #endregion
 
+using iLynx.Graphics.Drawing;
+
 namespace iLynx.Graphics
 {
     /// <summary>
@@ -38,5 +40,13 @@ namespace iLynx.Graphics
         /// Draws this drawable in the currently active context
         /// </summary>
         void Draw(IRenderStates states);
+        /// <summary>
+        /// Gets or Sets the shader to use for rendering this drawable
+        /// </summary>
+        Shader Shader { get; }
+        /// <summary>
+        /// Gets or Sets the  texture to apply to this drawable
+        /// </summary>
+        Texture Texture { get; set; }
     }
 }

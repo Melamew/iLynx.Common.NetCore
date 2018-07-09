@@ -40,7 +40,7 @@ namespace iLynx.Graphics.Drawing
 
         public Color FillColor { get; set; }
 
-        public void Draw(IRenderContext context)
+        public void Draw(IRenderStates states)
         {
             
         }

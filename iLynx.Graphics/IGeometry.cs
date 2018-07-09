@@ -25,10 +25,21 @@
  *
  */
 #endregion
+
+using iLynx.Graphics.Drawing;
+
 namespace iLynx.Graphics
 {
+    /// <summary>
+    /// Defines a geometry and what is associated with it for rendering.
+    /// </summary>
+    /// <inheritdoc cref="IDrawable" />
+    /// <inheritdoc cref="ITransformable" />
     public interface IGeometry : IDrawable, ITransformable
     {
+        /// <summary>
+        /// Gets or Sets the fill color of this geometry
+        /// </summary>
         Color32 FillColor { get; set; }
     }
 }

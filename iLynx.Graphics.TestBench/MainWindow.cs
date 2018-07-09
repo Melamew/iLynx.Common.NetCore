@@ -45,7 +45,7 @@ namespace iLynx.Graphics.TestBench
         private Cuboid m_cuboid;
         private IView m_view2D;
         private IView m_view3D;
-        private IRenderContext m_renderContext;
+        private readonly IRenderContext m_renderContext;
 
         private RectangleGeometry m_topLeft;//, topRight, bottomLeft, bottomRight;
 
@@ -53,14 +53,14 @@ namespace iLynx.Graphics.TestBench
             : base(width, height, new GraphicsMode(new ColorFormat(32, 32, 32, 32), 32, 32), title,
                 GameWindowFlags.Default, DisplayDevice.Default)
         {
+            m_renderContext = new RenderContext(Context, WindowInfo);
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            m_renderContext = new RenderContext(Context, WindowInfo);
-            m_view2D = new View(m_renderContext);
-            m_view3D = new View(m_renderContext);
+            m_renderContext.AddView(m_view2D = new View());
+            m_renderContext.AddView(m_view3D = new View());
 
             m_topLeft = new RectangleGeometry(250f, 250f, new Color32(1f, 1f, 1f, .5f))
             {
@@ -70,10 +70,10 @@ namespace iLynx.Graphics.TestBench
             m_cuboid = new Cuboid(Color32.Lime, 1f, 1f, 1f) { Origin = new Vector3(0.5f) };
             m_view2D.AddDrawable(m_topLeft);
             m_view3D.AddDrawable(m_cuboid);
-            Animator.Start(
+            m_renderContext.Animator.Start(
                 x => m_topLeft.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)),
                 TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
-            Animator.Start(x => m_topLeft.Origin = (float)x * new Vector3(m_topLeft.Width, m_topLeft.Height, 0f),
+            m_renderContext.Animator.Start(x => m_topLeft.Origin = (float)x * new Vector3(m_topLeft.Width, m_topLeft.Height, 0f),
                 TimeSpan.FromSeconds(3.33d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
             LoadTestTexture();
         }
@@ -202,17 +202,12 @@ namespace iLynx.Graphics.TestBench
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             m_renderContext.ProcessSyncQueue();
-            Animator.Tick();
-            m_view2D.PrepareRender();
-            m_view3D.PrepareRender();
+            m_renderContext.Update();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            GL.ClearColor(Color.Black);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            m_view3D.Render();
-            m_view2D.Render();
+            m_renderContext.Render();
             SwapBuffers();
         }
     }

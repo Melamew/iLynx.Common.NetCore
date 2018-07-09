@@ -359,13 +359,13 @@ namespace iLynx.UI.OpenGL.Controls
 
         public IRenderElement Parent { get; private set; }
 
-        public virtual void Draw(IRenderContext target)
+        public virtual void Draw(IRenderStates states)
         {
             LayoutLock.EnterReadLock();
             try
             {
-                //states.Transform.Translate(RenderPosition);
-                DrawLocked(target);
+                //states.ApplyTransform(Transform);
+                DrawLocked(states);
             }
             finally
             {
@@ -421,14 +421,14 @@ namespace iLynx.UI.OpenGL.Controls
         {
         }
 
-        protected abstract void DrawLocked(IRenderContext context);
+        protected abstract void DrawLocked(IRenderStates states);
 
         public void Dispose()
         {
             LayoutLock?.Dispose();
         }
 
-        public Shader Shader { get; }
-        public Texture Texture { get; }
+        public Shader Shader { get; set; }
+        public Texture Texture { get; set; }
     }
 }

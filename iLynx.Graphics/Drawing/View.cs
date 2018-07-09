@@ -34,58 +34,47 @@ namespace iLynx.Graphics.Drawing
 {
     public class View : Transformable, IView
     {
-        private readonly IRenderContext context;
-        private List<IDrawable> drawables = new List<IDrawable>();
+        private List<IDrawable> m_drawables = new List<IDrawable>();
 
-        private Matrix4 projection = Matrix4.Identity;
-        private Matrix4 viewTransform = Matrix4.Identity;
-
-        public View(IRenderContext context)
-        {
-            this.context = context;
-            if (!context.IsInitialized)
-                context.Initialize();
-        }
+        private Matrix4 m_projection = Matrix4.Identity;
+        private Matrix4 m_viewTransform = Matrix4.Identity;
 
         public Matrix4 Projection
         {
-            get => projection;
+            get => m_projection;
             set
             {
-                if (value == projection) return;
-                projection = value;
-                viewTransform = Transform * projection;
+                if (value == m_projection) return;
+                m_projection = value;
+                m_viewTransform = Transform * m_projection;
             }
         }
 
         protected override void OnTransformChanged()
         {
-            viewTransform = Transform * projection;
+            m_viewTransform = Transform * m_projection;
         }
 
         public void PrepareRender()
         {
-            drawables = drawables.OrderBy(x => x.Shader).ThenBy(x => x.Texture).ToList();
+            m_drawables = m_drawables.OrderBy(x => x.Shader).ThenBy(x => x.Texture).ToList();
         }
 
-        public void Render()
+        public void Render(IRenderStates states)
         {
-            if (!context.IsCurrent && !context.MakeCurrent()) throw new InvalidOperationException("Context is not active");
-            foreach (var drawable in drawables)
-            {
-                context.ViewTransform = viewTransform;
-                drawable.Draw(context);
-            }
+            states.ViewTransform = m_viewTransform;
+            foreach (var drawable in m_drawables)
+                drawable.Draw(states);
         }
 
         public void AddDrawable(IDrawable drawable)
         {
-            drawables.Add(drawable);
+            m_drawables.Add(drawable);
         }
 
         public void RemoveDrawable(IDrawable drawable)
         {
-            drawables.Remove(drawable);
+            m_drawables.Remove(drawable);
         }
     }
 }
