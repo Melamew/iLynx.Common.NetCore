@@ -25,7 +25,6 @@
  *
  */
 #endregion
-
 namespace iLynx.Graphics.Drawing
 {
     public interface IGeometry : IDrawable, ITransformable

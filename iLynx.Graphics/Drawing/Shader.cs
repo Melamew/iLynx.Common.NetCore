@@ -1,5 +1,4 @@
 ﻿#region LICENSE
-
 /*
  * Copyright 2018 Melanie Hjorth
  *
@@ -25,9 +24,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 #endregion
-
 using System;
 using System.IO;
 using System.Text;
