@@ -26,7 +26,9 @@
  */
 #endregion
 using System;
+using System.Collections.Generic;
 using iLynx.Graphics.Drawing;
+using JetBrains.Annotations;
 using OpenTK;
 
 namespace iLynx.Graphics
@@ -49,11 +51,62 @@ namespace iLynx.Graphics
         /// Gets a value indicating whether or not this context has been initialized (Meaning all the initial OpenGL set-up has been completed).
         /// </summary>
         bool IsInitialized { get; }
-
         /// <summary>
         /// Initializes this context
         /// </summary>
         void Initialize();
+        /// <summary>
+        /// Enqueues the specified method (with parameters) in the synchronization queue for this context
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="parameters"></param>
+        void QueueForSync(Delegate method, params object[] parameters);
+        /// <summary>
+        /// Processes the synchronization queue of this context, up to a maximum calls / operations of <paramref name="maxCalls"/>
+        /// <remarks>If <see cref="maxCalls"/> is 0, this method will attempt to process all pending sync calls</remarks>
+        /// </summary>
+        /// <param name="maxCalls">The maximum number of calls to process (0 = unlimited)</param>
+        void ProcessSyncQueue(uint maxCalls = 0);
+        /// <summary>
+        /// Adds a view to be rendered in this context
+        /// </summary>
+        /// <param name="view"></param>
+        /// <returns>A <see cref="UInt32"/> that can be used to identify the view within this context</returns>
+        uint AddView(IView view);
+        /// <summary>
+        /// Removes a view from this context
+        /// </summary>
+        /// <param name="view"></param>
+        void RemoveView(IView view);
+        /// <summary>
+        /// Removes the view with the specified id from this context
+        /// </summary>
+        /// <param name="viewId"></param>
+        void RemoveView(uint viewId);
+        /// <summary>
+        /// Gets a read-only collection of views that are rendered in this context
+        /// </summary>
+        IReadOnlyCollection<IView> Views { get; }
+        /// <summary>
+        /// Prepares this view for rendering
+        /// </summary>
+        void PrepareRender();
+        /// <summary>
+        /// Renders all the views contained in this context
+        /// </summary>
+        void Render();
+        /// <summary>
+        /// Renders the view with the specified id
+        /// </summary>
+        /// <param name="viewId">The id of the view to render</param>
+        void Render(uint viewId);
+    }
+
+    /// <summary>
+    /// Defines a set of variables that are passed from object to object during a render pass
+    /// </summary>
+    public interface IRenderStates
+    {
         /// <summary>
         /// Gets or Sets the currently active shader
         /// </summary>
@@ -71,17 +124,71 @@ namespace iLynx.Graphics
         /// </summary>
         /// <param name="transform"></param>
         void ApplyTransform(Matrix4 transform);
+    }
+
+    public class RenderStates : IRenderStates
+    {
+        private Shader m_activeShader = Shader.DefaultShader;
+        private Texture m_activeTexture = Texture.DefaultTexture;
+        private Matrix4 m_viewTransform = Matrix4.Identity;
+
+        public RenderStates() { }
+
+        public RenderStates(Shader shader, Texture texture, Matrix4 viewTransform)
+        {
+            //m_activeShader = shader;
+            //m_activeTexture = texture;
+            Shader.Activate(m_activeShader);
+            Texture.Bind(m_activeTexture);
+        }
         /// <summary>
-        /// Enqueues the specified method (with parameters) in the synchronization queue for this context
+        /// Gets or Sets the currently active shader program
         /// </summary>
-        /// <param name="method"></param>
-        /// <param name="parameters"></param>
-        void QueueForSync(Delegate method, params object[] parameters);
+        public Shader Shader
+        {
+            get => m_activeShader;
+            set => SetShader(value ?? Shader.DefaultShader);
+        }
+
+        private void SetShader([NotNull]Shader shader)
+        {
+            if (shader == m_activeShader) return;
+            m_activeShader = shader;
+            shader.ViewTransform = m_viewTransform;
+            Shader.Activate(shader);
+        }
+
         /// <summary>
-        /// Processes the synchronization queue of this context, up to a maximum calls / operations of <paramref name="maxCalls"/>
-        /// <remarks>If <see cref="maxCalls"/> is 0, this method will attempt to process all pending sync calls</remarks>
+        /// Gets or Sets the currently active texture
         /// </summary>
-        /// <param name="maxCalls">The maximum number of calls to process (0 = unlimited)</param>
-        void ProcessSyncQueue(uint maxCalls = 0);
+        public Texture Texture
+        {
+            get => m_activeTexture;
+            set => SetTexture(value ?? Texture.DefaultTexture);
+        }
+
+        private void SetTexture([NotNull]Texture texture)
+        {
+            if (texture == m_activeTexture) return;
+            m_activeTexture = texture;
+            Texture.Bind(texture);
+        }
+
+        public Matrix4 ViewTransform
+        {
+            get => m_viewTransform;
+            set
+            {
+                if (value == m_viewTransform) return;
+                m_viewTransform = value;
+                m_activeShader.ViewTransform = value;
+            }
+        }
+
+        /// <inheritdoc/>
+        public void ApplyTransform(Matrix4 transform)
+        {
+            m_activeShader.SetTransform(transform);
+        }
     }
 }

@@ -27,6 +27,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using OpenTK;
 using OpenTK.Graphics;
@@ -37,18 +38,14 @@ namespace iLynx.Graphics.Drawing
 {
     public class RenderContext : IRenderContext
     {
-        [NotNull]
-        private Shader m_activeShader = Shader.DefaultShader;
-
-        [NotNull]
-        private Texture m_activeTexture = Texture.DefaultTexture;
-
-        [NotNull]
         private readonly Queue<(Delegate Method, object[] Parameters)> m_pendingActions = new Queue<(Delegate, object[])>();
+        private readonly Dictionary<uint, IView> m_Views = new Dictionary<uint, IView>(10);
 
         private readonly IWindowInfo m_window;
         private readonly IGraphicsContext m_graphicsContext;
-        private Matrix4 m_viewTransform = Matrix4.Identity;
+        private IRenderStates m_renderStates = new RenderStates();
+        private uint m_currentId = 1;
+        private uint NextId => m_currentId++;
 
         public RenderContext([NotNull]IGraphicsContext graphicsContext, [NotNull]IWindowInfo window)
         {
@@ -85,56 +82,7 @@ namespace iLynx.Graphics.Drawing
             GLCheck.Check(GL.CullFace, CullFaceMode.Back);
             GLCheck.Check(GL.Enable, EnableCap.DepthTest);
             GLCheck.Check(GL.DepthFunc, DepthFunction.Less);
-            Shader.Activate(m_activeShader);
-            Texture.Bind(m_activeTexture);
             IsInitialized = true;
-        }
-
-        /// <summary>
-        /// Gets or Sets the currently active shader program
-        /// </summary>
-        public Shader Shader
-        {
-            get => m_activeShader;
-            set => SetShader(value ?? Shader.DefaultShader);
-        }
-
-        private void SetShader([NotNull]Shader shader)
-        {
-            if (shader == m_activeShader) return;
-            EnsureActive();
-            m_activeShader = shader;
-            shader.ViewTransform = m_viewTransform;
-            Shader.Activate(shader);
-        }
-
-        /// <summary>
-        /// Gets or Sets the currently active texture
-        /// </summary>
-        public Texture Texture
-        {
-            get => m_activeTexture;
-            set => SetTexture(value ?? Texture.DefaultTexture);
-        }
-
-        private void SetTexture([NotNull]Texture texture)
-        {
-            if (texture == m_activeTexture) return;
-            EnsureActive();
-            m_activeTexture = texture;
-            Texture.Bind(texture);
-        }
-
-        public Matrix4 ViewTransform
-        {
-            get => m_viewTransform;
-            set
-            {
-                if (value == m_viewTransform) return;
-                EnsureActive();
-                m_viewTransform = value;
-                m_activeShader.ViewTransform = value;
-            }
         }
 
         public void QueueForSync(Delegate method, params object[] parameters)
@@ -152,9 +100,46 @@ namespace iLynx.Graphics.Drawing
             }
         }
 
-        public void ApplyTransform(Matrix4 transform)
+        /// <inheritdoc />
+        public uint AddView(IView view)
         {
-            m_activeShader.SetTransform(transform);
+            var key = NextId;
+            m_Views.Add(key, view);
+            return key;
+        }
+
+        /// <inheritdoc />
+        public void RemoveView(IView view)
+        {
+            var kvp = m_Views.FirstOrDefault(x => x.Value == view);
+            if (kvp.Value != view) return;
+            m_Views.Remove(kvp.Key);
+        }
+
+        /// <inheritdoc />
+        public void RemoveView(uint viewId)
+        {
+            m_Views.Remove(viewId);
+        }
+
+        /// <inheritdoc />
+        public IReadOnlyCollection<IView> Views => m_Views.Values;
+
+        /// <inheritdoc />
+        public void PrepareRender()
+        {
+            // TODO: See if there are any optimizations to rendering we can do here
+        }
+
+        /// <inheritdoc />
+        public void Render()
+        {
+            var states = new RenderStates();
+        }
+
+        /// <inheritdoc />
+        public void Render(uint viewId)
+        {
         }
 
         private void EnsureActive()

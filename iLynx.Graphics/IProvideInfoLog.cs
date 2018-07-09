@@ -25,10 +25,17 @@
  *
  */
 #endregion
-namespace iLynx.Graphics.Drawing
+namespace iLynx.Graphics
 {
-    public interface IGeometry : IDrawable, ITransformable
+    /// <summary>
+    /// Interface defining a simple method to get an info log
+    /// </summary>
+    public interface IProvideInfoLog
     {
-        Color32 FillColor { get; set; }
+        /// <summary>
+        /// Gets the info log for this object
+        /// </summary>
+        /// <returns></returns>
+        string GetInfoLog();
     }
 }

@@ -37,14 +37,9 @@ namespace iLynx.Graphics
         Matrix4 Projection { get; set; }
 
         /// <summary>
-        /// Prepares this view for rendering
-        /// </summary>
-        void PrepareRender();
-
-        /// <summary>
         /// Renders this view
         /// </summary>
-        void Render();
+        void Render(IRenderStates states);
 
         /// <summary>
         /// Adds the specified drawable to this view
