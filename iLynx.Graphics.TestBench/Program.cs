@@ -41,7 +41,7 @@ namespace iLynx.Graphics.TestBench
             var col = new Color32(1, 2, 3, 4);
             var col2 = new Color32(4, 3, -4, 1);
             Console.WriteLine(col.CompareTo(col2));
-            Console.WriteLine($"{col2.Normalize()}");
+            Console.WriteLine($"{col2.Normalized()}");
             Console.ReadKey();
             var win = new MainWindow(1280, 720, "Test")
             {

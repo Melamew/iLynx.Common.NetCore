@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 /*
  * Copyright 2018 Melanie Hjorth
  *
@@ -24,83 +25,39 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
 #endregion
+
 using System;
 using System.IO;
+using JetBrains.Annotations;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Shaders
 {
-    public class Shader : IDisposable
+    public partial class Shader : IDisposable
     {
-        private readonly int m_handle;
-        private readonly bool m_isProgram;
         protected const string DEFAULT_FRAGMENT_SHADER_REL_PATH = "Shaders/default.frag";
         protected const string DEFAULT_VERTEX_SHADER_REL_PATH = "Shaders/default.vert";
+
+        /// <summary>
+        /// The name of the view transform uniform variable in the vertex shader.
+        /// This uniform must be declared in the shader source if <see cref="ViewTransform"/> and <see cref="SetTransform(Matrix4)"/> are in use
+        /// </summary>
         public const string TRANSFORM_UNIFORM_NAME = "transform";
+
+        private readonly int m_handle;
+        private readonly bool m_isProgram;
         private readonly int m_transformId;
 
-        public static Shader DefaultFragmentShader { get; } = FromFile(ShaderType.FragmentShader, DEFAULT_FRAGMENT_SHADER_REL_PATH);
-
-        public static Shader DefaultVertexShader { get; } = FromFile(ShaderType.VertexShader, DEFAULT_VERTEX_SHADER_REL_PATH);
-
-        public static Shader DefaultShader { get; } = new Shader(DefaultFragmentShader, DefaultVertexShader);
-
-        private Shader(ShaderType type, string shaderSource)
-        {
-            try
-            {
-                m_handle = GLCheck.Check(GL.CreateShader, type);
-                GLCheck.Check(GL.ShaderSource, m_handle, shaderSource);
-                GLCheck.Check(GL.CompileShader, m_handle);
-            }
-            catch (OpenGLCallException callException)
-            {
-                var error = GL.GetShaderInfoLog(m_handle);
-                throw new ShaderCompilationException(error, callException);
-            }
-        }
-
-        /// <summary>
-        /// Loads the contents of the specified file and creates a shader of the specified type
-        /// </summary>
-        /// <param name="type">The <see cref="ShaderType"/> type of the shader</param>
-        /// <param name="fileName">The path to the file containing the source code of the shader</param>
-        /// <returns></returns>
-        public static Shader FromFile(ShaderType type, string fileName)
-        {
-            if (!File.Exists(fileName)) throw new FileNotFoundException();
-            string source;
-            using (var reader = new StreamReader(File.OpenRead(fileName)))
-            {
-                source = reader.ReadToEnd();
-            }
-            return new Shader(type, source);
-        }
-
-        /// <summary>
-        /// Creates a shader of the specified type from the specified source
-        /// </summary>
-        /// <param name="type">The <see cref="ShaderType"/> type of the shader</param>
-        /// <param name="source">The source code for the shader</param>
-        /// <returns></returns>
-        public static Shader FromSource(ShaderType type, string source)
-        {
-            return new Shader(type, source);
-        }
-
+        /// <inheritdoc/>
+        /// <remarks>
+        /// <see cref="GL.DeleteProgram(int)"/>
+        /// </remarks>
         public void Dispose()
         {
-            if (m_isProgram)
-                GL.DeleteProgram(m_handle);
-            else
-                GL.DeleteShader(m_handle);
-        }
-
-        private void AttachToProgram(int program)
-        {
-            GLCheck.Check(GL.AttachShader, program, m_handle);
+            GLCheck.Check(GL.DeleteProgram, m_handle);
         }
 
         /// <summary>
@@ -109,18 +66,20 @@ namespace iLynx.Graphics.Shaders
         public Matrix4 ViewTransform { get; set; } = Matrix4.Identity;
 
         /// <summary>
-        /// Creates a new shader program with the specified shaders
-        /// (GL.LinkProgram)
+        /// Creates a new shader program with the specified partial shaders
         /// </summary>
-        /// <param name="shaders"></param>
-        public Shader(params Shader[] shaders)
+        /// <param name="shaders">The shaders to link as a full shader program</param>
+        /// <remarks>
+        /// <see cref="GL.LinkProgram(int)"/>
+        /// <see cref="GL.GetUniformLocation(int,string)"/>
+        /// </remarks>
+        public Shader(params PartialShader[] shaders)
         {
             m_isProgram = true;
             try
             {
                 m_handle = GLCheck.Check(GL.CreateProgram);
-                foreach (var shader in shaders)
-                    shader.AttachToProgram(m_handle);
+                foreach (var shader in shaders) shader.AttachToProgram(m_handle);
                 GLCheck.Check(GL.LinkProgram, m_handle);
                 m_transformId = GLCheck.Check(GL.GetUniformLocation, m_handle, TRANSFORM_UNIFORM_NAME);
             }
@@ -145,11 +104,185 @@ namespace iLynx.Graphics.Shaders
         }
 
         /// <summary>
-        /// Activates this shader (GL.UseProgram)
+        /// Activates the specified shader
         /// </summary>
-        public void Activate()
+        /// <remarks>
+        /// Calling this method with null is equivalent to unbinding the currently active shader program.
+        /// <see cref="GL.UseProgram(int)"/>
+        /// </remarks>
+        public static void Activate([CanBeNull]Shader shader)
         {
-            GLCheck.Check(GL.UseProgram, m_handle);
+            GLCheck.Check(GL.UseProgram, shader?.m_handle ?? 0);
+        }
+    }
+
+    public partial class Shader
+    {
+        /// <summary>
+        /// The default fragment shader included in <see cref="iLynx.Graphics"/>
+        /// </summary>
+        public static PartialShader DefaultFragmentShader { get; } = new Fragment(new FileInfo(DEFAULT_FRAGMENT_SHADER_REL_PATH));
+        /// <summary>
+        /// The default vertex shader included in <see cref="iLynx.Graphics"/>
+        /// </summary>
+        public static PartialShader DefaultVertexShader { get; } = new Vertex(new FileInfo(DEFAULT_VERTEX_SHADER_REL_PATH));
+        public static Shader DefaultShader { get; } = new Shader(DefaultFragmentShader, DefaultVertexShader);
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Represents a fragment shader
+        /// </summary>
+        public class Fragment : PartialShader
+        {
+            /// <inheritdoc />
+            /// <summary>
+            /// Initializes a new fragment shader (<see cref="ShaderType.FragmentShader"/>) compiled from the specified source code
+            /// </summary>
+            /// <param name="shaderSource">The source code of the shader</param>
+            public Fragment([NotNull]string shaderSource)
+                : base(ShaderType.FragmentShader, shaderSource) { }
+
+            /// <inheritdoc />
+            /// <summary>
+            /// Initializes a new fragment shader (<see cref="ShaderType.FragmentShader"/>) compiled from the source code contained in the specified file
+            /// </summary>
+            /// <param name="file">The file that contains the shader source code</param>
+            public Fragment([NotNull]FileInfo file)
+                : base(ShaderType.FragmentShader, file) { }
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Represents a vertex shader
+        /// </summary>
+        public class Vertex : PartialShader
+        {
+            /// <inheritdoc />
+            /// <summary>
+            /// Initializes a new vertex shader (<see cref="ShaderType.VertexShader"/>) compiled from the specified source code
+            /// </summary>
+            /// <param name="shaderSource">The source code of the shader</param>
+            public Vertex(string shaderSource)
+                : base(ShaderType.VertexShader, shaderSource) { }
+
+            /// <inheritdoc />
+            /// <summary>
+            /// Initializes a new vertex shader (<see cref="ShaderType.VertexShader"/>) compiled from the source code contained in the specified file
+            /// </summary>
+            /// <param name="file">The file that contains the shader source code</param>
+            public Vertex(FileInfo file)
+                : base(ShaderType.VertexShader, file) { }
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Represents a generic GL shader object
+        /// </summary>
+        public abstract class PartialShader : IDisposable
+        {
+            private readonly int m_handle;
+
+            /// <summary>
+            /// Creates the handle of this shader part with the specified <see cref="ShaderType"/>
+            /// </summary>
+            /// <param name="type"></param>
+            /// <remarks><see cref="GL.CreateShader"/></remarks>
+            private PartialShader(ShaderType type)
+            {
+                Type = type;
+                m_handle = GLCheck.Check(GL.CreateShader, type);
+            }
+
+            /// <inheritdoc />
+            /// <summary>
+            /// Loads the contents of the specified file as the source code for this shader and compiles it as the specified <see cref="ShaderType"/>.
+            /// </summary>
+            /// <param name="type">The type of shader to create</param>
+            /// <param name="file">The file to load</param>
+            protected PartialShader(ShaderType type, [NotNull]FileInfo file)
+                : this(type)
+            {
+                if (!file.Exists || file.Length == 0) throw new FileNotFoundException();
+                string shaderSource;
+                using (var reader = file.OpenText())
+                {
+                    shaderSource = reader.ReadToEnd();
+                }
+
+                Initialize(shaderSource);
+            }
+
+            /// <inheritdoc />
+            /// <summary>
+            /// Initializes this shader with the specified <paramref name="source" /> string as source code and compiles it.
+            /// </summary>
+            /// <param name="type"></param>
+            /// <param name="source"></param>
+            protected PartialShader(ShaderType type, [NotNull]string source)
+                : this(type)
+            {
+                Initialize(source);
+            }
+
+            private void Initialize(string shaderSource)
+            {
+                try
+                {
+                    GLCheck.Check(GL.ShaderSource, m_handle, shaderSource);
+                    GLCheck.Check(GL.CompileShader, m_handle);
+                }
+                catch (OpenGLCallException callException)
+                {
+                    var error = GL.GetShaderInfoLog(m_handle);
+                    throw new ShaderCompilationException(error, callException);
+                }
+            }
+
+            /// <inheritdoc/>
+            /// <remarks><see cref="GL.DeleteShader(int)"/></remarks>
+            public void Dispose()
+            {
+                GLCheck.Check(GL.DeleteShader, m_handle);
+            }
+
+            /// <summary>
+            /// Attaches this partial shader to the specified program (<paramref name="program"/>)
+            /// </summary>
+            /// <param name="program">This value should be a pointer to an opengl shader program object</param>
+            public void AttachToProgram(int program)
+            {
+                GLCheck.Check(GL.AttachShader, program, m_handle);
+            }
+
+            /// <summary>
+            /// Gets the <see cref="ShaderType"/> of this shader
+            /// </summary>
+            public ShaderType Type { get; }
+
+            public static PartialShader FromFile(ShaderType type, [NotNull]string fileName)
+            {
+                return new GenericImpl(type, new FileInfo(fileName));
+            }
+
+            public static PartialShader FromSource(ShaderType type, [NotNull] string sourceCode)
+            {
+                return new GenericImpl(type, sourceCode);
+            }
+
+            private class GenericImpl : PartialShader
+            {
+                /// <inheritdoc />
+                public GenericImpl(ShaderType type, [NotNull] FileInfo file)
+                    : base(type, file)
+                {
+                }
+
+                /// <inheritdoc />
+                public GenericImpl(ShaderType type, [NotNull] string source)
+                    : base(type, source)
+                {
+                }
+            }
         }
     }
 }

@@ -30,6 +30,10 @@ namespace iLynx.Graphics.TestBench
             m_view2D = new View(m_renderContext);
             m_view3D = new View(m_renderContext);
 
+            const string testImage = @"C:\Users\melan\Google Drive\Dev Work\test_image.png";
+            var texture = Texture.FromFile(testImage);
+            Console.WriteLine(texture);
+
             m_topLeft = new RectangleGeometry(250f, 250f, new Color32(1f, 0, 0, .5f))
             {
                 Origin = new Vector3(125f, 125f, 0f)

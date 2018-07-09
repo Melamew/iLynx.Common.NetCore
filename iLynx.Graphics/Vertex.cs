@@ -27,7 +27,6 @@
 #endregion
 using System;
 using System.Runtime.InteropServices;
-using ImageMagick;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using static OpenTK.Graphics.OpenGL.GL;
@@ -59,7 +58,7 @@ namespace iLynx.Graphics
         {
             Position = position;
             TexCoord = new Vector2();
-            VertexColor = MagickColors.Transparent;
+            VertexColor = Color32.Transparent;
         }
 
         public Vertex(Vertex copy)

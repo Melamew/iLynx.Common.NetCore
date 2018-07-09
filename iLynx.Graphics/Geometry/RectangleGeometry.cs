@@ -33,28 +33,28 @@ namespace iLynx.Graphics.Geometry
 {
     public class RectangleGeometry : GeometryBase
     {
-        private readonly Vertex[] vertices = new Vertex[4];
-        private float width, height;
+        private readonly Vertex[] m_vertices = new Vertex[4];
+        private float m_width, m_height;
         private static readonly uint[] Indices = {0u, 1u, 2u, 3u};
 
         public float Width
         {
-            get => width;
+            get => m_width;
             set
             {
-                if (MathF.Abs(value - width) <= float.Epsilon) return;
-                width = value;
+                if (MathF.Abs(value - m_width) <= float.Epsilon) return;
+                m_width = value;
                 Update();
             }
         }
 
         public float Height
         {
-            get => height;
+            get => m_height;
             set
             {
-                if (MathF.Abs(value - height) <= float.Epsilon) return;
-                height = value;
+                if (MathF.Abs(value - m_height) <= float.Epsilon) return;
+                m_height = value;
                 Update();
             }
         }
@@ -63,11 +63,11 @@ namespace iLynx.Graphics.Geometry
 
         protected override Vertex[] GetVertices()
         {
-            vertices[0] = new Vertex(FillColor);
-            vertices[1] = new Vertex(new Vector3(0f, height, 0f), FillColor);
-            vertices[2] = new Vertex(new Vector3(width, height, 0f), FillColor);
-            vertices[3] = new Vertex(new Vector3(width, 0f, 0f), FillColor);
-            return vertices;
+            m_vertices[0] = new Vertex(Vector3.Zero, FillColor, Vector2.Zero);
+            m_vertices[1] = new Vertex(new Vector3(0f, m_height, 0f), FillColor, Vector2.UnitY);
+            m_vertices[2] = new Vertex(new Vector3(m_width, m_height, 0f), FillColor, Vector2.One);
+            m_vertices[3] = new Vertex(new Vector3(m_width, 0f, 0f), FillColor, Vector2.UnitX);
+            return m_vertices;
         }
 
         protected override uint[] GetIndices()
@@ -78,8 +78,8 @@ namespace iLynx.Graphics.Geometry
         public RectangleGeometry(float width, float height, Color32 fillColor, bool showOrigin = false)
             : base(fillColor, true, 4, showOrigin)
         {
-            this.width = width;
-            this.height = height;
+            m_width = width;
+            m_height = height;
             Update();
         }
 
