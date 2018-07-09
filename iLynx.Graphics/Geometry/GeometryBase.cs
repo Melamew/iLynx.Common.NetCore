@@ -69,7 +69,7 @@ namespace iLynx.Graphics.Geometry
         }
 
         public Texture Texture { get; set; }
-        public Shader Shader { get; set; } = Shader.DefaultShader;
+        public Shader Shader { get; set; }
         protected abstract PrimitiveType PrimitiveType { get; }
 
         protected void Update()
@@ -101,10 +101,5 @@ namespace iLynx.Graphics.Geometry
             GL.DrawElements(PrimitiveType, m_indexBuffer.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
             m_fillVao.Unbind();
         }
-
-        //public DrawCall<Vertex> CreateDrawCall()
-        //{
-        //    return new DrawCall<Vertex>(Transform, PrimitiveType, fillVao, indexBuffer.Length);
-        //}
     }
 }

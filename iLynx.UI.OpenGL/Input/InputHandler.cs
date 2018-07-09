@@ -36,7 +36,7 @@ namespace iLynx.UI.OpenGL.Input
     public static class InputHandler
     {
         private delegate void InputEventMapper(IInputElement sender, InputEventArgs e);
-        private static IInputElement focusElement;
+        private static IInputElement s_focusElement;
         private static MouseButton lastDownButton;
         private static readonly Stack<IInputElement> MouseOverStack = new Stack<IInputElement>();
 
@@ -64,9 +64,9 @@ namespace iLynx.UI.OpenGL.Input
         {
             if (null == element) throw new ArgumentNullException(nameof(element));
             if (!element.IsFocusable) return false;
-            Raise(focusElement, new LostFocusEventArgs());
-            focusElement = element;
-            Raise(focusElement, new GotFocusEventArgs());
+            Raise(s_focusElement, new LostFocusEventArgs());
+            s_focusElement = element;
+            Raise(s_focusElement, new GotFocusEventArgs());
             return true;
         }
 

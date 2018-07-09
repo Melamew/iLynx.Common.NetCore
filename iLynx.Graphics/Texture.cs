@@ -29,6 +29,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using OpenTK.Graphics.OpenGL;
@@ -46,13 +47,23 @@ namespace iLynx.Graphics
         private readonly int m_handle;
 
         /// <summary>
+        /// The default texture used for shading - This is a 1x1 square white texture
+        /// </summary>
+        public static Texture DefaultTexture { get; } = Create(1, 1, Color32.White);
+
+        /// <summary>
         /// Loads an image from the specified file
         /// </summary>
         /// <param name="filePath">The path to the file to load</param>
         /// <returns>A new <see cref="Texture"/> instance with the data of the image loaded in to GPU memory.</returns>
-        public static Texture FromFile([NotNull]string filePath)
+        public static Texture FromFile([NotNull] string filePath)
         {
-            return FromImage(Image.Load<Rgba64>(filePath));
+            using (var stream = File.OpenRead(filePath))
+            {
+                var result = new byte[stream.Length];
+                stream.Read(result, 0, result.Length);
+                return FromImage(Image.Load<Rgba64>(result));
+            }
         }
 
         /// <summary>
@@ -64,12 +75,19 @@ namespace iLynx.Graphics
         {
             var dst = new Rgba64[image.Width * image.Height];
             image.SavePixelData(dst);
-            var converted = dst.Select(x => (Color32)x).ToArray();
+            var converted = dst.Select(x => (Color32) x).ToArray();
             return new Texture(
                 converted,
-                (uint)image.Width,
-                (uint)image.Height
+                (uint) image.Width,
+                (uint) image.Height
             );
+        }
+
+        public static Texture FromImage(Image<Color32> image)
+        {
+            var dst = new Color32[image.Width * image.Height];
+            image.SavePixelData(dst);
+            return new Texture(dst, (uint) image.Width, (uint) image.Height);
         }
 
         /// <summary>
@@ -92,31 +110,31 @@ namespace iLynx.Graphics
         /// <param name="data">The raw color (pixel) data of the texture</param>
         /// <param name="width">The width of the texture (in pixels)</param>
         /// <param name="height">The height of the texture (in pixels)</param>
-        /// <param name="generateMipMaps"></param>
+        /// <param name="generateMipMap"></param>
         /// <param name="horizontalWrapMode"></param>
         /// <param name="verticalWrapMode"></param>
         public Texture(
             Color32[] data,
             uint width,
             uint height,
-            bool generateMipMaps = false,
+            bool generateMipMap = false,
             TextureWrapMode horizontalWrapMode = TextureWrapMode.Repeat,
             TextureWrapMode verticalWrapMode = TextureWrapMode.Repeat
         )
         {
-            var hmode = (uint)horizontalWrapMode;
-            var vmode = (uint)verticalWrapMode;
-            var magMode = (uint)TextureMagFilter.Linear;
-            var minMode = (uint)(generateMipMaps ? TextureMinFilter.LinearMipmapLinear : TextureMinFilter.Linear);
+            var hmode = (uint) horizontalWrapMode;
+            var vmode = (uint) verticalWrapMode;
+            var magMode = (uint) TextureMagFilter.Linear;
+            var minMode = (uint) (generateMipMap ? TextureMinFilter.LinearMipmapLinear : TextureMinFilter.Linear);
             m_handle = GLCheck.Check(GL.GenTexture);
             GLCheck.Check(() => GL.BindTexture(TextureTarget.Texture2D, m_handle));
             GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, ref hmode));
             GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, ref vmode));
-            GLCheck.Check(() => GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new[] { 0f, 0f, 0f, 0f }));
+            GLCheck.Check(() => GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new[] {0f, 0f, 0f, 0f}));
             GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, ref magMode));
             GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, ref minMode));
-            GLCheck.Check(() => GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, (int)width, (int)height, 0, PixelFormat.Rgba, PixelType.Float, data));
-            if (generateMipMaps)
+            GLCheck.Check(() => GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, (int) width, (int) height, 0, PixelFormat.Rgba, PixelType.Float, data));
+            if (generateMipMap)
                 GLCheck.Check(GL.GenerateMipmap, GenerateMipmapTarget.Texture2D);
             GLCheck.Check(() => GL.BindTexture(TextureTarget.Texture2D, 0));
         }
@@ -129,7 +147,7 @@ namespace iLynx.Graphics
         /// Calling this method with null is equivalent to unbinding the currently active texture
         /// <see cref="GL.BindTexture(TextureTarget,int)"/>
         /// </remarks>
-        public static void Bind([CanBeNull]Texture texture)
+        public static void Bind([CanBeNull] Texture texture)
         {
             GLCheck.Check(GL.BindTexture, TextureTarget.Texture2D, texture?.m_handle ?? 0);
         }

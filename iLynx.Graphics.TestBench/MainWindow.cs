@@ -1,10 +1,15 @@
 ﻿using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using iLynx.Graphics.Animation;
 using iLynx.Graphics.Geometry;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using SixLabors.ImageSharp;
+using Image = SixLabors.ImageSharp.Image;
 
 namespace iLynx.Graphics.TestBench
 {
@@ -30,25 +35,35 @@ namespace iLynx.Graphics.TestBench
             m_view2D = new View(m_renderContext);
             m_view3D = new View(m_renderContext);
 
-            const string testImage = @"C:\Users\melan\Google Drive\Dev Work\test_image.png";
-            var texture = Texture.FromFile(testImage);
-            Console.WriteLine(texture);
-
-            m_topLeft = new RectangleGeometry(250f, 250f, new Color32(1f, 0, 0, .5f))
+            m_topLeft = new RectangleGeometry(250f, 250f, new Color32(1f, 1f, 1f, .5f))
             {
-                Origin = new Vector3(125f, 125f, 0f)
+                Origin = new Vector3(125f, 125f, 0f),
             };
-            //topRight = new RectangleGeometry(250f, 250f, new Color(255, 0, 0, 128)) { Origin = new Vector3(125f, 125f, 0f) };
-            //bottomLeft = new RectangleGeometry(250f, 250f, new Color(255, 0, 0, 128)) { Origin = new Vector3(125f, 125f, 0f) };
-            //bottomRight = new RectangleGeometry(250f, 250f, new Color(255, 0, 0, 128)) { Origin = new Vector3(125f, 125f, 0f) };
-            m_cuboid = new Cuboid(Color32.Lime, 1f, 1f, 1f) {Origin = new Vector3(0.5f)};
+
+            m_cuboid = new Cuboid(Color32.Lime, 1f, 1f, 1f) { Origin = new Vector3(0.5f) };
             m_view2D.AddDrawable(m_topLeft);
             m_view3D.AddDrawable(m_cuboid);
             Animator.Start(
-                x => m_topLeft.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float) (x * Math.PI * 2d)),
+                x => m_topLeft.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)),
                 TimeSpan.FromSeconds(2.5d), LoopMode.Restart, EasingFunctions.Linear);
-            Animator.Start(x => m_topLeft.Origin = (float) x * new Vector3(m_topLeft.Width, m_topLeft.Height, 0f),
+            Animator.Start(x => m_topLeft.Origin = (float)x * new Vector3(m_topLeft.Width, m_topLeft.Height, 0f),
                 TimeSpan.FromSeconds(3.33d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
+            LoadTestTexture();
+        }
+
+        private void LoadTestTexture()
+        {
+            Task.Run(
+                () =>
+                {
+                    const string testImage = @"C:\Users\melan\Google Drive\Dev Work\test_image.png";
+                    Image<Color32> img;
+                    using (var stream = File.OpenRead(testImage))
+                        img = Image.Load<Color32>(stream);
+                    m_renderContext.QueueForSync(i => m_topLeft.Texture = Texture.FromImage(i), img);
+                }
+            );
+            //Texture.FromFile(testImage).ContinueWith(task => m_topLeft.Texture = task.Result);
         }
 
         protected override void OnResize(EventArgs e)
@@ -60,7 +75,7 @@ namespace iLynx.Graphics.TestBench
                 Matrix4.CreateOrthographicOffCenter(0f, ClientRectangle.Width, ClientRectangle.Height, 0f, -1f, 1f);
             //view3D.Projection = Matrix4.CreateOrthographic(ClientRectangle.Width / 1000f, ClientRectangle.Height / 1000f, 0f, 10f);
             m_view3D.Projection = Matrix4.CreatePerspectiveFieldOfView(30f * (MathF.PI / 180),
-                ClientRectangle.Width / (float) ClientRectangle.Height, 1f, 1000f);
+                ClientRectangle.Width / (float)ClientRectangle.Height, 1f, 1000f);
             m_view3D.Scale = new Vector3(1f, 1f, -1f);
             m_cuboid.Translation = new Vector3(0f, 0f, 10f);
             m_topLeft.Translation = new Vector3(m_topLeft.Width, m_topLeft.Height, 0f);
@@ -159,6 +174,7 @@ namespace iLynx.Graphics.TestBench
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            m_renderContext.ProcessSyncQueue();
             Animator.Tick();
             m_view2D.PrepareRender();
             m_view3D.PrepareRender();
@@ -166,7 +182,7 @@ namespace iLynx.Graphics.TestBench
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            GL.ClearColor(Color.Transparent);
+            GL.ClearColor(Color.Black);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             m_view3D.Render();
             m_view2D.Render();
