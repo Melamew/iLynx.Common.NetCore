@@ -29,63 +29,118 @@
 #endregion
 
 using System;
-using System.IO;
 using System.Linq;
-using ImageMagick;
+using JetBrains.Annotations;
 using OpenTK.Graphics.OpenGL;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace iLynx.Graphics
 {
-    public class Texture
+    /// <inheritdoc/>
+    /// <summary>
+    /// Represents and OpenGL texture
+    /// </summary>
+    public class Texture : IDisposable
     {
         private readonly int m_handle;
 
-        public static Texture FromFile(string filePath)
+        /// <summary>
+        /// Loads an image from the specified file
+        /// </summary>
+        /// <param name="filePath">The path to the file to load</param>
+        /// <returns>A new <see cref="Texture"/> instance with the data of the image loaded in to GPU memory.</returns>
+        public static Texture FromFile([NotNull]string filePath)
         {
-            using (var stream = File.OpenRead(filePath))
-                return FromStream(stream);
+            return FromImage(Image.Load<Rgba64>(filePath));
         }
 
-        public static Texture FromStream(Stream stream)
+        /// <summary>
+        /// Creates a new <see cref="Texture"/> with the data of the specified <see cref="Image{Rgba64}"/>
+        /// </summary>
+        /// <param name="image">The image to copy data from</param>
+        /// <returns>A new <see cref="Texture"/> instance with the data of the specified image loaded in to GPU memory.</returns>
+        public static Texture FromImage(Image<Rgba64> image)
         {
-            return FromImage(new MagickImage(stream));
-        }
-
-        public static Texture FromImage(IMagickImage image)
-        {
+            var dst = new Rgba64[image.Width * image.Height];
+            image.SavePixelData(dst);
+            var converted = dst.Select(x => (Color32)x).ToArray();
             return new Texture(
-                image.GetPixelsUnsafe().Select(x => (Color32) x.ToColor()).ToArray(),
-                image.Width,
-                image.Height
+                converted,
+                (uint)image.Width,
+                (uint)image.Height
             );
         }
 
+        /// <summary>
+        /// Creates a new texture of the specified size and fills it with the specified <see cref="Color32"/>
+        /// </summary>
+        /// <param name="width">The width of the texture to create</param>
+        /// <param name="height">The height of the texture to create</param>
+        /// <param name="fillColor">The color that is set on each pixel in the texture</param>
+        /// <returns>A new <see cref="Texture"/> instance with the width and height specified, filled with the specified color</returns>
+        public static Texture Create(uint width, uint height, Color32 fillColor)
+        {
+            var result = new Color32[width * height];
+            Array.Fill(result, fillColor);
+            return new Texture(result, width, height);
+        }
+
+        /// <summary>
+        /// Creates a new instance with the specified data.
+        /// </summary>
+        /// <param name="data">The raw color (pixel) data of the texture</param>
+        /// <param name="width">The width of the texture (in pixels)</param>
+        /// <param name="height">The height of the texture (in pixels)</param>
+        /// <param name="generateMipMaps"></param>
+        /// <param name="horizontalWrapMode"></param>
+        /// <param name="verticalWrapMode"></param>
         public Texture(
             Color32[] data,
-            int width,
-            int height,
+            uint width,
+            uint height,
+            bool generateMipMaps = false,
             TextureWrapMode horizontalWrapMode = TextureWrapMode.Repeat,
             TextureWrapMode verticalWrapMode = TextureWrapMode.Repeat
         )
         {
-            var hmode = (uint) horizontalWrapMode;
-            var vmode = (uint) verticalWrapMode;
-            var magMode = (uint) TextureMagFilter.Linear;
-            var minMode = (uint) TextureMinFilter.LinearMipmapLinear;
+            var hmode = (uint)horizontalWrapMode;
+            var vmode = (uint)verticalWrapMode;
+            var magMode = (uint)TextureMagFilter.Linear;
+            var minMode = (uint)(generateMipMaps ? TextureMinFilter.LinearMipmapLinear : TextureMinFilter.Linear);
             m_handle = GLCheck.Check(GL.GenTexture);
             GLCheck.Check(() => GL.BindTexture(TextureTarget.Texture2D, m_handle));
             GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, ref hmode));
             GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, ref vmode));
-            GLCheck.Check(() => GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new[] {0f, 0f, 0f, 0f}));
+            GLCheck.Check(() => GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new[] { 0f, 0f, 0f, 0f }));
             GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, ref magMode));
             GLCheck.Check(() => GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, ref minMode));
-            GLCheck.Check(() => GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, (int) width, (int) height, 0, PixelFormat.Rgba, PixelType.Float, data));
+            GLCheck.Check(() => GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, (int)width, (int)height, 0, PixelFormat.Rgba, PixelType.Float, data));
+            if (generateMipMaps)
+                GLCheck.Check(GL.GenerateMipmap, GenerateMipmapTarget.Texture2D);
             GLCheck.Check(() => GL.BindTexture(TextureTarget.Texture2D, 0));
         }
 
-        public void Bind()
+        /// <summary>
+        /// Binds the specified texture to the <see cref="TextureTarget.Texture2D"/> slot
+        /// </summary>
+        /// <param name="texture">The texture to bind.</param>
+        /// <remarks>
+        /// Calling this method with null is equivalent to unbinding the currently active texture
+        /// <see cref="GL.BindTexture(TextureTarget,int)"/>
+        /// </remarks>
+        public static void Bind([CanBeNull]Texture texture)
         {
-            GLCheck.Check(() => GL.BindTexture(TextureTarget.Texture2D, m_handle));
+            GLCheck.Check(GL.BindTexture, TextureTarget.Texture2D, texture?.m_handle ?? 0);
+        }
+
+        /// <inheritdoc />
+        /// <remarks>
+        /// <see cref="GL.DeleteTexture(int)"/>
+        /// </remarks>
+        public void Dispose()
+        {
+            GLCheck.Check(GL.DeleteTexture, m_handle);
         }
     }
 }

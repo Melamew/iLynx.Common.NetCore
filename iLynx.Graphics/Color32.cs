@@ -1,44 +1,24 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using ImageMagick;
 using OpenTK;
+using SharpFont;
+using SixLabors.ImageSharp.PixelFormats;
+using static System.MathF;
 
 namespace iLynx.Graphics
 {
+    /// <summary>
+    /// Represents a color consisting of 4 32-bit channels (Red, Green, Blue, Alpha).
+    /// </summary>
+    /// <inheritdoc cref="IComparable{Color32}"/>
     [StructLayout(LayoutKind.Sequential)]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public struct Color32 : IComparable<Color32>
     {
-        public bool Equals(Color32 other)
-        {
-            return Equals(R, other.R) && Equals(G, other.G) && Equals(B, other.B) && Equals(A, other.A);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is null) return false;
-            return obj is Color32 color32 && Equals(color32);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                var hashCode = R.GetHashCode();
-                hashCode = (hashCode * 397) ^ G.GetHashCode();
-                hashCode = (hashCode * 397) ^ B.GetHashCode();
-                hashCode = (hashCode * 397) ^ A.GetHashCode();
-                return hashCode;
-            }
-        }
-
-        public readonly float R;
-        public readonly float G;
-        public readonly float B;
-        public readonly float A;
-
-        public static readonly Color32 Transparent = FromRgba(0f, 0f, 0f, 0f);
+        public float R;
+        public float G;
+        public float B;
+        public float A;
 
         /// <summary>
         /// Initializes a new instance of <see cref="Color32"/> with the specified values
@@ -68,93 +48,45 @@ namespace iLynx.Graphics
         }
 
         /// <summary>
-        /// Normalizes this <see cref="Color32"/> to a range within -1 to +1
-        /// <see cref="Normalize(Color32)"/>
-        /// <seealso cref="NormalizeRGB()"/>
-        /// <seealso cref="NormalizeRGB(Color32)"/>
+        /// Normalizes this <see cref="Color32"/> to a range within 0 to 1
         /// </summary>
         /// <returns></returns>
-        public Color32 Normalize()
+        public void Normalize()
         {
-            return Normalize(this);
+            Maximum(ref this, out var max);
+            R /= max;
+            G /= max;
+            B /= max;
+            A /= max;
         }
 
-        /// <summary>
-        /// Normalizes the specified <see cref="Color32"/> to a range within -1 to +1
-        /// <seealso cref="NormalizeRGB()"/>
-        /// <seealso cref="NormalizeRGB(Color32)"/>
-        /// </summary>
-        /// <param name="color"></param>
-        /// <returns></returns>
-        public static Color32 Normalize(Color32 color)
+        public Color32 Normalized()
         {
-            var cA = Absolute(color);
-            var max = Max(cA);
-            return color / max;
+            var col = this;
+            col.Normalize();
+            return col;
         }
 
-        /// <summary>
-        /// Normalizes the Red Green and Blue components of this <see cref="Color32"/> (NOT including the Alpha component).
-        /// <see cref="NormalizeRGB(Color32)"/>
-        /// <seealso cref="Normalize()"/>
-        /// <seealso cref="Normalize(Color32)"/>
-        /// </summary>
-        /// <returns></returns>
-        public Color32 NormalizeRGB()
+        public static void Maximum(ref Color32 color, out float result)
         {
-            return NormalizeRGB(this);
-        }
-        /// <summary>
-        /// Normalizes the Red Green and Blue components of the specified color (NOT including the Alpha component).
-        /// </summary>
-        /// <param name="color"></param>
-        /// <returns></returns>
-        public static Color32 NormalizeRGB(Color32 color)
-        {
-            var maxRGB = MaxRGB(color);
-            return new Color32(color.R / maxRGB, color.G / maxRGB, color.B / maxRGB, color.A);
+            Absolute(ref color, out color);
+            var max = Max(color.R, color.G);
+            max = Max(max, color.B);
+            result = Max(max, color.A);
         }
 
-        /// <summary>
-        /// Returns the maximum value of the "color" (RGB) components of the specified <see cref="Color32"/>.
-        /// </summary>
-        /// <param name="color"></param>
-        /// <returns></returns>
-        public static float MaxRGB(Color32 color)
+        public static void Absolute(ref Color32 color, out Color32 result)
         {
-            var max = MathF.Max(color.R, color.G);
-            return MathF.Max(max, color.B);
+            result.R = Abs(color.R);
+            result.G = Abs(color.G);
+            result.B = Abs(color.B);
+            result.A = Abs(color.A);
         }
 
-        /// <summary>
-        /// Returns the maximum value of the R, G, B and A components of the specified color
-        /// </summary>
-        /// <param name="color"></param>
-        /// <returns></returns>
-        public static float Max(Color32 color)
+        public static explicit operator Color32(Rgba64 v)
         {
-            var max = MathF.Max(color.R, color.G);
-            max = MathF.Max(max, color.B);
-            return MathF.Max(max, color.A);
-        }
-
-        /// <summary>
-        /// Returns the absolute values of the specified color
-        /// </summary>
-        /// <param name="color"></param>
-        /// <returns>An instance of <see cref="Color32"/> with all its values equal to the absolute of the specified color</returns>
-        public static Color32 Absolute(Color32 color)
-        {
-            return new Color32(MathF.Abs(color.R), MathF.Abs(color.G), MathF.Abs(color.B), MathF.Abs(color.A));
-        }
-
-        /// <summary>
-        /// Returns a new <see cref="Color32"/> instance with the values of the specified <see cref="MagickColor"/>
-        /// </summary>
-        /// <param name="color"></param>
-        public static implicit operator Color32(MagickColor color)
-        {
-            return new Color32(color.R, color.G, color.B, color.A);
+            var vector = v.ToVector4();
+            return new Color32(vector.X, vector.Y, vector.Z, vector.W);
         }
 
         /// <summary>
@@ -232,7 +164,7 @@ namespace iLynx.Graphics
 
         public override string ToString()
         {
-            return $"rgba({R:F2},{G:F2},{B:F2},{A:F2})";
+            return $"<{R},{G},{B},{A}>";
         }
 
         /// <summary>
@@ -260,6 +192,31 @@ namespace iLynx.Graphics
             return A > other.A ? 1 : 0;
         }
 
-        public static Color32 Lime => new Color32(0f, 1f, 0f, 1f);
+        public bool Equals(Color32 other)
+        {
+            return Equals(R, other.R) && Equals(G, other.G) && Equals(B, other.B) && Equals(A, other.A);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is null) return false;
+            return obj is Color32 color32 && Equals(color32);
+        }
+
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = R.GetHashCode();
+                hashCode = (hashCode * 397) ^ G.GetHashCode();
+                hashCode = (hashCode * 397) ^ B.GetHashCode();
+                hashCode = (hashCode * 397) ^ A.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static readonly Color32 Lime = new Color32(0f, 1f, 0f, 1f);
+        public static readonly Color32 Transparent = new Color32(0f, 0f, 0f, 0f);
     }
 }

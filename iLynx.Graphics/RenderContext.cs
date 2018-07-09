@@ -36,25 +36,25 @@ namespace iLynx.Graphics
 {
     public class RenderContext : IRenderContext
     {
-        private Shader activeShader;
-        private Texture activeTexture;
-        private readonly IWindowInfo window;
-        private readonly IGraphicsContext graphicsContext;
-        private Matrix4 viewTransform = Matrix4.Identity;
+        private Shader m_activeShader;
+        private Texture m_activeTexture;
+        private readonly IWindowInfo m_window;
+        private readonly IGraphicsContext m_graphicsContext;
+        private Matrix4 m_viewTransform = Matrix4.Identity;
 
         public RenderContext(IGraphicsContext graphicsContext, IWindowInfo window)
         {
-            this.graphicsContext = graphicsContext;
-            this.window = window;
+            m_graphicsContext = graphicsContext;
+            m_window = window;
         }
 
-        public bool IsCurrent => graphicsContext.IsCurrent;
+        public bool IsCurrent => m_graphicsContext.IsCurrent;
 
         public bool MakeCurrent()
         {
             try
             {
-                graphicsContext.MakeCurrent(window);
+                m_graphicsContext.MakeCurrent(m_window);
                 return true;
             }
             catch (Exception e)
@@ -69,8 +69,8 @@ namespace iLynx.Graphics
         public void Initialize()
         {
             if (IsInitialized) return;
-            if (!graphicsContext.IsCurrent)
-                graphicsContext.MakeCurrent(window);
+            if (!m_graphicsContext.IsCurrent)
+                m_graphicsContext.MakeCurrent(m_window);
             GLCheck.Check(GL.Enable, EnableCap.Blend);
             GLCheck.Check(GL.BlendFunc, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GLCheck.Check(GL.Enable, EnableCap.CullFace);
@@ -82,44 +82,45 @@ namespace iLynx.Graphics
 
         public Shader Shader
         {
-            get => activeShader;
+            get => m_activeShader;
             set
             {
-                if (value == activeShader) return;
+                if (value == m_activeShader) return;
                 EnsureActive();
-                activeShader = value;
-                value.ViewTransform = viewTransform;
-                value.Activate();
+                m_activeShader = value;
+                if (null != value)
+                    value.ViewTransform = m_viewTransform;
+                Shader.Activate(value);
             }
         }
 
         public Texture Texture
         {
-            get => activeTexture;
+            get => m_activeTexture;
             set
             {
-                if (value == activeTexture) return;
+                if (value == m_activeTexture) return;
                 EnsureActive();
-                activeTexture = value;
-                value.Bind();
+                m_activeTexture = value;
+                Texture.Bind(value);
             }
         }
         public Matrix4 ViewTransform
         {
-            get => viewTransform;
+            get => m_viewTransform;
             set
             {
-                if (value == viewTransform) return;
+                if (value == m_viewTransform) return;
                 EnsureActive();
-                viewTransform = value;
-                if (null == activeShader) return;
-                activeShader.ViewTransform = value;
+                m_viewTransform = value;
+                if (null == m_activeShader) return;
+                m_activeShader.ViewTransform = value;
             }
         }
 
         public void ApplyTransform(Matrix4 transform)
         {
-            activeShader?.SetTransform(transform);
+            m_activeShader?.SetTransform(transform);
         }
 
         private void EnsureActive()

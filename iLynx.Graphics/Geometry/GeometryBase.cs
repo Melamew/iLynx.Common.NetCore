@@ -33,23 +33,23 @@ namespace iLynx.Graphics.Geometry
 {
     public abstract class GeometryBase : Transformable, IGeometry
     {
-        private readonly VertexArrayObject<Vertex> fillVao;
-        private readonly VertexBufferObject<Vertex> fillBuffer;
-        private readonly VertexBufferObject<uint> indexBuffer;
+        private readonly VertexArrayObject<Vertex> m_fillVao;
+        private readonly VertexBufferObject<Vertex> m_fillBuffer;
+        private readonly VertexBufferObject<uint> m_indexBuffer;
         //private readonly RectangleGeometry originRect;
-        private Color32 fillColor;
-        private readonly bool showOrigin;
+        private Color32 m_fillColor;
+        private readonly bool m_showOrigin;
 
         protected GeometryBase(Color32 fillColor, bool isFixedSize = false, int vertexCount = 0, bool showOrigin = false)
         {
-            this.fillColor = fillColor;
-            this.showOrigin = showOrigin;
-            fillBuffer = isFixedSize
+            m_fillColor = fillColor;
+            m_showOrigin = showOrigin;
+            m_fillBuffer = isFixedSize
                 ? new VertexBufferObject<Vertex>(vertexCount, BufferTarget.ArrayBuffer, BufferUsageHint.StaticDraw)
                 : new VertexBufferObject<Vertex>(0, BufferTarget.ArrayBuffer, BufferUsageHint.StreamDraw);
-            indexBuffer = new VertexBufferObject<uint>(0, BufferTarget.ElementArrayBuffer, BufferUsageHint.StaticDraw);
-            fillVao = new VertexArrayObject<Vertex>();
-            fillVao.AttachVertexBuffer(fillBuffer, indexBuffer);
+            m_indexBuffer = new VertexBufferObject<uint>(0, BufferTarget.ElementArrayBuffer, BufferUsageHint.StaticDraw);
+            m_fillVao = new VertexArrayObject<Vertex>();
+            m_fillVao.AttachVertexBuffer(m_fillBuffer, m_indexBuffer);
             //if (showOrigin)
             //{
             //    originRect = new RectangleGeometry(20f, 20f, Color.Lime, false);
@@ -59,12 +59,12 @@ namespace iLynx.Graphics.Geometry
 
         public Color32 FillColor
         {
-            get => fillColor;
+            get => m_fillColor;
             set
             {
-                if (value == fillColor) return;
-                fillColor = value;
-                fillBuffer.Transform((ref Vertex v) => v = new Vertex(v.Position, value, v.TexCoord));
+                if (value == m_fillColor) return;
+                m_fillColor = value;
+                m_fillBuffer.Transform((ref Vertex v) => v = new Vertex(v.Position, value, v.TexCoord));
             }
         }
 
@@ -74,8 +74,8 @@ namespace iLynx.Graphics.Geometry
 
         protected void Update()
         {
-            fillBuffer.SetData(GetVertices());
-            indexBuffer.SetData(GetIndices());
+            m_fillBuffer.SetData(GetVertices());
+            m_indexBuffer.SetData(GetIndices());
         }
 
         protected abstract Vertex[] GetVertices();
@@ -84,7 +84,7 @@ namespace iLynx.Graphics.Geometry
 
         public void Dispose()
         {
-            fillVao.Dispose();
+            m_fillVao.Dispose();
         }
 
         public void Draw(IRenderContext context)
@@ -97,9 +97,9 @@ namespace iLynx.Graphics.Geometry
 
         protected virtual void DoDraw()
         {
-            fillVao.Bind();
-            GL.DrawElements(PrimitiveType, indexBuffer.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
-            fillVao.Unbind();
+            m_fillVao.Bind();
+            GL.DrawElements(PrimitiveType, m_indexBuffer.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            m_fillVao.Unbind();
         }
 
         //public DrawCall<Vertex> CreateDrawCall()
