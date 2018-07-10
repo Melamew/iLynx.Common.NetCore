@@ -26,10 +26,6 @@
  */
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using JetBrains.Annotations;
 using OpenTK;
 using SixLabors.Fonts;
@@ -38,43 +34,14 @@ namespace iLynx.Graphics.Drawing.Text
 {
     public class DrawableText : IDrawable
     {
-        private static readonly FontCollection s_Collection = new FontCollection();
-        private Font m_font;
         private float m_fontSize;
-        private string m_text;
-
-        /// <summary>
-        /// Gets a font with the specified size from the specified font family.
-        /// </summary>
-        /// <param name="fontFamily">The font family to load</param>
-        /// <param name="size">The character size</param>
-        /// <param name="style">The font style</param>
-        /// <returns></returns>
-        /// <exception cref="KeyNotFoundException"><paramref name="fontFamily"/> is not available</exception>
-        public static Font GetFont([NotNull]string fontFamily, float size, FontStyle style = FontStyle.Regular)
-        {
-            if (size < 0f) throw new ArgumentOutOfRangeException(nameof(size));
-            if (!s_Collection.TryFind(fontFamily, out var family)) throw new KeyNotFoundException($"Could not find a font family with the specified name ({fontFamily})");
-            return s_Collection.CreateFont(family.Name, size, style);
-        }
 
         public DrawableText([NotNull]string text)
         {
-            m_text = text;
         }
 
         public DrawableText([NotNull]Font font, [NotNull]string text)
         {
-
-        }
-
-        private Font Load(Stream source)
-        {
-            var description = FontDescription.LoadDescription(source);
-            if (s_Collection.Families.Any(x => x.Name == description.FontFamily)) return s_Collection.CreateFont(description.FontFamily, m_fontSize);
-            source.Seek(0, SeekOrigin.Begin);
-            s_Collection.Install(source);
-            return s_Collection.CreateFont(description.FontFamily, m_fontSize);
         }
 
         public Color FillColor { get; set; }
@@ -86,10 +53,11 @@ namespace iLynx.Graphics.Drawing.Text
 
         public Vector2 FindCharacterPos(uint index)
         {
+            
             return new Vector2(0);
         }
 
-        public Shader Shader { get; set; } = Shader.DefaultShader;
+        public Shader Shader { get; set; }
         public Texture Texture { get; set; }
     }
 }
