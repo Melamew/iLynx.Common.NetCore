@@ -25,7 +25,7 @@
  *
  */
 #endregion
-namespace iLynx.Graphics
+namespace iLynx.Graphics.Drawing.Text
 {
     public struct Glyph
     {

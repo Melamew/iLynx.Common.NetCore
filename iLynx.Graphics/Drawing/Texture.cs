@@ -26,14 +26,12 @@
  */
 #endregion
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using OpenTK.Graphics.OpenGL;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Advanced;
 
 namespace iLynx.Graphics.Drawing
 {
@@ -59,11 +57,7 @@ namespace iLynx.Graphics.Drawing
         public static Texture FromFile([NotNull] string filePath)
         {
             using (var stream = File.OpenRead(filePath))
-            {
-                var result = new byte[stream.Length];
-                stream.Read(result, 0, result.Length);
-                return FromImage(Image.Load<Rgba64>(result));
-            }
+                return FromImage(Image.Load<Color32>(stream));
         }
 
         /// <summary>
@@ -72,24 +66,9 @@ namespace iLynx.Graphics.Drawing
         /// <param name="image">The image to copy data from</param>
         /// <returns>A new <see cref="Texture"/> instance with the data of the specified image loaded in to GPU memory.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Texture FromImage(Image<Rgba64> image)
-        {
-            var dst = new Rgba64[image.Width * image.Height];
-            image.SavePixelData(dst);
-            var converted = dst.Select(x => (Color32) x).ToArray();
-            return new Texture(
-                converted,
-                (uint) image.Width,
-                (uint) image.Height
-            );
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Texture FromImage(Image<Color32> image)
         {
-            var dst = new Color32[image.Width * image.Height];
-            image.SavePixelData(dst);
-            return new Texture(dst, (uint) image.Width, (uint) image.Height);
+            return new ImageTexture(image);
         }
 
         /// <summary>
@@ -104,7 +83,33 @@ namespace iLynx.Graphics.Drawing
         {
             var result = new Color32[width * height];
             Array.Fill(result, fillColor);
-            return new Texture(result, width, height);
+            return new ImageTexture(Image.LoadPixelData(result, (int)width, (int)height));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="Texture"/> and binds the texture to the <see cref="TextureTarget.Texture2D"/> slot.
+        /// Note that this constructor does NOT unbind the generated image, as inheritors are expected to update the actual data of the texture and then, eventually unbind it.
+        /// </summary>
+        /// <param name="generateMipMap"></param>
+        /// <param name="horizontalWrapMode"></param>
+        /// <param name="verticalWrapMode"></param>
+        protected Texture(
+            bool generateMipMap = false,
+            TextureWrapMode horizontalWrapMode = TextureWrapMode.Repeat,
+            TextureWrapMode verticalWrapMode = TextureWrapMode.Repeat
+        )
+        {
+            var hmode = (uint)horizontalWrapMode;
+            var vmode = (uint)verticalWrapMode;
+            var magMode = (uint)TextureMagFilter.Linear;
+            var minMode = (uint)(generateMipMap ? TextureMinFilter.LinearMipmapLinear : TextureMinFilter.Linear);
+            m_handle = GLCheck.Check(GL.GenTexture);
+            Bind();
+            GLCheck.Check(GL.TexParameterI, TextureTarget.Texture2D, TextureParameterName.TextureWrapS, ref hmode);
+            GLCheck.Check(GL.TexParameterI, TextureTarget.Texture2D, TextureParameterName.TextureWrapT, ref vmode);
+            GLCheck.Check(GL.TexParameter, TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new[] { 0f, 0f, 0f, 0f });
+            GLCheck.Check(GL.TexParameterI, TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, ref magMode);
+            GLCheck.Check(GL.TexParameterI, TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, ref minMode);
         }
 
         /// <summary>
@@ -125,21 +130,66 @@ namespace iLynx.Graphics.Drawing
             TextureWrapMode horizontalWrapMode = TextureWrapMode.Repeat,
             TextureWrapMode verticalWrapMode = TextureWrapMode.Repeat
         )
+        : this(generateMipMap, horizontalWrapMode, verticalWrapMode)
         {
-            var hmode = (uint) horizontalWrapMode;
-            var vmode = (uint) verticalWrapMode;
-            var magMode = (uint) TextureMagFilter.Linear;
-            var minMode = (uint) (generateMipMap ? TextureMinFilter.LinearMipmapLinear : TextureMinFilter.Linear);
-            m_handle = GLCheck.Check(GL.GenTexture);
+            try
+            {
+                UploadData(data, (int)width, (int)height);
+                if (generateMipMap)
+                    GLCheck.Check(GL.GenerateMipmap, GenerateMipmapTarget.Texture2D);
+            }
+            finally
+            {
+                Unbind();
+            }
+        }
+
+        /// <summary>
+        /// Uploads the specified image data to the gpu
+        /// </summary>
+        /// <param name="data">The image data</param>
+        /// <param name="width">The width of the image</param>
+        /// <param name="height">The height of the image</param>
+        protected static void UploadData(Color32[] data, int width, int height)
+        {
+            GLCheck.Check(GL.TexImage2D, TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, width, height, 0, PixelFormat.Rgba, PixelType.Float, data);
+        }
+
+        /// <summary>
+        /// Uploads the specified image data to the gpu
+        /// </summary>
+        /// <param name="data">A pointer to the image data</param>
+        /// <param name="width">The width of the image</param>
+        /// <param name="height">The height of the image</param>
+        protected static unsafe void UploadData(Color32* data, int width, int height)
+        {
+            UploadData((IntPtr)data, width, height);
+        }
+
+        /// <summary>
+        /// Uploads the specified image data to the gpu
+        /// </summary>
+        /// <param name="data">A pointer to the image data</param>
+        /// <param name="width">The width of the image</param>
+        /// <param name="height">The height of the image</param>
+        protected static void UploadData(IntPtr data, int width, int height)
+        {
+            GLCheck.Check(GL.TexImage2D, TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, width, height, 0, PixelFormat.Rgba, PixelType.Float, data);
+        }
+
+        /// <summary>
+        /// Binds the texture
+        /// </summary>
+        protected void Bind()
+        {
             GLCheck.Check(GL.BindTexture, TextureTarget.Texture2D, m_handle);
-            GLCheck.Check(GL.TexParameterI, TextureTarget.Texture2D, TextureParameterName.TextureWrapS, ref hmode);
-            GLCheck.Check(GL.TexParameterI, TextureTarget.Texture2D, TextureParameterName.TextureWrapT, ref vmode);
-            GLCheck.Check(GL.TexParameter, TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new[] {0f, 0f, 0f, 0f});
-            GLCheck.Check(GL.TexParameterI, TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, ref magMode);
-            GLCheck.Check(GL.TexParameterI, TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, ref minMode);
-            GLCheck.Check(GL.TexImage2D, TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba32f, (int) width, (int) height, 0, PixelFormat.Rgba, PixelType.Float, data);
-            if (generateMipMap)
-                GLCheck.Check(GL.GenerateMipmap, GenerateMipmapTarget.Texture2D);
+        }
+
+        /// <summary>
+        /// Unbinds the texture
+        /// </summary>
+        protected void Unbind()
+        {
             GLCheck.Check(GL.BindTexture, TextureTarget.Texture2D, 0);
         }
 
@@ -164,6 +214,48 @@ namespace iLynx.Graphics.Drawing
         public void Dispose()
         {
             GLCheck.Check(GL.DeleteTexture, m_handle);
+        }
+    }
+
+    /// <summary>
+    /// Represents a texture with an <see cref="Image{Color32}"/> as the data source
+    /// </summary>
+    /// <inheritdoc cref="Texture"/>
+    public class ImageTexture : Texture
+    {
+
+        /// <inheritdoc />
+        public ImageTexture([NotNull]Image<Color32> image, bool generateMipMap = false, TextureWrapMode horizontalWrapMode = TextureWrapMode.Repeat, TextureWrapMode verticalWrapMode = TextureWrapMode.Repeat)
+            : base(generateMipMap, horizontalWrapMode, verticalWrapMode)
+        {
+            Image = image;
+            Update();
+        }
+
+        /// <summary>
+        /// Gets a reference to the image that is used to define this texture
+        /// </summary>
+        public Image<Color32> Image { get; }
+
+        /// <summary>
+        /// Updates the texture from the contained image
+        /// </summary>
+        public void Update()
+        {
+            Bind();
+            try
+            {
+                if (0 == Image.Height || 0 == Image.Width) return;
+                unsafe
+                {
+                    fixed (Color32* data = &Image.DangerousGetPinnableReferenceToPixelBuffer())
+                        UploadData(data, Image.Width, Image.Height);
+                }
+            }
+            finally
+            {
+                Unbind();
+            }
         }
     }
 }

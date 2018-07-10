@@ -33,6 +33,7 @@ using System.Threading;
 using iLynx.Common;
 using iLynx.Graphics;
 using iLynx.Graphics.Drawing;
+using iLynx.Graphics.Drawing.Text;
 using iLynx.UI.OpenGL.Input;
 using OpenTK;
 
@@ -179,7 +180,7 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        public static Font DefaultFont => new Font("fonts/Mechanical.otf");
+        public static GraphicsFont DefaultGraphicsFont => new GraphicsFont("fonts/Mechanical.otf", 24f);
         public Vector2 ToLocalCoords(Vector2 coords)
         {
             return (Parent?.ToLocalCoords(coords) ?? coords) - RenderPosition;
