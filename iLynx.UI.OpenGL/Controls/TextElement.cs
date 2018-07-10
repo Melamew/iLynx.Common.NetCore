@@ -39,7 +39,7 @@ namespace iLynx.UI.OpenGL.Controls
         private string text;
         private Color foreground;
         private uint fontSize = 24;
-        private GraphicsFont m_graphicsFont = DefaultGraphicsFont;
+        //private GraphicsFont m_graphicsFont = DefaultGraphicsFont;
         private int lineCount;
         protected const string NewLine = "\n";
         protected const string Space = " ";
@@ -58,10 +58,10 @@ namespace iLynx.UI.OpenGL.Controls
             Margin = 2f;
         }
 
-        public TextElement(string text, GraphicsFont graphicsFont, uint fontSize)
+        public TextElement(string text/*, GraphicsFont graphicsFont*/, uint fontSize)
             : this(text, Color.Black)
         {
-            this.m_graphicsFont = graphicsFont;
+            //this.m_graphicsFont = graphicsFont;
             this.fontSize = fontSize;
         }
 
@@ -137,18 +137,18 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        public GraphicsFont GraphicsFont
-        {
-            get => m_graphicsFont;
-            set
-            {
-                if (value == m_graphicsFont) return;
-                var old = m_graphicsFont;
-                m_graphicsFont = value;
-                OnPropertyChanged(old, value);
-                OnLayoutPropertyChanged();
-            }
-        }
+        //public GraphicsFont GraphicsFont
+        //{
+        //    get => m_graphicsFont;
+        //    set
+        //    {
+        //        if (value == m_graphicsFont) return;
+        //        var old = m_graphicsFont;
+        //        m_graphicsFont = value;
+        //        OnPropertyChanged(old, value);
+        //        OnLayoutPropertyChanged();
+        //    }
+        //}
 
         protected override void DrawLocked(IRenderStates states)
         {
