@@ -2,6 +2,7 @@ bin/
 obj/
 packages/
 .vs/
+.idea/
 *.dll
 *.suo
 *.user
