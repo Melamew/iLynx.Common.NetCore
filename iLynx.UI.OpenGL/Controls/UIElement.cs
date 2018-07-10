@@ -180,7 +180,7 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        public static GraphicsFont DefaultGraphicsFont => new GraphicsFont("fonts/Mechanical.otf", 24f);
+        //public static GraphicsFont DefaultGraphicsFont => new GraphicsFont("fonts/Mechanical.otf", 24f);
         public Vector2 ToLocalCoords(Vector2 coords)
         {
             return (Parent?.ToLocalCoords(coords) ?? coords) - RenderPosition;
