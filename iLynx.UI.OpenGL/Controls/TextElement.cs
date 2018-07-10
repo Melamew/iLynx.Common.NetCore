@@ -28,17 +28,18 @@
 using System.Linq;
 using iLynx.Graphics;
 using iLynx.Graphics.Drawing;
+using iLynx.Graphics.Drawing.Text;
 using OpenTK;
 
 namespace iLynx.UI.OpenGL.Controls
 {
     public class TextElement : Control
     {
-        private readonly Text renderable = new Text("fonts/Mechanical.otf");
+        private readonly DrawableText renderable = new DrawableText("fonts/Mechanical.otf");
         private string text;
         private Color foreground;
         private uint fontSize = 24;
-        private Font font = DefaultFont;
+        private GraphicsFont m_graphicsFont = DefaultGraphicsFont;
         private int lineCount;
         protected const string NewLine = "\n";
         protected const string Space = " ";
@@ -57,10 +58,10 @@ namespace iLynx.UI.OpenGL.Controls
             Margin = 2f;
         }
 
-        public TextElement(string text, Font font, uint fontSize)
+        public TextElement(string text, GraphicsFont graphicsFont, uint fontSize)
             : this(text, Color.Black)
         {
-            this.font = font;
+            this.m_graphicsFont = graphicsFont;
             this.fontSize = fontSize;
         }
 
@@ -136,14 +137,14 @@ namespace iLynx.UI.OpenGL.Controls
             }
         }
 
-        public Font Font
+        public GraphicsFont GraphicsFont
         {
-            get => font;
+            get => m_graphicsFont;
             set
             {
-                if (value == font) return;
-                var old = font;
-                font = value;
+                if (value == m_graphicsFont) return;
+                var old = m_graphicsFont;
+                m_graphicsFont = value;
                 OnPropertyChanged(old, value);
                 OnLayoutPropertyChanged();
             }
