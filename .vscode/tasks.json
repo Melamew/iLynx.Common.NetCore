@@ -2,24 +2,63 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build iLynx.common",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/iLynx.Common.Tests/iLynx.Common.Tests.csproj"
+                "${workspaceFolder}/iLynx.Common/iLynx.Common.csproj"
             ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
+            "label": "build graphics.testbench",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/iLynx.Graphics.TestBench/iLynx.Graphics.TestBench.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "test iLynx.Common",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "--logger",
+                "trx;LogFileName=${workspaceFolder}/TestResults/iLynx.Common.trx",
+                "--filter",
+                "FullyQualifiedName~iLynx.Common.Tests"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/iLynx.Common.Tests",
+            },
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "build",
+            "label": "publish win10",
             "command": "dotnet",
             "type": "process",
             "args": [
-                "build",
-                "${workspaceFolder}/iLynx.Common.Tests/iLynx.Common.Tests.csproj"
+                "publish",
+                "-c",
+                "Release",
+                "${workspaceFolder}/iLynx.Graphics.TestBench/iLynx.Graphics.TestBench.csproj",
+                "-r",
+                "win10-x64"
             ],
             "problemMatcher": "$msCompile"
-        }
+        },
     ]
 }

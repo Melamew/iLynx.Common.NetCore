@@ -24,24 +24,5 @@
             "request": "attach",
             "processId": "${command:pickProcess}"
         }
-    ,
-        {
-            "name": ".NET Core Launch (console)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/iLynx.Graphics.TestBench/bin/Debug/netcoreapp2.0/iLynx.Graphics.TestBench.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/iLynx.Graphics.TestBench/bin/Debug/netcoreapp2.0",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
-        }
     ]
 }
