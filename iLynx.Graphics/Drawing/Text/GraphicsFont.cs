@@ -2,13 +2,29 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using iLynx.Common;
 using JetBrains.Annotations;
 using SixLabors.Fonts;
+using SixLabors.ImageSharp;
 using SixLabors.Shapes;
 using PointF = SixLabors.Primitives.PointF;
 
 namespace iLynx.Graphics.Drawing.Text
 {
+    public class FontPage
+    {
+        private readonly Image<Color32> m_image;
+        private readonly Dictionary<char, Glyph> m_glyphMap = new Dictionary<char, Glyph>(64);
+
+        public FontPage(Font font)
+        {
+            m_image = new Image<Color32>(Configuration.Default, font.Ascender, font.LineHeight * 4);
+        }
+
+        public Image<Color32> Image => m_image;
+        
+        public IEnumerable<Glyph> Glyphs { get; }
+    }
     public class GraphicsFont
     {
         private readonly float m_fontSize;
@@ -16,7 +32,7 @@ namespace iLynx.Graphics.Drawing.Text
         private static readonly FontCollection s_Collection = new FontCollection();
         private static Font s_defaultFont;
         public static Font DefaultFont => s_defaultFont ?? (s_defaultFont = Load(12f, "./fonts/OpenSans-Regular.ttf"));
-        private static readonly List<ImageTexture> pages = new List<ImageTexture>();
+        private static readonly Dictionary<(string FontFamily, float FontSize), ImageTexture> s_Pages = new Dictionary<(string, float), ImageTexture>();
 
         public GraphicsFont(FileInfo fontFile, float fontSize)
         {
@@ -53,8 +69,17 @@ namespace iLynx.Graphics.Drawing.Text
             return s_Collection.CreateFont(family.Name, size, style);
         }
 
+        /// <summary>
+        /// Loads a font with the specified size from the specified file
+        /// </summary>
+        /// <param name="fontSize">The size of the font</param>
+        /// <param name="path">The path to the file of the font</param>
+        /// <returns>A font object with the font contained in the specified file</returns>
+        /// <exception cref="FileNotFoundException">If path does not exist</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The font size is invalid</exception>
         private static Font Load(float fontSize, string path)
         {
+            if (fontSize < 0) throw new ArgumentOutOfRangeException(nameof(fontSize));
             if (!File.Exists(path)) throw new FileNotFoundException(string.Empty, path);
             using (var stream = File.OpenRead(path))
                 return Load(stream, fontSize);
@@ -68,6 +93,11 @@ namespace iLynx.Graphics.Drawing.Text
             s_Collection.Install(source);
             return s_Collection.CreateFont(description.FontFamily, fontSize);
         }
+
+//        private readonly Image<Color32> GetPage()
+//        {
+//            
+//        }
 
         public Glyph GetGlyph(char character)
         {

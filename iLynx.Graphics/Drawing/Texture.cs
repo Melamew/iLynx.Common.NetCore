@@ -223,6 +223,7 @@ namespace iLynx.Graphics.Drawing
     /// <inheritdoc cref="Texture"/>
     public class ImageTexture : Texture
     {
+        private Image<Color32> m_image;
 
         /// <inheritdoc />
         public ImageTexture([NotNull]Image<Color32> image, bool generateMipMap = false, TextureWrapMode horizontalWrapMode = TextureWrapMode.Repeat, TextureWrapMode verticalWrapMode = TextureWrapMode.Repeat)
@@ -235,13 +236,23 @@ namespace iLynx.Graphics.Drawing
         /// <summary>
         /// Gets a reference to the image that is used to define this texture
         /// </summary>
-        public Image<Color32> Image { get; }
+        public Image<Color32> Image
+        {
+            get => m_image;
+            set
+            {
+                if (value == m_image) return;
+                m_image = value;
+                Update();
+            }
+        }
 
         /// <summary>
         /// Updates the texture from the contained image
         /// </summary>
         public void Update()
         {
+            if (null == m_image) return;
             Bind();
             try
             {
