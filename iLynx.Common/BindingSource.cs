@@ -27,6 +27,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace iLynx.Common
@@ -60,7 +61,7 @@ namespace iLynx.Common
             if (null == propertyName) throw new ArgumentNullException(nameof(propertyName));
             if (!subscribers.TryGetValue(propertyName, out var handlers)) return;
             var e = new ValueChangedEventArgs<TValue>(propertyName, oldValue, newValue);
-            foreach (var handler in handlers.ToArray())
+            foreach (var handler in handlers.OfType<ValueChangedCallback<TValue>>().ToArray())
                 handler?.DynamicInvoke(this, e);
         }
     }
