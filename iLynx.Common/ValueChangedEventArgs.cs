@@ -31,11 +31,13 @@ namespace iLynx.Common
 {
     public class ValueChangedEventArgs<TValue> : EventArgs
     {
-        public ValueChangedEventArgs(TValue oldValue, TValue newValue)
+        public ValueChangedEventArgs(string property, TValue oldValue, TValue newValue)
         {
             OldValue = oldValue;
             NewValue = newValue;
+            PropertyName = property;
         }
+        public string PropertyName { get; }
         public TValue OldValue { get; }
         public TValue NewValue { get; }
     }

@@ -59,7 +59,7 @@ namespace iLynx.Common
         {
             if (null == propertyName) throw new ArgumentNullException(nameof(propertyName));
             if (!subscribers.TryGetValue(propertyName, out var handlers)) return;
-            var e = new ValueChangedEventArgs<TValue>(oldValue, newValue);
+            var e = new ValueChangedEventArgs<TValue>(propertyName, oldValue, newValue);
             foreach (var handler in handlers.ToArray())
                 handler?.DynamicInvoke(this, e);
         }

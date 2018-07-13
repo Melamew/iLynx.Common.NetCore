@@ -80,7 +80,7 @@ namespace iLynx.Common
         /// <param name="newValue"></param>
         protected virtual void OnValueChanged(TValue oldValue, TValue newValue)
         {
-            ValueChanged?.Invoke(this, new ValueChangedEventArgs<TValue>(oldValue, newValue));
+            ValueChanged?.Invoke(this, new ValueChangedEventArgs<TValue>(nameof(Value), oldValue, newValue));
         }
 
         public event ValueChangingHandler<TValue> ValueChanging;

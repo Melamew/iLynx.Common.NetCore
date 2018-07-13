@@ -127,7 +127,7 @@ namespace iLynx.UI.OpenGL.Controls
 
         protected virtual void OnRenderPositionChanged(Vector2 old, Vector2 value)
         {
-            RenderPositionChanged?.Invoke(this, new ValueChangedEventArgs<Vector2>(old, value));
+            RenderPositionChanged?.Invoke(this, new ValueChangedEventArgs<Vector2>(nameof(RenderPosition), old, value));
         }
 
         public SizeF RenderSize
@@ -145,7 +145,7 @@ namespace iLynx.UI.OpenGL.Controls
 
         protected virtual void OnRenderSizeChanged(SizeF old, SizeF value)
         {
-            RenderSizeChanged?.Invoke(this, new ValueChangedEventArgs<SizeF>(old, value));
+            RenderSizeChanged?.Invoke(this, new ValueChangedEventArgs<SizeF>(nameof(RenderSize), old, value));
         }
 
         public void Update()
@@ -347,7 +347,7 @@ namespace iLynx.UI.OpenGL.Controls
 
         protected virtual void OnBoundingBoxChanged(RectangleF oldBox, RectangleF newBox)
         {
-            BoundingBoxChanged?.Invoke(this, new ValueChangedEventArgs<RectangleF>(oldBox, newBox));
+            BoundingBoxChanged?.Invoke(this, new ValueChangedEventArgs<RectangleF>(nameof(BoundingBox), oldBox, newBox));
         }
 
         public void SetLogicalParent(IRenderElement parent)
