@@ -25,10 +25,14 @@
  *
  */
 #endregion
+
+using OpenTK;
+
 namespace iLynx.Graphics.Drawing.Text
 {
     public struct Glyph
     {
-
+        public Texture Texture;
+        public RectangleF TextureRect;
     }
 }
