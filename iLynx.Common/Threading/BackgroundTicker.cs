@@ -33,36 +33,35 @@ namespace iLynx.Common.Threading
 {
     public class BackgroundTicker : BackgroundWorker
     {
-        private volatile bool isRunning;
-        private TimeSpan frameInterval;
-        private double desiredFrequency = 60d;
+        private volatile bool m_isRunning;
+        private double m_desiredFrequency = 60d;
 
         protected BackgroundTicker()
         {
-            frameInterval = TimeSpan.FromMilliseconds(1000d / desiredFrequency);
+            TickInterval = TimeSpan.FromMilliseconds(1000d / m_desiredFrequency);
         }
 
         public override void Start()
         {
-            if (isRunning) return;
-            isRunning = true;
+            if (m_isRunning) return;
+            m_isRunning = true;
             base.Start();
         }
 
         protected override void Run()
         {
             var sw = new Stopwatch();
-            while (isRunning)
+            while (m_isRunning)
             {
                 sw.Start();
                 Tick();
                 sw.Stop();
-                var interval = frameInterval - sw.Elapsed;
+                var interval = TickInterval - sw.Elapsed;
                 sw.Reset();
                 if (TimeSpan.Zero > interval)
                 {
                     Console.WriteLine(
-                        $"{GetType().Name} tick took longer than desired {frameInterval}, clamping to zero. Delta: {interval}");
+                        $"{GetType().Name} tick took longer than desired {TickInterval}, clamping to zero. Delta: {interval}");
                     interval = TimeSpan.Zero;
                 }
                 Thread.CurrentThread.Join(interval);
@@ -71,23 +70,23 @@ namespace iLynx.Common.Threading
 
         public override void Stop()
         {
-            if (!isRunning) return;
-            isRunning = false;
+            if (!m_isRunning) return;
+            m_isRunning = false;
             base.Stop();
         }
 
         public double DesiredFrequency
         {
-            get => desiredFrequency;
+            get => m_desiredFrequency;
             set
             {
-                if (Math.Abs(value - desiredFrequency) <= double.Epsilon * 10d) return;
-                desiredFrequency = value;
-                frameInterval = TimeSpan.FromMilliseconds(1000d / desiredFrequency);
+                if (Math.Abs(value - m_desiredFrequency) <= double.Epsilon * 10d) return;
+                m_desiredFrequency = value;
+                TickInterval = TimeSpan.FromMilliseconds(1000d / m_desiredFrequency);
             }
         }
 
-        public TimeSpan TickInterval => frameInterval;
+        public TimeSpan TickInterval { get; private set; }
 
         protected virtual void Tick()
         {

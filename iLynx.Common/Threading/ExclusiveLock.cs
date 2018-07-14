@@ -32,17 +32,17 @@ namespace iLynx.Common.Threading
 {
     public class ExclusiveLock : IDisposable
     {
-        private readonly object target;
+        private readonly object m_target;
 
         public ExclusiveLock(object target)
         {
-            this.target = target;
-            Monitor.Enter(this.target);
+            m_target = target;
+            Monitor.Enter(m_target);
         }
 
         public void Dispose()
         {
-            Monitor.Exit(target);
+            Monitor.Exit(m_target);
         }
     }
 }

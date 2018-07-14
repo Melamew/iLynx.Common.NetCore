@@ -32,8 +32,8 @@ namespace iLynx.Common
 {
     public class PropertyWrapper<TValue>
     {
-        private GetMethod getter;
-        private SetMethod setter;
+        private GetMethod m_getter;
+        private SetMethod m_setter;
 
         private delegate TValue GetMethod();
         private delegate void SetMethod(TValue value);
@@ -65,18 +65,18 @@ namespace iLynx.Common
             if (property.PropertyType != typeof(TValue)) throw new InvalidBindingTypeException(typeof(TValue).DeclaringType, property.Name);
             var getMethod = property.GetGetMethod();
             var setMethod = property.GetSetMethod();
-            getter = (GetMethod)getMethod.CreateDelegate(typeof(GetMethod), targetInstance);
-            setter = (SetMethod)setMethod.CreateDelegate(typeof(SetMethod), targetInstance);
+            m_getter = (GetMethod)getMethod.CreateDelegate(typeof(GetMethod), targetInstance);
+            m_setter = (SetMethod)setMethod.CreateDelegate(typeof(SetMethod), targetInstance);
         }
 
         public void SetValue(TValue value)
         {
-            setter(value);
+            m_setter(value);
         }
 
         public TValue GetValue()
         {
-            return getter();
+            return m_getter();
         }
 
         public string PropertyName { get; }

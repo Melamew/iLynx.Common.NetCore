@@ -31,28 +31,28 @@ namespace iLynx.Common.Threading
 {
     public class CallbackTicker : BackgroundTicker
     {
-        private Action callback;
+        private Action m_callback;
         public override void Start()
         {
-            if (null == callback) throw new InvalidOperationException("The callback for this ticker has not been set");
+            if (null == m_callback) throw new InvalidOperationException("The callback for this ticker has not been set");
             base.Start();
         }
 
         public void Start(Action tickCallback)
         {
-            callback = tickCallback;
+            m_callback = tickCallback;
             Start();
         }
 
         public override void Stop()
         {
-            callback = null;
+            m_callback = null;
             base.Stop();
         }
 
         protected override void Tick()
         {
-            callback();
+            m_callback();
         }
     }
 }

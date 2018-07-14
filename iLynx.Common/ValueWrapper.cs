@@ -31,24 +31,24 @@ namespace iLynx.Common
 {
     public class ValueWrapper<TValue> where TValue : IEquatable<TValue>
     {
-        private TValue value;
+        private TValue m_value;
 
         public ValueWrapper() { }
 
         public ValueWrapper(TValue initialValue)
         {
-            value = initialValue;
+            m_value = initialValue;
         }
 
         public TValue Value
         {
-            get => value;
+            get => m_value;
             set
             {
-                if (this.value.Equals(value)) return;
-                var oldValue = this.value;
+                if (m_value.Equals(value)) return;
+                var oldValue = m_value;
                 OnValueChanging(oldValue, value);
-                this.value = value;
+                m_value = value;
                 OnValueChanged(oldValue, value);
             }
         }
@@ -60,7 +60,7 @@ namespace iLynx.Common
 
         public static implicit operator TValue(ValueWrapper<TValue> wrapper)
         {
-            return wrapper.value;
+            return wrapper.m_value;
         }
 
         /// <summary>

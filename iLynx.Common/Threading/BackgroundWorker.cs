@@ -31,17 +31,17 @@ namespace iLynx.Common.Threading
 {
     public abstract class BackgroundWorker
     {
-        private Thread thread;
+        private Thread m_thread;
         public virtual void Start()
         {
-            thread = new Thread(Run) { IsBackground = true };
-            thread.Start();
+            m_thread = new Thread(Run) { IsBackground = true };
+            m_thread.Start();
         }
 
         public virtual void Stop()
         {
-            thread.Join();
-            thread = null;
+            m_thread.Join();
+            m_thread = null;
         }
 
         protected abstract void Run();

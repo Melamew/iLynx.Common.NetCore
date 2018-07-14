@@ -32,17 +32,17 @@ namespace iLynx.Common.Threading
 {
     public class WriterLock : IDisposable
     {
-        private readonly ReaderWriterLockSlim rwl;
+        private readonly ReaderWriterLockSlim m_rwl;
 
         public WriterLock(ReaderWriterLockSlim rwl)
         {
-            this.rwl = rwl;
-            this.rwl.EnterWriteLock();
+            m_rwl = rwl;
+            m_rwl.EnterWriteLock();
         }
 
         public void Dispose()
         {
-            rwl.ExitWriteLock();
+            m_rwl.ExitWriteLock();
         }
     }
 }
