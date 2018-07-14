@@ -1,3 +1,5 @@
+using System;
+using iLynx.Common.Threading;
 using Xunit;
 
 namespace iLynx.Common.Tests
@@ -60,6 +62,13 @@ namespace iLynx.Common.Tests
             );
             impl.DoRaisePropertyChanged(property);
             impl.DoRaisePropertyChanged(otherProperty);
+        }
+
+        [Fact]
+        public void WhenPropertChangedCalledWithNullNameThenExceptionThrown()
+        {
+            var impl = new DummyImpl();
+            Assert.Throws<ArgumentNullException>(() => impl.DoRaisePropertyChanged(null));
         }
     }
 }
