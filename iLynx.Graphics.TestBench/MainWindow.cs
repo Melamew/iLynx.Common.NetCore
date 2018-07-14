@@ -27,10 +27,10 @@
 #endregion
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using iLynx.Graphics.Animation;
 using iLynx.Graphics.Drawing;
+using iLynx.Graphics.Drawing.Text;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -46,8 +46,9 @@ namespace iLynx.Graphics.TestBench
         private IView m_view2D;
         private IView m_view3D;
         private readonly IRenderContext m_renderContext;
-
+        private RectangleGeometry m_fontDisplay;
         private RectangleGeometry m_topLeft;//, topRight, bottomLeft, bottomRight;
+        private readonly GraphicsFont m_font = new GraphicsFont(GraphicsFont.DefaultFont, 16f);
 
         public MainWindow(int width, int height, string title)
             : base(width, height, new GraphicsMode(new ColorFormat(32, 32, 32, 32), 32, 32), title,
@@ -66,9 +67,10 @@ namespace iLynx.Graphics.TestBench
             {
                 Origin = new Vector3(125f, 125f, 0f),
             };
-
+            m_fontDisplay = new RectangleGeometry(16f * 32f, 16f * 32f, Color32.Lime);
             m_cuboid = new Cuboid(Color32.Lime, 1f, 1f, 1f) { Origin = new Vector3(0.5f) };
             m_view2D.AddDrawable(m_topLeft);
+            m_view2D.AddDrawable(m_fontDisplay);
             m_view3D.AddDrawable(m_cuboid);
             m_renderContext.Animator.Start(
                 x => m_topLeft.Rotation = Quaternion.FromAxisAngle(new Vector3(0f, 0f, 1f), (float)(x * Math.PI * 2d)),
@@ -76,6 +78,21 @@ namespace iLynx.Graphics.TestBench
             m_renderContext.Animator.Start(x => m_topLeft.Origin = (float)x * new Vector3(m_topLeft.Width, m_topLeft.Height, 0f),
                 TimeSpan.FromSeconds(3.33d), LoopMode.Reverse, EasingFunctions.QuadraticInOut);
             LoadTestTexture();
+            LoadFontTexture();
+        }
+
+        private void LoadFontTexture()
+        {
+            Task.Run(
+                () =>
+                {
+                    try
+                    {
+                        m_font.Cache("A        BCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+                    }
+                    catch (Exception e) { Console.WriteLine(e); }
+                    m_renderContext.QueueForSync(() => m_fontDisplay.Texture = new ImageTexture(m_font.CachePage));
+                });
         }
 
         private void LoadTestTexture()
@@ -106,6 +123,7 @@ namespace iLynx.Graphics.TestBench
             m_view3D.Scale = new Vector3(1f, 1f, -1f);
             m_cuboid.Translation = new Vector3(0f, 0f, 10f);
             m_topLeft.Translation = new Vector3(m_topLeft.Width, m_topLeft.Height, 0f);
+            m_fontDisplay.Translation = new Vector3(Width - m_fontDisplay.Width, 0f, 0f);
         }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)

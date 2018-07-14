@@ -26,29 +26,54 @@
  */
 #endregion
 
+using System.Linq;
 using JetBrains.Annotations;
 using OpenTK;
-using SixLabors.Fonts;
+using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Drawing.Text
 {
-    public class DrawableText : IDrawable
+    public class DrawableText : GeometryBase, IDrawable
     {
-        private float m_fontSize;
+        [NotNull] private readonly string m_text;
+        private readonly GraphicsFont m_font;
 
         public DrawableText([NotNull]string text)
+            : this(GraphicsFont.DefaultFont, text)
         {
         }
 
-        public DrawableText([NotNull]Font font, [NotNull]string text)
+        public DrawableText([NotNull]GraphicsFont font, [NotNull]string text)
+            : base(Color32.Transparent)
         {
+            m_font = font;
+            m_text = text;
+            Texture = new ImageTexture(m_font.CachePage);
         }
 
-        public Color FillColor { get; set; }
-
-        public void Draw(IRenderStates states)
+        /// <inheritdoc />
+        protected override PrimitiveType PrimitiveType => PrimitiveType.TriangleStrip;
+        
+        /// <inheritdoc />
+        protected override Vertex[] GetVertices()
         {
+            var result = new Vertex[m_text.Length * 4];
             
+            var i = 0;
+            foreach (var glyph in m_text.Select(x => m_font.GetGlyph(x)))
+            {
+                result[i++] = new Vertex();
+                result[i++] = new Vertex();
+                result[i++] = new Vertex();
+                result[i++] = new Vertex();
+            }
+            return new Vertex[] { };
+        }
+
+        /// <inheritdoc />
+        protected override uint[] GetIndices()
+        {
+            return new uint[] { };
         }
 
         public Vector2 FindCharacterPos(uint index)
@@ -56,8 +81,5 @@ namespace iLynx.Graphics.Drawing.Text
             
             return new Vector2(0);
         }
-
-        public Shader Shader { get; set; }
-        public Texture Texture { get; set; }
     }
 }

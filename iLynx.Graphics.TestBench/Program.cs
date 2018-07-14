@@ -45,8 +45,8 @@ namespace iLynx.Graphics.TestBench
             //Console.WriteLine(col.CompareTo(col2));
             //Console.WriteLine($"{col2.Normalized()}");
             //Console.ReadKey();
-            Console.WriteLine(0.To(1024).Select(x => ((char)x, x)).Where(x => !char.IsControl(x.Item1)).Select(x => $"{x.Item2:x4}: {x.Item1}").ToString(", "));
-            GraphicsFont f = new GraphicsFont(new FileInfo("./fonts/OpenSans-Regular.ttf"), 14);
+            //Console.WriteLine(0.To(1024).Select(x => ((char)x, x)).Where(x => !char.IsControl(x.Item1)).Select(x => $"{x.Item2:x4}: {x.Item1}").ToString(", "));
+            //GraphicsFont f = new GraphicsFont(new FileInfo("./fonts/OpenSans-Regular.ttf"), 14);
             var win = new MainWindow(1280, 720, "Test")
             {
                 Location = new Point(0, 0)

@@ -35,7 +35,7 @@ namespace iLynx.Graphics.Drawing
     {
         private readonly Vertex[] m_vertices = new Vertex[4];
         private float m_width, m_height;
-        private static readonly uint[] Indices = {0u, 1u, 2u, 3u};
+        private static readonly uint[] s_Indices = { 0u, 1u, 2u, 3u };
 
         public float Width
         {
@@ -59,20 +59,22 @@ namespace iLynx.Graphics.Drawing
             }
         }
 
+        public RectangleF TextureRect { get; set; } = new RectangleF(0f, 0f, 1f, 1f);
+
         protected override PrimitiveType PrimitiveType => PrimitiveType.TriangleFan;
 
         protected override Vertex[] GetVertices()
         {
-            m_vertices[0] = new Vertex(Vector3.Zero, FillColor, Vector2.Zero);
-            m_vertices[1] = new Vertex(new Vector3(0f, m_height, 0f), FillColor, Vector2.UnitY);
-            m_vertices[2] = new Vertex(new Vector3(m_width, m_height, 0f), FillColor, Vector2.One);
-            m_vertices[3] = new Vertex(new Vector3(m_width, 0f, 0f), FillColor, Vector2.UnitX);
+            m_vertices[0] = new Vertex(Vector3.Zero, FillColor, new Vector2(TextureRect.X, TextureRect.Y));
+            m_vertices[1] = new Vertex(new Vector3(0f, m_height, 0f), FillColor, new Vector2(TextureRect.X, TextureRect.Bottom));
+            m_vertices[2] = new Vertex(new Vector3(m_width, m_height, 0f), FillColor, new Vector2(TextureRect.Right, TextureRect.Bottom));
+            m_vertices[3] = new Vertex(new Vector3(m_width, 0f, 0f), FillColor, new Vector2(TextureRect.Right, TextureRect.Y));
             return m_vertices;
         }
 
         protected override uint[] GetIndices()
         {
-            return Indices;
+            return s_Indices;
         }
 
         public RectangleGeometry(float width, float height, Color32 fillColor, bool showOrigin = false)
