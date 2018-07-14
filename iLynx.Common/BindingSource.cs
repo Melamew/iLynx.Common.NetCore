@@ -34,15 +34,15 @@ namespace iLynx.Common
 {
     public abstract class BindingSource : IBindingSource
     {
-        private readonly Dictionary<string, List<Delegate>> subscribers =
+        private readonly Dictionary<string, List<Delegate>> m_subscribers =
             new Dictionary<string, List<Delegate>>();
 
         public void AddPropertyChangedHandler<TValue>(string valueName, ValueChangedCallback<TValue> callback)
         {
-            if (!subscribers.TryGetValue(valueName, out var list))
+            if (!m_subscribers.TryGetValue(valueName, out var list))
             {
                 list = new List<Delegate>();
-                subscribers.Add(valueName, list);
+                m_subscribers.Add(valueName, list);
             }
             if (list.Contains(callback)) return;
             list.Add(callback);
@@ -50,19 +50,19 @@ namespace iLynx.Common
 
         public void RemovePropertyChangedHandler<TValue>(string valueName, ValueChangedCallback<TValue> callback)
         {
-            if (subscribers.TryGetValue(valueName, out var list))
+            if (m_subscribers.TryGetValue(valueName, out var list))
                 list.Remove(callback);
             if (list?.Count == 0)
-                subscribers.Remove(valueName);
+                m_subscribers.Remove(valueName);
         }
 
         protected virtual void OnPropertyChanged<TValue>(TValue oldValue, TValue newValue, [CallerMemberName]string propertyName = null)
         {
             if (null == propertyName) throw new ArgumentNullException(nameof(propertyName));
-            if (!subscribers.TryGetValue(propertyName, out var handlers)) return;
+            if (!m_subscribers.TryGetValue(propertyName, out var handlers)) return;
             var e = new ValueChangedEventArgs<TValue>(propertyName, oldValue, newValue);
             foreach (var handler in handlers.OfType<ValueChangedCallback<TValue>>().ToArray())
-                handler?.DynamicInvoke(this, e);
+                handler?.Invoke(this, e);
         }
     }
 }
