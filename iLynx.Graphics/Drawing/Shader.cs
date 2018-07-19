@@ -36,8 +36,8 @@ namespace iLynx.Graphics.Drawing
 {
     public partial class Shader : IDisposable, IProvideInfoLog
     {
-        protected const string DEFAULT_FRAGMENT_SHADER_REL_PATH = "./Shaders/default.frag";
-        protected const string DEFAULT_VERTEX_SHADER_REL_PATH = "./Shaders/default.vert";
+        protected const string DEFAULT_FRAGMENT_SHADER_REL_PATH = "./shaders/default.frag";
+        protected const string DEFAULT_VERTEX_SHADER_REL_PATH = "./shaders/default.vert";
 
         /// <summary>
         /// The name of the view transform uniform variable in the vertex shader.
