@@ -8,7 +8,7 @@
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "build graphics.testbench",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/iLynx.Graphics.TestBench/bin/Debug/netcoreapp2.0/iLynx.Graphics.TestBench.dll",
             "args": [],
