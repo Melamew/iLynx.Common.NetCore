@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using iLynx.Graphics.Maths;
 using OpenTK;
 
 namespace iLynx.Graphics.Drawing
@@ -65,6 +66,14 @@ namespace iLynx.Graphics.Drawing
             states.ViewTransform = m_viewTransform;
             foreach (var drawable in m_drawables)
                 drawable.Draw(states);
+        }
+
+        public IDrawable CastRay(Vector2 location)
+        {
+            //var ray = new LineSegment3D()
+            //foreach (var drawable in m_drawables)
+
+            return null;
         }
 
         public void AddDrawable(IDrawable drawable)

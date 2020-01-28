@@ -26,6 +26,7 @@
  */
 #endregion
 using System;
+using iLynx.Graphics.Maths;
 using OpenTK.Graphics.OpenGL;
 
 namespace iLynx.Graphics.Drawing
@@ -68,6 +69,11 @@ namespace iLynx.Graphics.Drawing
         }
 
         public Texture Texture { get; set; }
+        public bool Intersects(LineSegment3D line)
+        {
+            return false;
+        }
+
         public Shader Shader { get; set; }
         protected abstract PrimitiveType PrimitiveType { get; }
 

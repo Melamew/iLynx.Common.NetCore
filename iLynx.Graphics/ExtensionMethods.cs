@@ -44,6 +44,21 @@ namespace iLynx.Graphics
             return new PointF(vector.X, vector.Y);
         }
 
+        public static SizeF Multiply(this SizeF size, float factor)
+        {
+            return new SizeF(size.Width * factor, size.Height * factor);
+        }
+
+        public static SizeF Divide(this SizeF size, float factor)
+        {
+            return new SizeF(size.Width / factor, size.Height / factor);
+        }
+
+        public static SizeF AsFloat(this Size size)
+        {
+            return new SizeF(size.Width, size.Height);
+        }
+
         public static void QueueForSync(this IRenderContext context, Action action)
         {
             context.QueueForSync(action);

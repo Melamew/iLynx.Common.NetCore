@@ -27,6 +27,8 @@
 #endregion
 
 using iLynx.Graphics.Drawing;
+using iLynx.Graphics.Maths;
+using OpenTK;
 
 namespace iLynx.Graphics
 {
@@ -48,5 +50,12 @@ namespace iLynx.Graphics
         /// Gets or Sets the  texture to apply to this drawable
         /// </summary>
         Texture Texture { get; set; }
+
+        /// <summary>
+        /// Returns a value indicating whether or not the specified line intersects with any part of this drawable
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        bool Intersects(LineSegment3D line);
     }
 }

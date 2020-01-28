@@ -154,7 +154,7 @@ namespace iLynx.Graphics.Drawing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Bind([CanBeNull] Texture texture)
         {
-            GL.BindTexture(TextureTarget.Texture2D, texture?.m_handle ?? 0);
+            GLCheck.Check(GL.BindTexture, TextureTarget.Texture2D, texture?.m_handle ?? 0);
         }
 
         /// <inheritdoc />

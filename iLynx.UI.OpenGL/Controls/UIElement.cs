@@ -33,6 +33,7 @@ using System.Threading;
 using iLynx.Common;
 using iLynx.Graphics;
 using iLynx.Graphics.Drawing;
+using iLynx.Graphics.Maths;
 using iLynx.UI.OpenGL.Input;
 using OpenTK;
 
@@ -430,5 +431,9 @@ namespace iLynx.UI.OpenGL.Controls
 
         public Shader Shader { get; set; }
         public Texture Texture { get; set; }
+        public bool Intersects(LineSegment3D line)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

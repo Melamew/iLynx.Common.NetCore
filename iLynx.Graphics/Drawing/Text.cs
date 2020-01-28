@@ -25,6 +25,9 @@
  *
  */
 #endregion
+
+using System;
+using iLynx.Graphics.Maths;
 using OpenTK;
 
 namespace iLynx.Graphics.Drawing
@@ -52,5 +55,9 @@ namespace iLynx.Graphics.Drawing
 
         public Shader Shader { get; set; } = Shader.DefaultShader;
         public Texture Texture { get; set; }
+        public bool Intersects(LineSegment3D line)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

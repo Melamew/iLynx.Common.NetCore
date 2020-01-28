@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2018
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iLynx.UI.TestBench", "iLynx.UI.TestBench\iLynx.UI.TestBench.csproj", "{E10A08E7-CB56-4F1B-AEF0-0A18A00A6197}"
 EndProject
@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iLynx.Graphics.TestBench", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iLynx.Graphics.Tests", "iLynx.Graphics.Tests\iLynx.Graphics.Tests.csproj", "{273E6980-8790-4903-849D-BEBC7D8FB348}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iLynx.Common.Tests", "iLynx.Common.Tests\iLynx.Common.Tests.csproj", "{D54F8B74-9B03-4FB3-B429-429A5B57DC73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iLynx.Common.Tests", "iLynx.Common.Tests\iLynx.Common.Tests.csproj", "{D54F8B74-9B03-4FB3-B429-429A5B57DC73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

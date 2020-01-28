@@ -53,7 +53,7 @@ namespace iLynx.Graphics.TestBench
             : base(width, height, new GraphicsMode(new ColorFormat(32, 32, 32, 32), 32, 32), title,
                 GameWindowFlags.Default, DisplayDevice.Default)
         {
-            m_renderContext = new RenderContext(Context, WindowInfo);
+            m_renderContext = new DirectRenderContext(Context, WindowInfo);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -197,6 +197,11 @@ namespace iLynx.Graphics.TestBench
             m_cuboid.Rotation.ToAxisAngle(out var axis, out var angle);
             Console.WriteLine($"Cuboid position: {m_cuboid.Translation}");
             Console.WriteLine($"Cuboid rotation: {axis} by {angle}");
+        }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)

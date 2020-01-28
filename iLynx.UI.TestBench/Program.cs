@@ -27,6 +27,7 @@
 #endregion
 using System;
 using System.Threading;
+using iLynx.Graphics;
 using iLynx.UI.OpenGL;
 using iLynx.UI.OpenGL.Controls;
 using iLynx.UI.OpenGL.Layout;
@@ -53,94 +54,94 @@ namespace iLynx.UI.TestBench
             //    }, TimeSpan.FromSeconds(1d), LoopMode.Reverse, EasingFunctions.CubicIn));
         }
 
-        private static void StartWindow()
-        {
-            var displayDevice = DisplayDevice.Default;
-            window = new Window(1280, 720, "Test")
-            {
-                Location = new Point(0, 0),
-                Background = Color.Green
-            };
-            window.Run();
-        }
-
         //private static void StartWindow()
         //{
-        //    var t = new Thread(() =>
+        //    var displayDevice = DisplayDevice.Default;
+        //    window = new Window(1280, 720, "Test")
         //    {
-        //        window = new Window(new VideoMode(1920, 1080), "Test");
-        //        window.Show();
-        //    });
-        //    t.Start();
-        //    while (null == window) Thread.CurrentThread.Join(250);
-        //    var root = new StackPanel
-        //    {
-        //        Orientation = Orientation.Horizontal,
-        //        Background = ColorUtils.FromRgbA(.1f, .1f, .1f, 1f)
+        //        Location = new Point(0, 0),
+        //        Background = Color.Green
         //    };
-        //    window.RootElement = root;
-        //    var stackPanel = new StackPanel
-        //    {
-        //        Size = (Vector2f)window.Size * 0.5f,
-        //        Background = ColorUtils.FromRgbA(.2f, .2f, .2f, 1f),
-        //        Margin = 16f
-        //    };
-        //    var labelMargins = new Thickness(8f);
-        //    stackPanel.AddChild(new ContentControl
-        //    {
-        //        ContentString = "Left Aligned",
-        //        Foreground = Color.Green,
-        //        Background = Color.Black,
-        //        Margin = labelMargins,
-        //        Padding = 16f
-        //    },
-        //        new ContentControl
-        //        {
-        //            Foreground = Color.Green,
-        //            Background = Color.Black,
-        //            Margin = labelMargins,
-        //            HorizontalAlignment = Alignment.End,
-        //            ContentString = "Right Aligned"
-        //        },
-        //        new ContentControl
-        //        {
-        //            ContentString = "Centered",
-        //            Margin = labelMargins,
-        //            HorizontalAlignment = Alignment.Center,
-        //            Foreground = Color.Green,
-        //            Background = Color.Black
-        //        },
-        //        stretchedControl = new ContentControl
-        //        {
-        //            ContentString = "Stretched",
-        //            Margin = labelMargins,
-        //            HorizontalAlignment = Alignment.Stretch,
-        //            Foreground = Color.Green,
-        //            Background = Color.Black
-        //        },
-        //        textBox = new TextBox
-        //        {
-        //            Font = UIElement.DefaultFont,
-        //            FontSize = 48,
-        //            Foreground = Color.Black,
-        //            Background = Color.White,
-        //            Size = new Vector2f(800, 400),
-        //            Text = "Default Text",
-        //            Margin = 8f,
-        //            AcceptsReturn = true
-        //        });
-        //    canvas = new Canvas
-        //    {
-        //        Background = ColorUtils.FromRgbA(.3f, .3f, .3f, 1f),
-        //        Margin = 16f
-        //    };
-        //    canvas.AddChild(new ContentControl
-        //    {
-        //        Size = new Vector2f(120f, 10f),
-        //        ContentString = "This content will not fit inside the control, yet it is not clipped.",
-        //        Background = new Color(128, 64, 64, 255)
-        //    });
-        //    root.AddChild(stackPanel, canvas);
+        //    window.Run();
         //}
+
+        private static void StartWindow()
+        {
+            var t = new Thread(() =>
+            {
+                window = new Window(1920, 1080, "Test");
+                window.Show();
+            });
+            t.Start();
+            while (null == window) Thread.CurrentThread.Join(250);
+            var root = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Background = ColorUtils.FromRgbA(.1f, .1f, .1f, 1f)
+            };
+            window.RootElement = root;
+            var stackPanel = new StackPanel
+            {
+                Size = window.Size.AsFloat().Multiply(0.5f),
+                Background = ColorUtils.FromRgbA(.2f, .2f, .2f, 1f),
+                Margin = 16f
+            };
+            var labelMargins = new Thickness(8f);
+            stackPanel.AddChild(new ContentControl
+            {
+                ContentString = "Left Aligned",
+                Foreground = Color.Green,
+                Background = Color.Black,
+                Margin = labelMargins,
+                Padding = 16f
+            },
+                new ContentControl
+                {
+                    Foreground = Color.Green,
+                    Background = Color.Black,
+                    Margin = labelMargins,
+                    HorizontalAlignment = Alignment.End,
+                    ContentString = "Right Aligned"
+                },
+                new ContentControl
+                {
+                    ContentString = "Centered",
+                    Margin = labelMargins,
+                    HorizontalAlignment = Alignment.Center,
+                    Foreground = Color.Green,
+                    Background = Color.Black
+                },
+                stretchedControl = new ContentControl
+                {
+                    ContentString = "Stretched",
+                    Margin = labelMargins,
+                    HorizontalAlignment = Alignment.Stretch,
+                    Foreground = Color.Green,
+                    Background = Color.Black
+                },
+                textBox = new TextBox
+                {
+                    //Font = UIElement.DefaultFont,
+                    FontSize = 48,
+                    Foreground = Color.Black,
+                    Background = Color.White,
+                    Size = new SizeF(800, 400),
+                    Text = "Default Text",
+                    Margin = 8f,
+                    AcceptsReturn = true
+                });
+            canvas = new Canvas
+            {
+                Background = ColorUtils.FromRgbA(.3f, .3f, .3f, 1f),
+                Margin = 16f
+            };
+            canvas.AddChild(new ContentControl
+            {
+                Size = new SizeF(120f, 10f),
+                ContentString = "This content will not fit inside the control, yet it is not clipped.",
+                Background = new Color(128, 64, 64, 255)
+            });
+            root.AddChild(stackPanel, canvas);
+        }
     }
 }

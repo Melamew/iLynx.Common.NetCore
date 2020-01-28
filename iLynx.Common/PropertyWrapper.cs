@@ -43,6 +43,13 @@ namespace iLynx.Common
             PropertyName = propertyName;
         }
 
+        /// <summary>
+        /// Creates a <see cref="PropertyWrapper{TValue}"/> for the specified property (<paramref name="propertyName"/>) from the instance of the specified object (<paramref name="targetInstance"/>)
+        /// </summary>
+        /// <typeparam name="TSource">The type of the property</typeparam>
+        /// <param name="targetInstance">The object to create a <see cref="PropertyWrapper{TValue}"/> for</param>
+        /// <param name="propertyName">The name of the property to wrap</param>
+        /// <returns></returns>
         public static PropertyWrapper<TValue> Create<TSource>(TSource targetInstance, string propertyName)
             where TSource : IBindingSource
         {
@@ -52,6 +59,11 @@ namespace iLynx.Common
             return Create(targetInstance, sourceProperty);
         }
 
+        /// <inheritdoc cref="Create{TSource}(TSource,string)"/>
+        /// <param name="targetInstance"><inheritdoc cref="targetInstance"/></param>
+        /// <param name="property">The <see cref="PropertyInfo"/> to use when creating a new instance of <see cref="PropertyWrapper{TValue}"/>
+        /// <remarks>The <see cref="PropertyWrapper{TValue}"/> will be created with getter and setter methods extracted from this <see cref="PropertyInfo"/></remarks>
+        /// </param>
         public static PropertyWrapper<TValue> Create<TSource>(TSource targetInstance, PropertyInfo property)
             where TSource : IBindingSource
         {
@@ -69,6 +81,10 @@ namespace iLynx.Common
             setter = (SetMethod)setMethod.CreateDelegate(typeof(SetMethod), targetInstance);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
         public void SetValue(TValue value)
         {
             setter(value);
