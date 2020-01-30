@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 using iLynx.Common;
+using iLynx.Common.Collections;
 
 namespace iLynx.Common.Tests
 {

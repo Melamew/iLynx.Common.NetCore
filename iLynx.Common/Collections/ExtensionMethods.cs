@@ -1,21 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using iLynx.Common.Collections;
 
 namespace iLynx.Common.Collections
 {
     /// <summary>
     /// ExtensionMethods
     /// </summary>
-    public static class ExtensionMethods
-    {
-
-    }
-}
-
-namespace System.Collections.Generic
-{
     public static class ExtensionMethods
     {
         /// <summary>
@@ -221,8 +213,8 @@ namespace System.Collections.Generic
         /// <param name="length">The number of values to copy</param>
         /// <returns></returns>
         public static T[] Slice<T>(this T[] arr,
-                                   int offset,
-                                   int length)
+            int offset,
+            int length)
         {
             if (offset + length > arr.Length) throw new ArgumentOutOfRangeException(nameof(length));
             var result = new T[length];

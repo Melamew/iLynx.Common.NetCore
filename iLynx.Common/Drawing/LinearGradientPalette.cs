@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime;
+using iLynx.Common.Collections;
 
 namespace iLynx.Common.Drawing
 {
