@@ -57,7 +57,7 @@ namespace iLynx.UI.OpenGL.Input
 
         public static void Register<TElement, TArgs>(InputCallback<TElement, TArgs> handler) where TElement : IInputElement where TArgs : InputEventArgs
         {
-            InputMappers.AddOrUpdateMany(typeof(TArgs), (element, args) => handler((TElement)element, (TArgs)args));
+            InputMappers.Add(typeof(TArgs), (element, args) => handler((TElement)element, (TArgs)args));
         }
 
         public static bool RequestFocus(IInputElement element)
