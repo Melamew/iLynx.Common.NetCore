@@ -224,5 +224,272 @@ namespace System
         {
             return (value > 0) && ((value & (value - 1)) == 0);
         }
+
+        #region 16 Bits
+
+        /// <summary>
+        /// Swaps the endianness.
+        /// </summary>
+        /// <param name="array">The array.</param>
+        public static void SwapEndianness(this short[] array)
+        {
+            unsafe
+            {
+                fixed (void* arr = array)
+                    Swap16((byte*)arr, 0, array.Length);
+            }
+        }
+
+        public static short SwapEndianness(this short value)
+        {
+            unsafe
+            {
+                Swap16((byte*)&value, 0, 1);
+            }
+            return value;
+        }
+
+        public static ushort SwapEndianness(this ushort value)
+        {
+            unsafe
+            {
+                Swap16((byte*)&value, 0, 1);
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// Swaps the endianness.
+        /// </summary>
+        /// <param name="array">The array.</param>
+        public static void SwapEndianness(this ushort[] array)
+        {
+            unsafe
+            {
+                fixed (void* arr = array)
+                    Swap16((byte*)arr, 0, array.Length);
+            }
+        }
+
+        /// <summary>
+        /// Swaps the endianness of a 16 bit integer at the specified byte offset.
+        /// </summary>
+        /// <param name="src">The SRC.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="count">The count.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">offset</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">count</exception>
+        public static void SwapInt16Endianness(this byte[] src, int offset = 0, int count = 1)
+        {
+            if (offset >= src.Length) throw new ArgumentOutOfRangeException(nameof(offset));
+            if (offset + (count * 2) >= src.Length) throw new ArgumentOutOfRangeException(nameof(count));
+            unsafe
+            {
+                fixed (byte* arr = src)
+                    Swap16(arr, offset, count);
+            }
+        }
+
+        /// <summary>
+        /// Swaps the endianness of 16 bit integers starting at the specified byte offset, processing <param name="count"/> full 16 bit integers (Bytes X 2).
+        /// </summary>
+        /// <param name="src">The SRC.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="count">The count.</param>
+        public static unsafe void Swap16(byte* src, int offset, int count)
+        {
+            var p = src + offset;
+            while (count-- > 0)
+            {
+                var a = *p;
+                ++p;
+                *(p - 1) = *p;
+                *p = a;
+            }
+        }
+        #endregion
+
+        #region 32 Bits
+        /// <summary>
+        /// Swaps the endianness.
+        /// </summary>
+        /// <param name="array">The array.</param>
+        public static void SwapEndianness(this int[] array)
+        {
+            unsafe
+            {
+                fixed (void* arr = array)
+                    Swap32((byte*)arr, 0, array.Length);
+            }
+        }
+
+        /// <summary>
+        /// Swaps the endianness.
+        /// </summary>
+        /// <param name="array">The array.</param>
+        public static void SwapEndianness(this uint[] array)
+        {
+            unsafe
+            {
+                fixed (void* arr = array)
+                    Swap32((byte*)arr, 0, array.Length);
+            }
+        }
+
+        public static int SwapEndianness(this int value)
+        {
+            unsafe
+            {
+                Swap32((byte*)&value, 0, 1);
+            }
+            return value;
+        }
+
+        public static uint SwapEndianness(this uint value)
+        {
+            unsafe
+            {
+                Swap32((byte*)&value, 0, 1);
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// Swaps the endianness of a 32 bit integer at the specified byte offset.
+        /// </summary>
+        /// <param name="src">The SRC.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="count">The number of integers to swap.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">offset</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">count</exception>
+        public static void SwapInt32Endianness(this byte[] src, int offset = 0, int count = 1)
+        {
+            if (offset >= src.Length) throw new ArgumentOutOfRangeException(nameof(offset));
+            if (offset + count * 4 >= src.Length) throw new ArgumentOutOfRangeException(nameof(count));
+            unsafe
+            {
+                fixed (byte* arr = src)
+                    Swap32(arr, offset, count);
+            }
+        }
+
+        /// <summary>
+        /// Swaps the endianness of 32 bit integers starting at the specified byte offset, processing <param name="count"/> full 32 bit integers (Bytes X 4).
+        /// </summary>
+        /// <param name="src">The SRC.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="count">The count.</param>
+        public static unsafe void Swap32(byte* src, int offset, int count)
+        {
+            var p = src + offset;
+            while (count-- > 0)
+            {
+                var a = *p;
+                ++p;
+                var b = *p;
+                *p = *(p + 1);
+                ++p;
+                *p = b;
+                ++p;
+                *(p - 3) = *p;
+                *p = a;
+            }
+        }
+        #endregion
+
+        #region 64 Bits
+
+        /// <summary>
+        /// Swaps the endianness.
+        /// </summary>
+        /// <param name="array">The array.</param>
+        public static void SwapEndianness(this long[] array)
+        {
+            unsafe
+            {
+                fixed (void* arr = array)
+                    Swap64((byte*)arr, 0, array.Length);
+            }
+        }
+
+        /// <summary>
+        /// Swaps the endianness.
+        /// </summary>
+        /// <param name="array">The array.</param>
+        public static void SwapEndianness(this ulong[] array)
+        {
+            unsafe
+            {
+                fixed (void* arr = array)
+                    Swap64((byte*)arr, 0, array.Length);
+            }
+        }
+
+        public static long SwapEndianness(this long value)
+        {
+            unsafe
+            {
+                Swap64((byte*)&value, 0, 1);
+            }
+            return value;
+        }
+
+        public static ulong SwapEndianness(this ulong value)
+        {
+            unsafe
+            {
+                Swap64((byte*)&value, 0, 1);
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// Swaps the endianness of a 64 bit integer at the specified byte offset.
+        /// </summary>
+        /// <param name="src">The SRC.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="count">How many integers to swap.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">offset</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">count</exception>
+        public static void SwapInt64Endianness(this byte[] src, int offset = 0, int count = 1)
+        {
+            if (offset >= src.Length) throw new ArgumentOutOfRangeException(nameof(offset));
+            if (offset + count * 8 >= src.Length) throw new ArgumentOutOfRangeException(nameof(count));
+            unsafe
+            {
+                fixed (byte* arr = src)
+                    Swap64(arr, offset, count);
+            }
+        }
+
+        /// <summary>
+        /// Swaps the endianness of 64 bit integers starting at the specified byte offset, processing <param name="count"/> full 64 bit integers (Bytes X 8).
+        /// </summary>
+        /// <param name="src">The SRC.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="count">The count.</param>
+        public static unsafe void Swap64(byte* src, int offset, int count)
+        {
+            var p = src + offset;
+            while (count-- > 0)
+            {
+                var a = *p;
+                var b = *(p + 1);
+                *p = *(p + 7);
+                *(p + 7) = a;
+                ++p;
+                *p = *(p + 5);
+                *(p + 5) = b;
+                ++p;
+                a = *p;
+                b = *(p + 1);
+                *p = *(p + 3);
+                *(p + 3) = a;
+                ++p;
+                *p = *(p + 1);
+                *(p + 1) = b;
+            }
+        }
+        #endregion
     }
 }
